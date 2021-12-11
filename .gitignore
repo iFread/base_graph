@@ -1,3 +1,7 @@
 build/
 main
-
+window.h
+window.cpp
+dist/
+Graph.h
+Graph.cpp
