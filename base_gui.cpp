@@ -1,15 +1,5 @@
 #include "base_gui.h"
-
-int nod(int a,int b)
-{
-    while(a!=b)
-    {
-        if(a>b)
-            a-=b;
-        else b-=a;
-    }
-    return a;
-}
+#include <iostream>
 
 //bool Point<>::operator==(const Point &p) const
 //{
@@ -26,7 +16,7 @@ void Shape::draw()
     fl_line_style(ls.style(),ls.width());
 
 }
-// поиск НОД для чисел
+// поиск НОД для чисел?????
 
 
 //Line::Line(Point p1,Point p2)
@@ -35,8 +25,8 @@ void Shape::draw()
 //b=p2.x-p1.x  ;
 //c=p1.x*p2.y-p2.x*p1.y;
 // // сократить на кратное
-////найти общий делитель чискл a,b,c
-////т.к. числа вещественные, нужно округлить их до какого то приемлимого значения
+//// найти общий делитель чискл a,b,c
+//// т.к. числа вещественные, нужно округлить их до какого то приемлимого значения
 
 
 //}
@@ -171,4 +161,62 @@ Axis::Axis(Point<int> p,int lng,int st): Lines(OneLines) ,length(lng),step(st)
 
   }
 
+ }
+ // здесь нужно пересечение отрезков, а не прямых
+ bool Pologon::add(Point<int> p)
+ { bool flag=true; //
+   // в цикле проходим все стороны и проверяем, что line_t (size-1,p)
+      //
+     if(size()<3)
+ {        add_point(p);
+         return true;  }
+
+   std::cout<<"size : "<<size()<<std::endl;
+     line_t ln(point_t(point(size()-1).x,point(size()-1).y),point_t(p.x,p.y));  // создаем линию, из последней точки и данной точки
+  //point_t pt;//(p.x,p.y);
+ // перебирая все точки попарно( по отрезкам которые они образовывают), смотрим разделяет линия эти точки,
+     // если разделяет, какую либо пару точек, то возвращает false, точка не добавляется
+  //// возможно, следует добавить точку в первое возможное положение, т.е. найти линию, которая разделяет добавляемую точку от всех остальных
+  /// и вставить точку разделив линию на 2
+  ///
+
+     for(unsigned i=1;i<size()-1;++i)
+   {
+   // if(ln.intersect(line_t(point_t(point(i-1).x,point(i-1).y),point_t(point(i).x,point(i).y))))
+         if(ln.separates(point_t(point(i-1).x,point(i-1).y),point_t(point(i).x,point(i).y)))
+       flag=false ;
+   }
+   if(flag)
+       Lines::add_point(p);
+   std::cout<<"size : "<<size()<<std::endl;
+
+     return flag;
+ }
+
+ Rectangle::Rectangle(Point<int> xy, int ww,int hh):Lines{ClosedLines},w(ww),h(hh)
+ {
+     if(w<=0||h<=0)
+          error("Ошибка, неположительная сторона");
+    Lines::add_point(xy);
+ }
+
+ Rectangle::Rectangle(Point<int> lt, Point<int> rb): Lines{ClosedLines},w(rb.x-lt.x),h(rb.y-lt.y)
+ {
+     if(h<=0||w<=0)
+         error("Ошибка : первая точка не верхняя левая");
+     Lines::add_point(lt);
+
+ }
+
+ void Rectangle::draw()
+ { Shape::draw();
+     if(fill_color().visibility()){
+             fl_color(fill_color().as_int());
+             fl_rectf(point(0).x,point(0).y,w,h);
+ }
+     if(color().visibility())
+     {
+      fl_color(color().as_int());
+      fl_rect(point(0).x,point(0).y,w,h);
+     }
  }

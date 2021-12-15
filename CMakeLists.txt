@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project (test_fltk)
-set(SOURCES main.cpp base_gui.cpp) # Graph.cpp window.cpp
+set(SOURCES main.cpp base_gui.cpp base_data.cpp my_timer.cpp) # Graph.cpp window.cpp
 set(CMAKE_FLAGS "{CMAKE_FLAGS} -std=c++11 ")
 #LINK_DIRECTORIES(${SOURCES} /usr/lib/fltk)
 

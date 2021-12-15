@@ -6,6 +6,9 @@
 #include <exception>
 #include "base_gui.h"
 #include <vector>
+#include "base_data.h"
+#include "my_timer.h"
+
 //#include <gtk/gtk.h>
 
 //using namespace:: Graph_lib;
@@ -56,6 +59,12 @@ int two_lines();
 void lines_use();
 void test_axis();
 
+
+void test_line();
+void test_timer();
+void test_poli();
+void test_flrect();
+
 int main(int argv,char* argc[])
 {
 
@@ -80,8 +89,69 @@ int main(int argv,char* argc[])
  //win.show();
 // return  Fl::run();
 //lines_use();
- test_axis();
+ //test_axis();
+  //  std::cout<<"Hello_World\n";
+ // test_line();
+   //test_poli();
+   test_flrect();
     return 0;
+}
+void test_flrect()
+{
+    Fl_Window win(640,480,"Test rectangle");
+Point<int> x(100,100);
+    Rectangle rect(x,100,100);
+
+
+    win.show();
+  Fl::run();
+
+}
+
+void test_poli()
+{ Fl_Window win(600,400,"Use_lines");
+    Point<int> x(100,100);
+Point<int> y(200,200);
+Point<int> z(100,300);
+Pologon plg;
+plg.add(x);
+plg.add(y);
+plg.add(z);
+
+plg.add(Point<int>(50,150));
+
+win.show();
+Fl::run();
+}
+
+
+void test_timer()
+{
+
+
+}
+
+void test_line()
+{
+ int a;
+
+ a= std::rand()%100+1;
+int fa=100.,fb=50.;
+
+
+std::vector<line_t> vec;
+my_timer t1;
+for(int i=0;i<10000;i++)
+{
+   a= std::rand()%200+1;
+fa=fa+a/a;
+fb=fb-a/a;
+vec.push_back(line_t(point_t{(float)fa-fb,(float)fb+fa},point_t{float(fa-fb),float(fb-fa)}));
+
+}
+std::cout<<t1.elapsed()<<std::endl;
+    line_t ln(point_t{1,1},point_t{4,3});
+ln.print();
 }
 
 void test_axis()
