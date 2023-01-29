@@ -5,3 +5,4 @@ window.cpp
 dist/
 Graph.h
 Graph.cpp
+CMakeLists.txt.user
