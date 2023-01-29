@@ -1,26 +1,14 @@
-cmake_minimum_required(VERSION 3.8)
-project (test_fltk)
-set(SOURCES main.cpp base_gui.cpp base_data.cpp my_timer.cpp) # Graph.cpp window.cpp
-set(CMAKE_FLAGS "{CMAKE_FLAGS} -std=c++11 ")
-#LINK_DIRECTORIES(${SOURCES} /usr/lib/fltk)
+cmake_minimum_required(VERSION 3.5)
 
-#set(DIST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dist")
-#set(FLTK "${DIST_DIR}/FLTK")
+project(modify_shape LANGUAGES CXX)
 
-set(FLTK_DIR /usr/lib/fltk-1.4/build)
-#if(NOT IS_DIRECTORY ${FLTK})
- # message("Starting add FLTK library...")
- #execute_process(COMMAND git clone https://github.com/fltk/fltk.git ${CMAKE_CURRENT_SOURCE_DIR}/dist/FLTK)
- # execute_process(COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}/dist/FLTK)
-#endif()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include_directories("${PROJECT_SOURCE_DIR}/inc")
 
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR} /dist/FLTK)
+file(GLOB CPP1 "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-#add_executable(keyplay ${CMAKE_CURRENT_SOURCE_DIR} main.cpp)
 
-#find_library(LibFltk libfltk.a PATHS ${CMAKE_CURRENT_SOURCE_DIR}/dist/FLTK)
-add_executable (main   ${SOURCES} )
 
-#target_link_libraries(keyplay ${LibFltk})
-
-target_link_libraries(main  fltk fltk_images)
+add_executable(${PROJECT_NAME}  main.cpp ${CPP1})
+target_link_libraries(${PROJECT_NAME} fltk)
