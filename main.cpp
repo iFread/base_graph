@@ -1,13 +1,13 @@
 #include <iostream>
 #include "base_graph.h"
-
+#include "window.h"
 
 
 using namespace std;
 
 int main()
 {
-
+    Graph::window win(Graph::Point{100,100},100,100,"test");
     Graph::Shape sh;
 
     for(int i=0;i<100;i++)
@@ -15,7 +15,7 @@ int main()
     sh.add({i,i+1});
     }
 sh->x()=-50;
-std::cout<<"point "<<sh[10]->x()<<" "<<sh[10]->y()<<"\n";
+std::cout<<"point "<<sh[10].x()<<" "<<sh[10].y()<<"\n";
     sh.trace(std::cout);
 
     Graph::Shape sh2;

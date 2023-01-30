@@ -78,6 +78,8 @@ Vertex_list(Vertex_list&& cv);
 
 // Это все нужно убрать отсюда
 // Интерфейс работы с Vertex
+ // добавление точек должно быть доступно только в полигоне
+// но не для уже определенных фигур, как прямоугольник, окружность и т.д.
 void add(Point p) {if(ptr)
          ptr->insert(new Vertex(p));
          else ptr=new Vertex(p);
@@ -137,7 +139,7 @@ Vertex_list v;
 public:
 
 Shape(){}
-//~Shape(){}
+ virtual ~Shape(){}
 void add(Point p){v.add(p);}
 void trace(std::ostream &os){
     Vertex*vp=v->cv();//reinterpret_cast<Vertex*>(v->next());
@@ -152,7 +154,10 @@ vp->ccv()->trace(os);
 }
 Vertex_list& operator->(){return v;}
 
-Vertex*operator[](int i){
+// доступ к вершине осуществляется через квадратные скобки.
+// но изменить значение вершины не позволяет, т.к.
+// вершина образует фигуру, и менять ее значение просто так нельзя
+Point operator[](int i){
    //if(i<size)     // size должен быть определен у vertex_list, т.к. за точки отвечает vertex_list
     //   return v->ccv();
    int cnt=0;
@@ -161,7 +166,24 @@ Vertex*operator[](int i){
        pv=pv->cv();
    cnt++;
    }
-    return pv;}
+    return *pv;}
+
+
+virtual void draw_lines()const=0 ;
+
+void draw()const;
+
+
+};
+
+
+class line:public Shape{
+
+public:
+ line(Point a,Point b);
+
+ void draw_lines()const;
+
 };
 
 

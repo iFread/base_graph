@@ -42,6 +42,13 @@ Vertex* Vertex_list::remove()
  return nullptr;
 }
 
+
+//*****************************
+
+void Shape:: draw()const{}
+
+
+ void Shape:: draw_lines()const{}
 }
 
 

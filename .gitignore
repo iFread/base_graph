@@ -1,5 +1,5 @@
 build/
-trush/
+#trush/
 main
 window.h
 window.cpp
