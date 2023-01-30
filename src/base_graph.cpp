@@ -1,5 +1,6 @@
 #include "base_graph.h"
 
+
 namespace Graph {
 
 // добавляем к последней вершине, перед собой
@@ -45,10 +46,26 @@ Vertex* Vertex_list::remove()
 
 //*****************************
 
-void Shape:: draw()const{}
+void Shape:: draw()const{
+
+      Fl_Color old=fl_color();
+        fl_color(lcolor.as_int());
+        fl_line_style(ls.style(),ls.width());
+        draw_lines();
+        fl_color(old);
+        fl_line_style(0);
+    }
 
 
- void Shape:: draw_lines()const{}
+ void Shape:: draw_lines()const{
+     Vertex *w= this->v(); // no const
+     for(;w->cv()!=v;w=w->cv())
+     {
+       fl_line(w->_x,w->_y,w->cv()->_x,w->cv()->_y);
+     }
+
+
+ }
 }
 
 

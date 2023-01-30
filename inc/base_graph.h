@@ -1,7 +1,7 @@
 #ifndef BASE_GRAPH_H
 #define BASE_GRAPH_H
  #include <iostream>
-
+#include "gui_attributes.h"
 namespace Graph {
 
 
@@ -133,6 +133,10 @@ class Shape {
  //  std::vector<Vertex*> v;
 Vertex_list v;
 //Vertex* cur{nullptr};
+Color lcolor{Fl_Color()};
+  Line_style ls{0};
+  Color fcolor{Color::invisible};
+
 /*
  begin() - end();
 */
