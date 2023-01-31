@@ -42,7 +42,19 @@ Vertex* Vertex_list::remove()
      return  (Vertex*)ptr->prev()->remove();
  return nullptr;
 }
+//********************
+Vertex_list& Vertex_list:: operator=(const Vertex_list& cv)
+{
+    this->size_=cv.size_;
+    //remove();  // нужно удалить все существующие точки
+   clear(); //
+    for(int i=0;i<size();++i){
 
+       add(*cv[i]);
+     }
+
+    return *this;
+}
 
 //*****************************
 
@@ -56,14 +68,18 @@ void Shape:: draw()const{
         fl_line_style(0);
     }
 
-
- void Shape:: draw_lines()const{
-     Vertex *w= this->v(); // no const
-     for(;w->cv()!=v;w=w->cv())
-     {
-       fl_line(w->_x,w->_y,w->cv()->_x,w->cv()->_y);
-     }
-
+// здесь const  метод, он не может вызывать не константные методы
+ void Shape:: draw_lines()const {
+     //const  Vertex * w=v->v(); // no const
+//     for(;v->v();)//;v->cv()!=v->v();w=w->cv())
+//     {
+//       fl_line(w->_x,w->_y,w->cv()->_x,w->cv()->_y);
+//     }
+ //* * * *
+for(int i=1;i<v.size();i++) // перемещение
+{
+  fl_line(v[i-1]->x(),v[i-1]->y(),v[i]->x(),v[i]->y());
+}
 
  }
 }

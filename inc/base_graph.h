@@ -51,9 +51,14 @@ public:
         *reinterpret_cast<Point*>(this) =v.content();
          return *this;
      }
-    Vertex* v(){return this;}
-     Vertex* ccv(){return reinterpret_cast<Vertex*>(prev());}
-     Vertex*cv(){return reinterpret_cast<Vertex*>(next());}
+
+    // const Vertex* v()const {return this;}
+   //  const Vertex* ccv() const {return reinterpret_cast<Vertex*>(this->Node::prev());}
+   //  const Vertex*cv() const {return reinterpret_cast<Vertex*>(next());}
+     Vertex* v() {return this;}
+     Vertex* ccv() {return reinterpret_cast<Vertex*>(prev());}
+     Vertex*cv() {return reinterpret_cast<Vertex*>(next());}
+
 
      void trace(std::ostream &os){
        // Vertex*p=reinterpret_cast<Vertex*>(ptr->next()) ;
@@ -70,12 +75,15 @@ public:
 class Vertex_list{
 
 Vertex* ptr;
+int size_;
 public:
-Vertex_list():ptr(nullptr){}
+Vertex_list():ptr(nullptr),size_(0){}
 Vertex_list(const Vertex_list& cv);
 Vertex_list(Vertex_list&& cv);
 
+Vertex_list& operator=(const Vertex_list& cv);
 
+Vertex_list& operator=(Vertex_list&& vl);
 // Это все нужно убрать отсюда
 // Интерфейс работы с Vertex
  // добавление точек должно быть доступно только в полигоне
@@ -83,12 +91,14 @@ Vertex_list(Vertex_list&& cv);
 void add(Point p) {if(ptr)
          ptr->insert(new Vertex(p));
          else ptr=new Vertex(p);
+     std::cout<<"insert "<<p.x()<<", "<<p.y()<<"\n";
+                   size_++;
                   }
 // -->  void add(Point p);   -->   // нужно добавлять вершину после определенной вершины
 
 void add(const Vertex *v, Point p); //добавить вершину, после ,v
 Vertex* remove();
-
+int size()const {return size_;}
 //void trace(std::ostream &os){
 //   Vertex*p=reinterpret_cast<Vertex*>(ptr->next()) ;
 //   while (p!=ptr)
@@ -100,8 +110,45 @@ Vertex* remove();
 
 
 
+ Vertex* operator[](int i){
+  int cnt=0; // cnt =i<size?i:size-1;
+  Vertex*w=ptr;
 
+  while(cnt<i) // while(cnt--){}
+     {
+ w=w->cv();
+  cnt++;
+  }
 
+     return w;}
+
+ Vertex* operator[](int i) const{
+     Vertex*w=ptr;
+   int cnt=(i<size())?i:size();
+//  std::cout<<"cnt = "<<cnt<<"\n";
+   while(cnt > 0) // while(cnt--){}
+        {
+
+    w=w->cv();
+cnt--;
+     }
+ //std::cout<<"cnt = "<<cnt<<"\n";
+
+ //  std::cout<<"w = "<<w->x()<<", "<<w->y()<<"\n";
+   return w;
+   }
+
+ void clear(){
+     Vertex*p=ptr->ccv();
+     while (p!=ptr)
+     {
+      delete p->remove();
+   p=ptr->ccv();
+     }
+   delete ptr;
+
+ptr=nullptr;
+ }
 Vertex* operator->(){return ptr;}
 
 //пройти по всему списку, и удалить вершины
@@ -109,6 +156,7 @@ Vertex* operator->(){return ptr;}
 
 ~Vertex_list(){
 //    Vertex *p=ptr->ccv();
+  if(ptr) {
     Vertex*p=ptr->ccv();
     while (p!=ptr)
     {
@@ -116,7 +164,7 @@ Vertex* operator->(){return ptr;}
   p=ptr->ccv();
     }
   delete ptr;
- }
+ }}
 
 };
 
@@ -142,10 +190,16 @@ Color lcolor{Fl_Color()};
 */
 public:
 
-Shape(){}
+Shape(){std::cout<<"default shape\n";}
+Shape(const Shape& sp)
+{
+    v=sp.v;
+ std::cout<<"shape\n";
+
+}
  virtual ~Shape(){}
 void add(Point p){v.add(p);}
-void trace(std::ostream &os){
+void trace(std::ostream &os) {
     Vertex*vp=v->cv();//reinterpret_cast<Vertex*>(v->next());
 while(true){
  vp->ccv()->trace(os);
@@ -161,21 +215,26 @@ Vertex_list& operator->(){return v;}
 // доступ к вершине осуществляется через квадратные скобки.
 // но изменить значение вершины не позволяет, т.к.
 // вершина образует фигуру, и менять ее значение просто так нельзя
-Point operator[](int i){
+Point operator[](int i) const {
    //if(i<size)     // size должен быть определен у vertex_list, т.к. за точки отвечает vertex_list
     //   return v->ccv();
-   int cnt=0;
-   Vertex* pv=v->v();
-   while (cnt<i) {
-       pv=pv->cv();
-   cnt++;
-   }
-    return *pv;}
+//   int cnt=0;
+//  Vertex* pv=v->v();
+//   while (cnt<i) {
+//       pv=pv->cv();
+//   cnt++;
+//   }
+
+//Point p=*v[i];
+    return *(v[i]);
+ }
+
+int size()const {return v.size();}
+void draw() const;
+protected:
+virtual void draw_lines() const ;
 
 
-virtual void draw_lines()const=0 ;
-
-void draw()const;
 
 
 };

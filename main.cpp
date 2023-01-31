@@ -7,8 +7,24 @@ using namespace std;
 
 int main()
 {
+
+{    Graph::window win({100,100},300,400,"test");
+  Graph::Shape* sh2=  new Graph::Shape;
+
+    sh2->add({200,200});
+      sh2->add({100,100});
+     sh2->add({200,300});
+
+
+
+  win.attach(*sh2);
+
+//sh2.trace(std::cout);
+     /*
     Graph::window win(Graph::Point{100,100},100,100,"test");
     Graph::Shape sh;
+
+
 
     for(int i=0;i<100;i++)
     {
@@ -24,6 +40,11 @@ std::cout<<"point "<<sh[10].x()<<" "<<sh[10].y()<<"\n";
     sh2.add({-100,-200});
  //   sh->operator=(sh2->content());
  sh2.trace(std::cout);
- sh->ccv()->trace(std::cout);
-    return 0;
-}
+ sh->ccv()->trace(std::cout);*/
+  Graph::gui_run();
+  delete sh2;
+    }
+
+  return 0;
+
+    }
