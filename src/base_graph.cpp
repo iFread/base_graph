@@ -56,6 +56,21 @@ Vertex_list& Vertex_list:: operator=(const Vertex_list& cv)
     return *this;
 }
 
+
+Vertex_list::Vertex_list(Vertex_list&& cv):ptr(cv.ptr),size_(cv.size_){
+ // move ptr;
+cv.ptr=nullptr;
+}
+
+Vertex_list& Vertex_list::operator=(Vertex_list&& vl)
+{int tmp_sz=size_;
+       size_=vl.size_;
+   vl.size_=tmp_sz;
+  Vertex*tmp=ptr;
+ptr=vl.ptr;
+vl.ptr=tmp;
+    return *this;
+}
 //*****************************
 
 void Shape:: draw()const{
@@ -82,6 +97,11 @@ for(int i=1;i<v.size();i++) // перемещение
 }
 
  }
+
+ void line::draw_lines()const{
+     Shape::draw_lines();
+ }
+
 }
 
 

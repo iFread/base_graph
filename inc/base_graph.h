@@ -197,6 +197,12 @@ Shape(const Shape& sp)
  std::cout<<"shape\n";
 
 }
+Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor)
+{
+
+
+}
+
  virtual ~Shape(){}
 void add(Point p){v.add(p);}
 void trace(std::ostream &os) {
@@ -243,7 +249,9 @@ virtual void draw_lines() const ;
 class line:public Shape{
 
 public:
- line(Point a,Point b);
+    line(Point a,Point b):Shape(){
+        add(a);add(b);
+                                 }
 
  void draw_lines()const;
 

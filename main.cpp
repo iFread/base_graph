@@ -9,15 +9,17 @@ int main()
 {
 
 {    Graph::window win({100,100},300,400,"test");
-  Graph::Shape* sh2=  new Graph::Shape;
+  //Graph::Shape* sh2=  new Graph::Shape;
 
-    sh2->add({200,200});
-      sh2->add({100,100});
-     sh2->add({200,300});
+        Graph::Point p={0,0};
+          for(int i=0;i<200;i++)
+          {
+           int x_=rand()%600+1;
+           int y=rand()%500+1;
+           win.attach(Graph::line{p,{x_,y}});
+           p={x_,y};
 
-
-
-  win.attach(*sh2);
+          }
 
 //sh2.trace(std::cout);
      /*
@@ -42,7 +44,8 @@ std::cout<<"point "<<sh[10].x()<<" "<<sh[10].y()<<"\n";
  sh2.trace(std::cout);
  sh->ccv()->trace(std::cout);*/
   Graph::gui_run();
-  delete sh2;
+
+  //delete sh2;
     }
 
   return 0;
