@@ -60,17 +60,91 @@ Vertex_list& Vertex_list:: operator=(const Vertex_list& cv)
 Vertex_list::Vertex_list(Vertex_list&& cv):ptr(cv.ptr),size_(cv.size_){
  // move ptr;
 cv.ptr=nullptr;
+cv.size_=0;
 }
 
 Vertex_list& Vertex_list::operator=(Vertex_list&& vl)
-{int tmp_sz=size_;
+{
+   if(this==&vl)
+       return *this;
+
+    int tmp_sz=size_;
        size_=vl.size_;
    vl.size_=tmp_sz;
   Vertex*tmp=ptr;
-ptr=vl.ptr;
+ ptr=vl.ptr;
 vl.ptr=tmp;
+
     return *this;
 }
+
+void Vertex_list::clear()
+{
+    Vertex*p=ptr->ccv();
+    while (p!=ptr)
+    {
+     delete p->remove();
+  p=ptr->ccv();
+    }
+  delete ptr;
+
+ptr=nullptr;
+}
+
+Vertex_list::~Vertex_list()
+{
+//    Vertex *p=ptr->ccv();
+  if(ptr) {
+    Vertex*p=ptr->ccv();
+    while (p!=ptr)
+    {
+     delete p->remove();
+  p=ptr->ccv();
+    }
+  delete ptr;
+ }}
+
+
+void Vertex_list::add(Point p)
+{if(ptr)
+         ptr->insert(new Vertex(p));
+         else ptr=new Vertex(p);
+     std::cout<<"insert "<<p.x()<<", "<<p.y()<<"\n";
+                   size_++;
+                  }
+
+Vertex* Vertex_list::operator[](int i)
+{
+ int cnt=(i<size_)?i:size_;
+ Vertex*w=ptr;
+
+ while(cnt>0) // while(cnt--){}
+ {
+ w=w->cv();
+ cnt--;
+ }
+
+    return w;}
+
+  Vertex* Vertex_list::operator[](int i) const
+{
+     Vertex*w=ptr;
+   int cnt=(i<size())?i:size();
+//  std::cout<<"cnt = "<<cnt<<"\n";
+   while(cnt > 0) // while(cnt--){}
+        {
+
+    w=w->cv();
+cnt--;
+     }
+ //std::cout<<"cnt = "<<cnt<<"\n";
+
+ //  std::cout<<"w = "<<w->x()<<", "<<w->y()<<"\n";
+   return w;
+   }
+
+
+
 //*****************************
 
 void Shape:: draw()const{

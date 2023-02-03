@@ -16,7 +16,7 @@ int main()
           {
            int x_=rand()%600+1;
            int y=rand()%500+1;
-           win.attach(Graph::line{p,{x_,y}});
+           win.attach(Graph::line{{p.x()+1,p.y()+1},{x_,y}});
            p={x_,y};
 
           }
