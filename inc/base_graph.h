@@ -126,7 +126,7 @@ Vertex_list v;
 
 public:
 
-Shape(){std::cout<<"default shape\n";}
+Shape(Point a):v(){v.add(a);std::cout<<"default shape\n";}
 // определить copy operator=()
 Shape(const Shape& sp):v(sp.v) {}
 Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor)
@@ -167,8 +167,8 @@ virtual void draw_lines() const ;
 class line:public Shape{
 
 public:
-    line(Point a,Point b){
-        add(a);add(b);
+    line(Point a,Point b):Shape(a){
+        add(b);
                                  }
 
  void draw_lines()const;
