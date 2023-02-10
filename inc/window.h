@@ -22,8 +22,22 @@ public:
     window(Point p,int w,int h,const char* s);
 void draw()override;
 virtual ~window() ;
-void attach(Shape& sh);
- void attach(Shape &&sh) ; // void attach(Shape*)
+
+
+template<typename T>
+void attach(T &&sh) {   //  rect & &&
+
+own_shapes.push_back(new T(std::move(sh)));
+}
+
+ template<typename  T>
+void attach(T& sh)
+{ // нужно добавлять наследника
+ shapes.push_back(&sh);
+}
+
+
+// void attach(Shape*)
 void detach(Shape& sh);
 void detach(Shape&& sh); // сравнение sh
 };

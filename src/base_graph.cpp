@@ -1,5 +1,5 @@
 #include "base_graph.h"
-
+#include <typeinfo>
 
 namespace Graph {
 
@@ -43,13 +43,18 @@ Vertex* Vertex_list::remove()
  return nullptr;
 }
 //********************
+Vertex_list::Vertex_list(const Vertex_list& cv){
+for(int i=0;i<cv.size();++i){
+   add(*cv[i]);
+}
+
+}
 Vertex_list& Vertex_list:: operator=(const Vertex_list& cv)
 {
-    this->size_=cv.size_;
+  //  this->size_=cv.size_;
     //remove();  // нужно удалить все существующие точки
    clear(); //
     for(int i=0;i<size();++i){
-
        add(*cv[i]);
      }
 
@@ -153,6 +158,7 @@ void Shape:: draw()const{
         fl_color(lcolor.as_int());
         fl_line_style(ls.style(),ls.width());
         draw_lines();
+
         fl_color(old);
         fl_line_style(0);
     }
@@ -165,6 +171,7 @@ void Shape:: draw()const{
 //       fl_line(w->_x,w->_y,w->cv()->_x,w->cv()->_y);
 //     }
  //* * * *
+  std::cout<<typeid (this).name()<<"\n";
 for(int i=1;i<v.size();i++) // перемещение
 {
   fl_line(v[i-1]->x(),v[i-1]->y(),v[i]->x(),v[i]->y());
@@ -173,7 +180,45 @@ for(int i=1;i<v.size();i++) // перемещение
  }
 
  void line::draw_lines()const{
-     Shape::draw_lines();
+ //    Shape::draw_lines();
+     for(int i=1;i<v.size();i++) // перемещение
+     {
+       fl_line(v[i-1]->x(),v[i-1]->y(),v[i]->x(),v[i]->y());
+     }
+ }
+
+//***************************lines
+ void lines::draw_lines()const{
+for(int b=1,e= (type_==close_line)?v.size():v.size()-1;b<=e;++b) // на последней вершине так же итерируемся
+{
+if(type_==close_line && b==e ) {
+    fl_line(v[0]->x(),v[0]->y(),v[b-1]->x(),v[b-1]->y());
+    break;
+}
+fl_line(v[b-1]->x(),v[b-1]->y(),v[b]->x(),v[b]->y());
+ }
+ }
+
+ //******************
+ rectangle::rectangle(Point a,Point b):Shape(a)
+{ // добавляет еще три вершины
+add({b.x(),a.y()});
+add(b);
+add({a.x(),b.y()});
+}
+ void rectangle::draw_lines() const
+ {    std::cout<<typeid (this).name()<<"\n";
+    std::cout<<"size is "<<v.size()<<"\n";
+     for(int b=1,e=  v.size()+1;b<=e;++b) // на последней вершине так же итерируемся
+     {
+     if(b==e ) {
+         fl_line(v[0]->x(),v[0]->y(),v[b-1]->x(),v[b-1]->y());
+         break;
+     }
+     fl_line(v[b-1]->x(),v[b-1]->y(),v[b]->x(),v[b]->y());
+     std::cout<<"iteration\n";
+     }
+
  }
 
 }

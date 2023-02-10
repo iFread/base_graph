@@ -76,7 +76,7 @@ public:
 class Vertex_list{
 
 Vertex* ptr;
-int size_;
+int size_{0};
 public:
 Vertex_list():ptr(nullptr),size_(0){}
 Vertex_list(const Vertex_list& cv);
@@ -119,7 +119,8 @@ void clear();
 
 
 class Shape {
-Vertex_list v;
+protected: // но это не точно
+    Vertex_list v;
    Color lcolor{Fl_Color()};
   Line_style ls{0};
   Color fcolor{Color::invisible};
@@ -128,15 +129,16 @@ public:
 
 Shape(Point a):v(){v.add(a);std::cout<<"default shape\n";}
 // определить copy operator=()
+//Shape(const Shape&)=delete;
 Shape(const Shape& sp):v(sp.v) {}
 Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor)
-{}
+{std::cout<<"move ctor\n";}
 
 
 virtual ~Shape(){}
 
 
-void add(Point p){v.add(p);}
+
 void trace(std::ostream &os) {
     Vertex*vp=v->cv();//reinterpret_cast<Vertex*>(v->next());
 while(true){
@@ -154,16 +156,16 @@ Vertex_list& operator->(){return v;}
 Point operator[](int i) const { return *(v[i]); }
 
 int size()const {return v.size();}
-void draw() const;
+ void draw() const;
 protected:
-virtual void draw_lines() const ;
-
+virtual void draw_lines() const=0;
+void add(Point p){v.add(p);} // virtual???
 
 
 
 };
 
-
+ // одиночная линия
 class line:public Shape{
 
 public:
@@ -175,18 +177,28 @@ public:
 
 };
 
-
+// линии от них наследуются полигон и ломанная линия
 class lines:public Shape
-{
+{  enum line_type :uint8_t {open_line,close_line};
 public:
-    enum line_type :uint8_t {single_line, open_line,close_line};
 
+    lines(Point a):Shape(a),type_(line_type::open_line){}             // ломанная
+    lines(Point a,Point b):Shape(a),type_(line_type::close_line){add(b);}  // полигон
+   void add(Point p){Shape::add(p);}
+   void draw_lines()const;
 private:
 line_type type_;
+
 };
 
 
+class rectangle:  public Shape
+{
 
+public:
+    rectangle(Point a,Point b);
+void draw_lines() const;
+};
 
 
 
