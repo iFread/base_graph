@@ -2,22 +2,11 @@
 #define BASE_GRAPH_H
  #include <iostream>
 #include "gui_attributes.h"
+#include "point.h"
 namespace Graph {
 
 
-class Point{
 
-  int x_,y_;
-
-public:
-  Point (int x,int y):x_(x),y_(y){}
-  Point():x_(-9999),y_(-9999) {}
-  bool isValid()const {if(x_==-9999||y_==-9999) return false; return true;}
- int &x(){return x_;}
- int& y(){return y_;}
-
-  virtual ~Point(){}
-};
 
 class Node{
 
@@ -179,11 +168,12 @@ public:
 
 // линии от них наследуются полигон и ломанная линия
 class lines:public Shape
-{  enum line_type :uint8_t {open_line,close_line};
+{ protected:
+    enum line_type :uint8_t {open_line,close_line};
 public:
 
-    lines(Point a):Shape(a),type_(line_type::open_line){}             // ломанная
-    lines(Point a,Point b):Shape(a),type_(line_type::close_line){add(b);}  // полигон
+    lines(Point a,line_type tp=open_line):Shape(a),type_(tp){}//line_type::open_line){}             // ломанная
+  //  lines(Point a,Point b):Shape(a),type_(line_type::close_line){add(b);}  // полигон
    void add(Point p){Shape::add(p);}
    void draw_lines()const;
 private:
@@ -198,6 +188,15 @@ class rectangle:  public Shape
 public:
     rectangle(Point a,Point b);
 void draw_lines() const;
+};
+
+
+class poligon:public lines{
+
+public:
+    poligon(Point a):lines(a,lines::close_line){}
+    void add(Point o);
+
 };
 
 

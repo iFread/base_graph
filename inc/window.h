@@ -9,7 +9,7 @@
 namespace Graph {
 
 //using common::Point;
-class Point;
+//class Point;
 
 inline int gui_run(){return Fl::run();}
 

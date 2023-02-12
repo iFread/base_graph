@@ -3,9 +3,10 @@
 // определяет общие атрибуты для программы :
 // Цвет, тип линий, характеристики текста и шрифты
 // возможно продолжить
-#include <Fl/Fl.H>
-#include <FL/fl_draw.H>
-#include <Fl/Fl_Window.H>
+
+ #include <FL/fl_draw.H>
+//#include <Fl/Fl.H>
+//#include <Fl/Fl_Window.H>
 
 namespace Graph
 {
