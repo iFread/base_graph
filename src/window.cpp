@@ -9,20 +9,22 @@ window::window(Point p,int w,int h,const char*s):Fl_Window(p.x(),p.y(),w,h,s),w_
 Fl_Window::show();
 }
 window::~window(){
-   for(Shape* s:own_shapes)
-   delete s;
+//   for(Shape* s:own_shapes)
+//   delete s;
 //  own_shapes.clear();
+//   for(Widget*w :wid)
+//       delete w;
 
 }
 
 void window::draw()
 {
     Fl_Window::draw();
-   for(auto &sh: shapes)
-       sh->draw();
-    for(auto *sh: own_shapes)
-       sh->draw();
-std::cout<<shapes.size()<<"\n"<<own_shapes.size()<<"\n";
+//   for(auto &sh: shapes)
+//       sh->draw();
+//    for(auto *sh: own_shapes)
+//       sh->draw();
+//std::cout<<shapes.size()<<"\n"<<own_shapes.size()<<"\n";
   //  redraw();
 }
 // здесь нужно определить конструктор для класса

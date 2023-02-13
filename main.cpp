@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "base_graph.h"
 #include "window.h"
+#include "base_gui.h"
 #include "math_primitives.h"
 
 using namespace std;
@@ -43,6 +44,10 @@ void show_area(area_t ar)
 
 int main()
 {
+
+
+  //Graph::Widget wg;
+
 vector2d ln1(Point(6,6 ),Point(1,1));
 //ln1.show(std::cout);
 if(ln1.contain({5,5}))
@@ -56,23 +61,21 @@ show_area(ln1.get_area(Point{3,2}));
 srand(time(0));
   { Graph::window win(Point{100,100},800,600,"test");
   //Graph::Shape* sh2=  new Graph::Shape;
+   Graph::Button bt({100,100},70,20,"hello");
+     win.attach(bt);
+     bt.callback([](Graph::Address,Graph::Address adr){reinterpret_cast<Graph::window*>(adr)->hide();},&win);
+//    Point p={100,100};
+//      Graph::poligon rec ({p.x()+100,p.y()+50});//,{p.x()+300,p.y()+300});
+//     win.attach(Graph::rectangle (p,{p.x()+100,p.y()+100}));
 
-      Point p={100,100};
-        Graph::poligon rec ({p.x()+100,p.y()+50});//,{p.x()+300,p.y()+300});
-     win.attach(Graph::rectangle (p,{p.x()+100,p.y()+100}));
-        //  Graph::lines ln{{p.x()+10,p.y()+10},{p.x()+100,p.y()+200}};
-      // Graph::lines ln{{p.x()+10,p.y()+10}};
-
-        for(int i=0;i<5;i++)
-          {
-           int x_=rand()%600+1;
-           int y=rand()%500+1;
-           rec.add(Point (x_,y));
-           //p={x_,y};
-
-          }
-  // win.attach(std::move(ln));
- win.attach(rec);
+//        for(int i=0;i<5;i++)
+//          {
+//           int x_=rand()%600+1;
+//           int y=rand()%500+1;
+//           rec.add(Point (x_,y));
+//           //p={x_,y};
+//          }
+// win.attach(std::move(rec));
 
 //sh2.trace(std::cout);
      /*

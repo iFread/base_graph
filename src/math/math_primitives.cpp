@@ -161,6 +161,15 @@ bool vector2d::intersect(const vector2d &other) const
 
 }
 
+Point vector2d::point_intersect(const vector2d &other) const
+{
+    Point pt=line_t(b,e).point_intersect(line_t(other.b,other.e));
+    if(pt.isValid())
+        if(get_area(pt)==INTER&& other.get_area(pt)==INTER)
+            return pt;
+    return {NAN,NAN};
+}
+
 }
 
 

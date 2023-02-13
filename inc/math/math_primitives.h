@@ -48,7 +48,7 @@ bool contain(const Point &a) const;
 quarters direction() const;
 area_t get_area(const Point &p) const;
 
-bool intersect(const vector2d & other) const;       // --
+bool intersect(const vector2d & other) const;
 Point point_intersect(const vector2d& other) const; // --
 
 };
