@@ -8,8 +8,17 @@ namespace Graph {
 class window;
 using Address= void*;
 using  Callback=void(*)(Address,Address);
-class Widget {
 
+template <typename T>
+T& reference_to(Address ptr){return  *static_cast<T*>(ptr);}
+
+
+//class Widget;
+
+//template <typename T> T& content(Address adr){ return *reinterpret_cast<T*>(adr);}
+//template <typename T> T& content2(Widget *adr){ return *reinterpret_cast<T*>(adr);}
+
+class Widget {
 
 public:
 // Widget(Fl_Widget* p=nullptr):pw(p){}
@@ -38,6 +47,7 @@ public:
   void move(int x,int y);
   int w() const {return w_;}
   int h() const {return h_;}
+  void resize(int w,int h);
   Point position() const {return loc;}
    void callback(Callback,Address);
   virtual int handle(int e) {return pw->handle(e);}
@@ -52,7 +62,30 @@ class Button:public Widget{
 public:
     Button(Point x, int w,int h,const std::string &s="",Callback cb=nullptr):Widget(x,w,h,s,cb){}
    Fl_Widget * create(Point p,int w,int h);
+   Fl_Widget& content();
+};
 
+
+
+class In_Box:public Widget{
+
+public:
+    In_Box(Point p,int w,int h, const std::string & s):Widget(p,w,h,s){}
+    Fl_Widget* create(Point p,int w,int h);
+    Fl_Widget& content();
+    int get_int() const;
+     std::string get_string() const;
+
+};
+
+class Out_Box:public Widget {
+ public:
+    Out_Box(Point p,int w,int h,const std::string &s):Widget(p,w,h,s){}
+    Fl_Widget * create(Point p,int w,int h);
+    Fl_Widget& content();
+    void put(int);
+       void put(float);
+       void put(const std::string&s);
 };
 
 }

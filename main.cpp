@@ -61,9 +61,11 @@ show_area(ln1.get_area(Point{3,2}));
 srand(time(0));
   { Graph::window win(Point{100,100},800,600,"test");
   //Graph::Shape* sh2=  new Graph::Shape;
-   Graph::Button bt({100,100},70,20,"hello");
+   Graph::In_Box bt({100,100},70,20,"hello");
      win.attach(bt);
-     bt.callback([](Graph::Address,Graph::Address adr){reinterpret_cast<Graph::window*>(adr)->hide();},&win);
+std::cout<<bt.get_int()<<"\n";
+    // bt.callback([](Graph::Address,Graph::Address adr){
+     //    std::cout<<"bye_bye\n";reinterpret_cast<Graph::window*>(adr)->hide();},&win);
 //    Point p={100,100};
 //      Graph::poligon rec ({p.x()+100,p.y()+50});//,{p.x()+300,p.y()+300});
 //     win.attach(Graph::rectangle (p,{p.x()+100,p.y()+100}));
