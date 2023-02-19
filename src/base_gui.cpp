@@ -10,14 +10,14 @@
 namespace Graph {
 
 Widget::~Widget(){
-  pw->hide();
-  delete pw;
+if(pw) pw->hide();
+ delete pw;
  }
 
 void Widget::attach(window &w)
 {
  own=&w;
-   pw=create(loc,w_,h_);
+  create(loc,w_,h_);
 
 //own->attach(pw);
 }
@@ -49,21 +49,27 @@ void Widget::callback(Callback cb,Address adr){
 
 //***************************
 
-Fl_Widget* Button::create(Point x,int w,int h)
+void Button::create(Point x,int w,int h)
 {
-    return new Fl_Button(x.x_,x.y_,w,h,label.c_str());
+    loc=x;
+    w_=w;
+    h_=h;
+   pw= new Fl_Button(x.x_,x.y_,w,h,label.c_str());
 }
 
 
-Fl_Widget& Button::content(){return *reference_to<Fl_Button*>(pw);}
+Fl_Widget& Button::content(){return reference_to<Fl_Button>(pw);}
 
 //***********************************************
-Fl_Widget * In_Box::create(Point x,int w,int h) {
- Fl_Input *p=
-     new Fl_Input(x.x(),x.y(),w,h,label.c_str());
-p->box(Fl_Boxtype:: FL_UP_FRAME  );
- p->value("27");
-return p;
+void In_Box::create(Point x,int w,int h) {
+ //Fl_Input *p=
+    loc=x;
+    w_=w;
+    h_=h;
+    pw= new Fl_Input(x.x(),x.y(),w,h,label.c_str());
+//p->box(Fl_Boxtype:: FL_UP_FRAME  );
+// p->value("27");
+//return p;
 }
 Fl_Widget &In_Box:: content(){return  reference_to<Fl_Input>(pw);}
 
@@ -71,16 +77,45 @@ int In_Box:: get_int() const{
 
    const char *s=  reference_to<Fl_Input>(pw).value();
     //return pw->;
+  // нужно проверить что строка содержит корректные числа
+   // возможно перегрузить для дробных чисел, atof()
    std::cout<<"in func, value = "<<s<<"\n";
    return  atoi(s);
 }
+std::string In_Box::get_string() const
+{
+    return reference_to<Fl_Input>(pw).value();
+}
 
 //******************************************************************
-Fl_Widget* Out_Box::create(Point p, int w, int h)
+void Out_Box::create(Point p, int w, int h)
 {
-    return new Fl_Output(p.x(),p.y(),w,h,label.c_str());
+loc=p;
+w_=w;
+h_=h;
+ //   pw= new Fl_Output(p.x(),p.y(),w,h,label.c_str());
+ //op->value("determinant");
+  // return op;
 }
 
-Fl_Widget& Out_Box::content(){return *reference_to<Fl_Output*>(pw);}
+Fl_Widget& Out_Box::content(){return  reference_to<Fl_Output>(pw);}
+
+void Out_Box::put(int n)
+{
+  reference_to<Fl_Output>(pw).value(std::to_string(n).c_str());
+}
+
+void Out_Box::put(float f){
+  reference_to<Fl_Output>(pw).value(std::to_string(f).c_str());
+}
+void Out_Box::put(const std::string &s)
+{
+  reference_to<Fl_Output>(pw).value(s.c_str());
+}
+
+
 
 }
+
+
+

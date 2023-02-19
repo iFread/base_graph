@@ -20,6 +20,9 @@ class window:public Fl_Window
 // std::vector<Shape*> own_shapes;
 
  std::vector<Widget*> wid;
+ // создание собственных виджетов, не очень удобно,
+ // для работы с ними, искать их в векторе
+ std::vector<Widget*> owns;
 int w_,h_;
 public:
     window(Point p,int w,int h,const char* s);
@@ -39,14 +42,27 @@ virtual ~window() ;
 //own_shapes.push_back(new T(std::move(sh)));
 //}
 
- template<typename T>
-void attach  (T &N){
+
+
+//template<typename T>
+//void attach(T&& w)
+//{
+//Widget*ww =new T(std::move(w));//w.create(w.position(),w.w(),w.h());
+//owns.push_back(ww);
+//begin();
+//ww->attach(*this);
+//end();
+//}
+
+// template<typename T>
+void attach  ( Widget &N){
    wid.push_back(&N);
    begin();
    N.attach(*this);
    end();
 }
 
+int handle(int e);
 
 //template<typename T>
 //void attach (T& sh)
@@ -61,6 +77,7 @@ void attach  (T &N){
 
 
 // void attach(Shape*)
+void resize(int x,int y,int w,int h);
 void detach(Shape& sh);
 void detach(Shape&& sh); // сравнение sh
 };

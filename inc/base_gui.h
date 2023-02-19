@@ -28,7 +28,11 @@ public:
     // копирование виджетов недоступно
   Widget(const Widget &w) =delete;
   Widget& operator=(const Widget& w)=delete;
+ // нужно перемещение ресурса ( Fl_Widget* pw)
 
+Widget(Widget&& w):own(nullptr),pw(nullptr),loc(w.loc),w_(w.w_),h_(w.h_),label(w.label) ,do_it(nullptr){
+w.pw=nullptr;
+}
   virtual ~Widget();
 
 protected:
@@ -47,22 +51,31 @@ public:
   void move(int x,int y);
   int w() const {return w_;}
   int h() const {return h_;}
-  void resize(int w,int h);
+  virtual void resize(int w,int h);
   Point position() const {return loc;}
-   void callback(Callback,Address);
-  virtual int handle(int e) {return pw->handle(e);}
-  virtual Fl_Widget* create(Point p,int w,int h)=0;
+ void set_position(Point x){loc=x;}
+  void callback(Callback,Address);
 
-//  template<typename T>
+   virtual int handle(int e) {return pw->handle(e);}
+
+   virtual void create(Point p,int w,int h)=0;
+
+
+  //  template<typename T>
   virtual Fl_Widget& content() {return *pw;} //{return *reinterpret_cast<T&>(pw);}
 
+
+  // template< class T>
+   Fl_Widget& operator->(){return *pw;}
 };
 
 class Button:public Widget{
 public:
     Button(Point x, int w,int h,const std::string &s="",Callback cb=nullptr):Widget(x,w,h,s,cb){}
-   Fl_Widget * create(Point p,int w,int h);
+
    Fl_Widget& content();
+protected:
+   void create(Point p,int w,int h);
 };
 
 
@@ -71,19 +84,23 @@ class In_Box:public Widget{
 
 public:
     In_Box(Point p,int w,int h, const std::string & s):Widget(p,w,h,s){}
-    Fl_Widget* create(Point p,int w,int h);
     Fl_Widget& content();
+
+
     int get_int() const;
+    // float get_
      std::string get_string() const;
+protected:
+  void create(Point p,int w,int h);
 
 };
 
 class Out_Box:public Widget {
  public:
     Out_Box(Point p,int w,int h,const std::string &s):Widget(p,w,h,s){}
-    Fl_Widget * create(Point p,int w,int h);
+   void create(Point p,int w,int h);
     Fl_Widget& content();
-    void put(int);
+       void put(int);
        void put(float);
        void put(const std::string&s);
 };

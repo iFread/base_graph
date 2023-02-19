@@ -12,9 +12,40 @@ window::~window(){
 //   for(Shape* s:own_shapes)
 //   delete s;
 //  own_shapes.clear();
-//   for(Widget*w :wid)
-//       delete w;
+wid.clear();
+    for(Widget*w :owns)
+      {
+    // w->~Widget();
+        delete w;
 
+    }
+}
+
+void window::resize(int x, int y, int w, int h){
+w_=w;
+h_=h;
+ Fl_Window::resize(x,y,w_,h_);
+// после изменения размера Fl_Widgets
+ // поогнать размер  Widgets виджетов
+for(Widget*w :wid)
+    w->resize(w->content().w(),w->content().h());
+//Fl_Window::redraw();
+    //  {
+//// w->~Widget();
+
+//}
+//for(Widget*w :wid)
+//  {
+//// w->~Widget();
+// w->resize(w->position().x(),w->position().y());
+
+//}
+
+}
+int window::handle(int e){
+
+    Fl_Window::handle(e);
+  return e;
 }
 
 void window::draw()
