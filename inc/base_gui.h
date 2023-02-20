@@ -59,7 +59,7 @@ public:
    virtual int handle(int e) {return pw->handle(e);}
 
    virtual void create(Point p,int w,int h)=0;
- // virtual void create()=0;
+  virtual Widget& create()=0;
 
   //  template<typename T>
   virtual Fl_Widget& content() {return *pw;} //{return *reinterpret_cast<T&>(pw);}
@@ -76,6 +76,7 @@ public:
    Fl_Widget& content();
 protected:
    void create(Point p,int w,int h);
+   virtual Widget& create();
 };
 
 
@@ -92,14 +93,15 @@ public:
      std::string get_string() const;
 protected:
   void create(Point p,int w,int h);
-
+ virtual Widget& create();
 };
 
 class Out_Box:public Widget {
  public:
     Out_Box(Point p,int w,int h,const std::string &s):Widget(p,w,h,s){}
    void create(Point p,int w,int h);
-    Fl_Widget& content();
+   virtual Widget& create();
+   Fl_Widget& content();
        void put(int);
        void put(float);
        void put(const std::string&s);

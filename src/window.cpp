@@ -29,6 +29,8 @@ h_=h;
  // поогнать размер  Widgets виджетов
 for(Widget*w :wid)
     w->resize(w->content().w(),w->content().h());
+for(Widget*w :owns)
+    w->resize(w->content().w(),w->content().h());
 //Fl_Window::redraw();
     //  {
 //// w->~Widget();

@@ -30,6 +30,7 @@ Layout(Layout&& lv):Widget(std::move(lv)),owns(std::move(lv.owns)),k_(lv.k_){}
  virtual void resize(int x,int y);
 protected:
    void create(Point p,int w,int h);
+   Widget& create()=0;
    Fl_Widget& content(){return *pw;};
    int size(){return owns.size();}
 public:
@@ -41,12 +42,11 @@ public:
 //reference_to<Fl_Group>(pw).add(w.content());
 //   }
 
-template<class T>
-  void attach(T&&t){
-   owns.push_back(new T(std::move(t)));
+//template<class T>
+  void attach(Widget&&t){
+   owns.push_back(&t.create());//new //(std::move(t)));
 
   add(*owns.back());//reference_to<Widget>(t);
-
   //  Widget* w=
 
 // reinterpret_cast<Fl_Group*>(pw)->add(ref.content());
@@ -75,7 +75,7 @@ public:
 protected:
     void add(Widget& w);
    void create(Point p,int w,int h);
-
+Widget& create();
 };
 
 
@@ -86,7 +86,7 @@ public:
 protected:
     void add(Widget& w);
     void create(Point p,int w,int h);
-
+Widget& create();
 
 };
 

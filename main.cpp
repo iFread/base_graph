@@ -40,15 +40,16 @@ srand(time(0));
 win.attach(ln);
 //win.attach(vln);
 //ln.add()
-//ln.attach(Graph::VLayout ({10,10}));
-//Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello1"));
-//Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello2"));
+ ln.attach(Graph::VLayout ({10,210}));
+ Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello6"));
+ Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello7"));
 
 vln.attach(Graph::Button({0,10},70,20,"hello1"));
 vln.attach(Graph::Button({0,10},70,20,"hello2"));
 
- win.attach(vln);
-//ln.attach(vln);
+  win.attach(vln);
+  win.attach(Graph::Button({ 300, 300},70,20,"hello8"));
+// ln.attach(vln);
 ln.attach(Graph::Button({ 0, 0},70,20,"hello3")); //bt);
 ln.attach(Graph::Button({ 0, 0},70,30,"hello4")); //bt);
 ln.attach(Graph::Button({ 0, 0},70,30,"hello5")); //bt);
@@ -57,7 +58,7 @@ ln.attach(Graph::Button({ 0, 0},70,30,"hello5")); //bt);
 
 
 //vln.add(Graph::Button ({0,10},90,20,"hello2"));
-
+Graph::Layout& l=Graph::reference_to<Graph::Layout>(&ln[0]);
 
 //Graph::reference_to<Graph::Layout>(&ln[0])[0].callback(//tach(Graph::Button({0,10},70,20,"hello"));
 //[](Graph::Address,Graph::Address adr){
@@ -65,6 +66,12 @@ ln.attach(Graph::Button({ 0, 0},70,30,"hello5")); //bt);
 //    p.move(20,20);
 //   // win.redraw();
 //},&ln);
+l[0].callback([](Graph::Address,Graph::Address adr){
+      Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
+        p.move(20,20);
+       // win.redraw();
+   },&ln);
+
 //Graph::reference_to<Graph::Layout>(&ln[0])[1].callback([](Graph::Address,Graph::Address adr){
 //  Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
 //    p.move(-20,-20);

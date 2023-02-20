@@ -56,7 +56,10 @@ void Button::create(Point x,int w,int h)
     h_=h;
    pw= new Fl_Button(x.x_,x.y_,w,h,label.c_str());
 }
+Widget& Button::create(){
 
+    return *new Button(std::move(*this));
+}
 
 Fl_Widget& Button::content(){return reference_to<Fl_Button>(pw);}
 
@@ -71,6 +74,12 @@ void In_Box::create(Point x,int w,int h) {
 // p->value("27");
 //return p;
 }
+
+Widget& In_Box::create(){
+
+    return *new In_Box(std::move(*this));
+}
+
 Fl_Widget &In_Box:: content(){return  reference_to<Fl_Input>(pw);}
 
 int In_Box:: get_int() const{
@@ -99,6 +108,12 @@ h_=h;
 }
 
 Fl_Widget& Out_Box::content(){return  reference_to<Fl_Output>(pw);}
+
+
+Widget& Out_Box::create(){
+
+    return *new Out_Box(std::move(*this));
+}
 
 void Out_Box::put(int n)
 {

@@ -55,20 +55,24 @@ virtual ~window() ;
 //}
 
 // template<typename T>
-void attach  ( Widget &N){
-   wid.push_back(&N);
+void attach  ( Widget &&N){
+   owns.push_back(&(N.create()));
    begin();
-   N.attach(*this);
+   (owns.back())->attach(*this);
    end();
 }
 
 int handle(int e);
 
 //template<typename T>
-//void attach (T& sh)
-//{ // нужно добавлять наследника
+void attach (Widget& sh)
+{ // нужно добавлять наследника
 //shapes.push_back(&sh);
-//}
+    wid.push_back(&sh);
+    begin();
+    (*wid.back()).attach(*this);
+    end();
+}
 
 //template<typename T=Widget>
 

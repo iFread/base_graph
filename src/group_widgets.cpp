@@ -74,6 +74,13 @@ resize(this->w()+w.w(),(this->h()<w.h())?w.h():this->h());
 element={element.x()+w.w(),element.y()};
 
 }
+
+Widget& HLayout:: create(){
+
+    return *new HLayout(std::move(*this));
+
+}
+
 void HLayout:: create(Point p,int w,int h){
     Layout::create(p,w,h);
 }
@@ -89,6 +96,12 @@ if(pw)
 }
  resize((this->w()<w.w())?w.w():this->w(),this->h()+w.h()+1);
 element={element.x(),element.y()+w.h()+1};
+
+}
+
+Widget& VLayout:: create(){
+
+    return *new VLayout(std::move(*this));
 
 }
 
