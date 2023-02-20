@@ -34,18 +34,21 @@ srand(time(0));
   // Graph::Button bt2({10,30},70,20,"hello");
   Graph::HLayout ln({200,200});
 //Graph::Out_Box({200,200},70,20,"hello2"));
-//  Graph::VLayout vln({10,10});
+  Graph::VLayout vln({10,10});
 //win.attach(bt1);
 //win.attach(bt2);
 win.attach(ln);
 //win.attach(vln);
 //ln.add()
-ln.attach(Graph::VLayout ({10,10}));
-Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello1"));
-Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello2"));
+//ln.attach(Graph::VLayout ({10,10}));
+//Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello1"));
+//Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({0,10},70,20,"hello2"));
 
+vln.attach(Graph::Button({0,10},70,20,"hello1"));
+vln.attach(Graph::Button({0,10},70,20,"hello2"));
 
-
+ win.attach(vln);
+//ln.attach(vln);
 ln.attach(Graph::Button({ 0, 0},70,20,"hello3")); //bt);
 ln.attach(Graph::Button({ 0, 0},70,30,"hello4")); //bt);
 ln.attach(Graph::Button({ 0, 0},70,30,"hello5")); //bt);
@@ -54,18 +57,21 @@ ln.attach(Graph::Button({ 0, 0},70,30,"hello5")); //bt);
 
 
 //vln.add(Graph::Button ({0,10},90,20,"hello2"));
-Graph::reference_to<Graph::Layout>(&ln[0])[0].callback(//tach(Graph::Button({0,10},70,20,"hello"));
-[](Graph::Address,Graph::Address adr){
-  Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
-    p.move(20,20);
-   // win.redraw();
-},&ln);
-Graph::reference_to<Graph::Layout>(&ln[0])[1].callback([](Graph::Address,Graph::Address adr){
-  Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
-    p.move(-20,-20);
-   // win.redraw();
 
-},&ln);
+
+//Graph::reference_to<Graph::Layout>(&ln[0])[0].callback(//tach(Graph::Button({0,10},70,20,"hello"));
+//[](Graph::Address,Graph::Address adr){
+//  Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
+//    p.move(20,20);
+//   // win.redraw();
+//},&ln);
+//Graph::reference_to<Graph::Layout>(&ln[0])[1].callback([](Graph::Address,Graph::Address adr){
+//  Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
+//    p.move(-20,-20);
+//   // win.redraw();
+
+//},&ln);
+
 
 //for(int i=0;i<10;++i) {
 //sleep(1);

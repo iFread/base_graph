@@ -59,7 +59,7 @@ public:
    virtual int handle(int e) {return pw->handle(e);}
 
    virtual void create(Point p,int w,int h)=0;
-
+ // virtual void create()=0;
 
   //  template<typename T>
   virtual Fl_Widget& content() {return *pw;} //{return *reinterpret_cast<T&>(pw);}
