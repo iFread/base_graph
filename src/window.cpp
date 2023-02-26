@@ -5,8 +5,13 @@ namespace Graph {
 
 window::window(Point p,int w,int h,const char*s):Fl_Window(p.x(),p.y(),w,h,s),w_(w),h_(h)
 {
-   resizable(this);
-Fl_Window::show();
+  init();
+}
+
+void window::init(){
+    resizable(this);
+   show();
+
 }
 window::~window(){
 //   for(Shape* s:own_shapes)
@@ -22,16 +27,40 @@ wid.clear();
 }
 
 void window::resize(int x, int y, int w, int h){
-w_=w;
-h_=h;
- Fl_Window::resize(x,y,w_,h_);
+
+    w_=w;
+    h_=h;
+//std::cout<<"x = "<<x<<", "<<"y = "<<y<<"\n";
+  Fl_Window::resize(x,y,w_,h_);
+  //  Fl_Widget::resize(x,y,w_,h_);
+ // Fl_Group::resize(x,y,w,h);
+ //
 // после изменения размера Fl_Widgets
  // поогнать размер  Widgets виджетов
-for(Widget*w :wid)
-    w->resize(w->content().w(),w->content().h());
-for(Widget*w :owns)
-    w->resize(w->content().w(),w->content().h());
-//Fl_Window::redraw();
+for(Widget*w :wid){
+    std::cout<<"in window size pw: "<<w->content().w()<<", "<<w->content().h()<<"\n";
+ //  w->set_position(Point( w->position().x(), w->position().y()));
+ // w->move(x,y);
+//  w->resize(w->content().w(),w->content().h());
+ // w->set_position(Point{static_cast<float>(w->content().x()),static_cast<float>(w->content().y())});
+    w->resize(w->w(),w->h());
+
+}
+
+
+//    for(Widget*w :owns){
+
+////       // w->set_position(Point(x,y));
+//         w->resize(w->w(),w->h());
+//     }
+
+ Fl_Window::redraw();
+//Fl_Group::redraw();
+//  for(Widget*w :wid){
+//   //  w->set_position(Point( w->position().x(), w->position().y()));
+//      w->content().redraw();
+//      }
+
     //  {
 //// w->~Widget();
 
@@ -44,10 +73,29 @@ for(Widget*w :owns)
 //}
 
 }
-int window::handle(int e){
 
-    Fl_Window::handle(e);
+void window::attach(Widget &sh)
+{
+       wid.push_back(&sh);
+        begin();
+        (*wid.back()).attach(*this);
+        end();
+ }
+
+void window::attach(Widget &&N)
+{
+   owns.push_back(&(N.create()));
+   begin();
+   (owns.back())->attach(*this);
+    end();
+}
+
+
+int window::handle(int e){
+  Fl_Window::handle(e);
+
   return e;
+
 }
 
 void window::draw()

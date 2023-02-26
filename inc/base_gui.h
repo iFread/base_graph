@@ -4,8 +4,10 @@
 #include <Fl/Fl_Widget.H>
 #include "point.h"
 #include <string>
+#include <vector>
+ //#include "window.h"
 namespace Graph {
-class window;
+
 using Address= void*;
 using  Callback=void(*)(Address,Address);
 
@@ -13,11 +15,14 @@ template <typename T>
 T& reference_to(Address ptr){return  *static_cast<T*>(ptr);}
 
 
-//class Widget;
+
 
 //template <typename T> T& content(Address adr){ return *reinterpret_cast<T*>(adr);}
 //template <typename T> T& content2(Widget *adr){ return *reinterpret_cast<T*>(adr);}
 
+
+
+ class window;
 class Widget {
 
 public:
@@ -36,7 +41,7 @@ w.pw=nullptr;
   virtual ~Widget();
 
 protected:
- window *own;
+ window *own;  // Fl_Widget ???
  Fl_Widget *pw;
  Point loc;
  int w_,h_;
@@ -56,7 +61,7 @@ public:
  void set_position(Point x){loc=x;}
   void callback(Callback,Address);
 
-   virtual int handle(int e) {return pw->handle(e);}
+  // virtual int handle(int e) {return pw->handle(e);}
 
    virtual void create(Point p,int w,int h)=0;
   virtual Widget& create()=0;

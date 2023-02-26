@@ -8,8 +8,11 @@
 //#include <Fl/Fl.H>
 //#include <Fl/Fl_Window.H>
 
+
 namespace Graph
 {
+
+
 
 enum orientation {vertical, horisontal};
 

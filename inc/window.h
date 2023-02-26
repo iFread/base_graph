@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef _WINDOW_H_
+#define WINDOW_H_
 #include <Fl/Fl_Window.H>
 #include <Fl/Fl.H>
 #include <string>
@@ -14,7 +14,10 @@ namespace Graph {
 //class Widget;
 inline int gui_run(){return Fl::run();}
 
-class window:public Fl_Window
+class Widget;
+//template <typename T>
+
+class window: public Fl_Window
 {
 //std::vector<Shape*> shapes;
 // std::vector<Shape*> own_shapes;
@@ -28,7 +31,7 @@ public:
     window(Point p,int w,int h,const char* s);
 void draw()override;
 virtual ~window() ;
-
+void init();
 //template<typename T>
 //void attach(T t){
 //std::cout<<"global\n";
@@ -55,24 +58,12 @@ virtual ~window() ;
 //}
 
 // template<typename T>
-void attach  ( Widget &&N){
-   owns.push_back(&(N.create()));
-   begin();
-   (owns.back())->attach(*this);
-   end();
-}
+void attach  ( Widget &&N);
 
 int handle(int e);
 
 //template<typename T>
-void attach (Widget& sh)
-{ // нужно добавлять наследника
-//shapes.push_back(&sh);
-    wid.push_back(&sh);
-    begin();
-    (*wid.back()).attach(*this);
-    end();
-}
+void attach (Widget& sh);
 
 //template<typename T=Widget>
 
