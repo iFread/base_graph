@@ -17,10 +17,7 @@ class ref_vector{
  std::vector<Widget*> data;
 
 public:
- void add(Widget&& t){
-    owns.push_back(&t.create());   // создать виджет и дпометить как собственный
-    data.push_back(owns.back());  // вектор для управления виджетами
-  }
+
 
 ref_vector(){}
  ref_vector(const ref_vector& v)=delete;
@@ -35,6 +32,10 @@ data=std::move(v.data);
 
     return *this;}
 
+void add(Widget&& t){
+   owns.push_back(&t.create());   // создать виджет и дпометить как собственный
+   data.push_back(owns.back());  // вектор для управления виджетами
+ }
 
  void add(Widget &w){
  data.push_back(&w);
@@ -74,7 +75,7 @@ protected:
 public:
    Layout(Point p,int ww,int hh,const std::string &s="",Kind k=none):Widget(p,ww,hh,s),k_(k){}
 //  void attach(window &w);
-Layout(Layout&& lv):Widget(std::move(lv)),vec(std::move(lv.vec)),k_(lv.k_){}
+Layout(Layout&& lv):Widget(std::move(lv)),k_(lv.k_),vec(std::move(lv.vec)){}
    ~Layout();
   Widget& operator[](int i){return vec[i];}
 
@@ -161,6 +162,8 @@ public:
     ~Scroll();//{delete scrl;}
   void add(Widget&w);
   void resize(int x,int y);
+int handle(int i);
+  void show_hello(const char* pr);
 };
 
 

@@ -44,25 +44,37 @@ win.attach(ln);
 
 Graph::Scroll scrl({210,70},600,500);
 
-Graph::Canvas can1({150,50},100 ,100);
-Graph::Canvas can2({150,50},1000 ,1000);
+
+
 
 win.attach(scrl);
- scrl.add(can1);
- scrl.add(can2);
+  scrl.resize(200,400);
+// scrl.add(can1);
+ scrl.attach(Graph::Canvas  ({150,50},1000 ,1000));
 
+// can2.set_tool(&can2); // устанавливаем родителя для класса
+
+// can2.callback([](Graph::Address adr  ,Graph::Address adr2){
+//  //  Graph ::Widget& ref =Graph::reference_to<Graph::Canvas>(adr);
+//     Fl_Widget& ref=(Graph::reference_to<Fl_Widget>(adr));
+
+//     // Fl_Widget& ref=(Graph::reference_to<Graph::Canvas>(adr2)).content();
+//   Graph::reference_to<Graph::Scroll>(ref.user_data()).show_hello("yes\n");
+//  //  Graph::reference_to<Graph::Scroll>(ref.user_data()).handle(*reinterpret_cast<int*>(adr2));
+//  },nullptr);
+ //can2.add(new Graph::line({250,250},{400,400}));
 ln.attach(Graph::VLayout ({10,210}));
- Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"hello6"));
-  Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"hello7"));
+ Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"button6"));
+  Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"button7"));
 
-vln.attach(Graph::Button({0,10},70,20,"hello1"));
-vln.attach(Graph::Button({0,10},70,20,"hello2"));
+vln.attach(Graph::Button({0,10},70,20,"button1"));
+vln.attach(Graph::Button({0,10},70,20,"button2"));
 
  // win.attach(vln);
 // win.attach(Graph::Button({ 300, 300},70,20,"hello8"));
  // ln.attach(vln);
 
- ln.attach(Graph::Button({ 0, 0},70,20,"hello3")); //bt);
+ ln.attach(Graph::Button({ 0, 0},70,20,"button3")); //bt);
   ln.attach(vln);
 
  //ln.attach(Graph::Button({ 0, 0},70,30,"hello4")); //bt);
@@ -146,8 +158,9 @@ std::cout<<"point "<<sh[10].x()<<" "<<sh[10].y()<<"\n";
 
   //delete sh2;
 
- Graph::gui_run();
-  return 0;
+int res= Graph::gui_run();
+
+return res;
 }
     }
 

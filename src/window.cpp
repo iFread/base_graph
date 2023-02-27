@@ -24,6 +24,7 @@ wid.clear();
         delete w;
 
     }
+   // std::cout<<"window dtor coll\n";
 }
 
 void window::resize(int x, int y, int w, int h){
@@ -92,9 +93,9 @@ void window::attach(Widget &&N)
 
 
 int window::handle(int e){
-  Fl_Window::handle(e);
+Fl_Window::handle(e);
 
-  return e;
+  return 1;
 
 }
 

@@ -15,7 +15,7 @@ void Layout::create(Point o,int w,int h)
     w_=w;
     h_=h;
 std::cout<<"size layout base: "<<typeid(*this).name()<<" "<<w_<<", "<<h_<<"\n";
-pw= new Fl_Group(o.x(),o.y(),w_,h_);
+pw= new Fl_Group(o.x() ,o.y() ,w_ ,h_ );
 pw->box(Fl_Boxtype::FL_BORDER_BOX);
 //reference_to<Fl_Group>(pw).end();
 element=loc;
@@ -42,11 +42,11 @@ void Layout::resize(int x, int y){
 
    //  if( resizable){
 //    reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,x,y); //  Widget::resize(x,y);
-  //        w_=x;
-   // h_=y;   //}
+          w_=x;
+    h_=y;   //}
 //    else // изменение размера без изменения виджета
 if(pw) {
- // reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,w_,h_);
+   reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,w_,h_);
   //reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,content().w(),content().h());
 Point n_element={loc.x_,loc.y_};
 Point sz={0,0};
@@ -61,7 +61,8 @@ for(int i=0;i<vec.size();++i)
    w.resize(w.w(),w.h());
 sz={sz.x()+w.w(),sz.y()+w.h()};
     }
-  reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,sz.x(),sz.y());
+ // reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,sz.x(),sz.y());
+ //std::cout<<"size layout base: "<<typeid(*this).name()<<" "<<sz.x()<<", "<<sz.y()<<"\n";
 }
  std::cout<<"size layout base: "<<typeid(*this).name()<<" "<<w_<<", "<<h_<<"\n";
 
@@ -89,7 +90,7 @@ w.create(element,w.w(),w.h());
 
 
 reference_to<Fl_Group>(pw).add(w.content());
-
+//vec.add(w);
 
 //
 element={element.x()+w.w(),loc.y()};
@@ -224,7 +225,8 @@ std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<w_<<", "<<h_<<"\n";
  // scrl->redraw();
 }
 
-  Scroll::~Scroll(){  }
+  Scroll::~Scroll(){  scrl->hide();
+                }
 
   Widget& Scroll:: create(){
       return *new Scroll(std::move(*this));
@@ -235,7 +237,7 @@ std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<w_<<", "<<h_<<"\n";
     //  w.set_position(element);
       if(pw){
        //   scrl->begin();
-      w.create(element,w.w(),w.h());
+     // w.create(element,w.w(),w.h());
  Layout::add(w);
       //reference_to<Fl_Group>(pw).add(w.content());
       scrl->add(w.content());
@@ -249,16 +251,37 @@ std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<w_<<", "<<h_<<"\n";
   void Scroll::resize(int x,int y)
   {
     Layout::resize(x,y);
-       std::cout<<"in Scroll Layout  {"<<w()<<", "<<h_<<"}\n";
+    //   std::cout<<"in Scroll Layout  {"<<w()<<", "<<h_<<"}\n";
      w_=x;
       h_=y;
-    // reference_to<Fl_Group>(pw).resize(loc.x(),loc.y(),pw->w(),pw->h());
- // if(scrl)
+if(scrl)
      scrl->resize(loc.x(),loc.y(),scrl->w(),scrl->h());
-  std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<scrl->w()<<", "<<scrl->h()<<"\n";
+//   scrl->resize(loc.x(),loc.y(),w_,h_);
   }
 
 
+  int Scroll::handle(int i){
+//reference_to<Fl_Group>(pw).handle(i);
+//     std::cout<<"in Scroll callback event: ";
+// content().handle(i);
+     switch (i)
+     {
+     case FL_PUSH:
+         std::cout<<"push button\n"<<i<<"\n";
+         break;
+     case FL_MOVE:
+         std::cout<<"move mouse \n"<<i<<"\n";
+         break;
+     case FL_RELEASE:
+         std::cout<<"Release button \n"<<i<<"\n";
+         break;
+     default:
+         std::cout<<"unknown event\n";
+
+     }
+std::cout<<" "<<i<<"\n";
+     return i;
+  }
 
 
 
