@@ -9,6 +9,7 @@ struct Point{
     float x_,y_;
 public:
   Point (float x, float y):x_(x),y_(y){}
+ // Point(int x,int y):x_(x),y_(y){}
   Point():x_(NAN),y_(NAN) {}
   bool isValid()const {if(x_!=x_||y_!=y_) return false; return true;}
   float x() const{return x_;}

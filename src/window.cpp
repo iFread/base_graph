@@ -24,7 +24,7 @@ wid.clear();
         delete w;
 
     }
-   // std::cout<<"window dtor coll\n";
+  // std::cout<<"window dtor coll\n";
 }
 
 void window::resize(int x, int y, int w, int h){

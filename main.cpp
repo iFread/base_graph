@@ -7,7 +7,7 @@
 #include "math_primitives.h"
 #include "group_widgets.h"
 #include "own_gui_widgets.h"
-
+#include "base_tools.h"
 using namespace std;
 
 using namespace::math;
@@ -43,14 +43,14 @@ win.attach(ln);
 //ln.add()
 
 Graph::Scroll scrl({210,70},600,500);
-
+Graph::Canvas can ({150,50},1000 ,1000);
 
 
 
 win.attach(scrl);
   scrl.resize(200,400);
 // scrl.add(can1);
- scrl.attach(Graph::Canvas  ({150,50},1000 ,1000));
+ scrl.attach(can);//Graph::Canvas  ({150,50},1000 ,1000));
 
 // can2.set_tool(&can2); // устанавливаем родителя для класса
 
@@ -93,10 +93,11 @@ Graph::Layout& l=Graph::reference_to<Graph::Layout>(&ln[0]);
 //    p.move(20,20);
 //   // win.redraw();
 //},&ln);
-//l[0].callback([](Graph::Address,Graph::Address adr){
- //     Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
-  //      p.move(10,10);
-  // },&ln);
+
+l[0].callback([](Graph::Address,Graph::Address adr){
+      Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+       p.set_tool(Graph::get_line);
+  },&can);
 
 //Graph::reference_to<Graph::Layout>(&ln[0])[1].
 //l[1].callback([](Graph::Address,Graph::Address adr){

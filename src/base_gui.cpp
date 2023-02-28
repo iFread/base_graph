@@ -37,7 +37,8 @@ void Widget::resize(int w,int h)
 {
     w_=w;
     h_=h;
-  pw->resize(loc.x(),loc.y(),w_,h_);
+ if(pw)
+    pw->resize(loc.x(),loc.y(),w_,h_);
 
  //  own->redraw();
 }

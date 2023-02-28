@@ -11,7 +11,7 @@ namespace Graph
 /*
  handle() отвечает за основные действия по модификации фигур
  получив сигнал из fl_canvas
- // обраьбатываем его,
+ // обрабатываем его,
 добавить фигуру:
   1. Выбран инструмент creat_tool
   2. по координатам от fl_canvas создается фигура
@@ -41,20 +41,28 @@ namespace Graph
 
 */
 using tool =base_tool;
+using creating_t=Shape*(*)(Point);
 class Canvas: public Widget  //
 {
-
+    Point current{0,0};  // текущее положение мыши
     tool* t{nullptr};
 public:
     Canvas(Point p,int w,int h):Widget(p,w,h){}
- Widget& create();
+  Canvas(Canvas&& c):Widget(std::move(c)),t(c.t){}
+    Widget& create();
  void create(Point p,int w,int h);
-// ~Canvas() {}
+  ~Canvas() {if(t) delete t;}
 Fl_Widget& content();
+
+void cursor_position(Point p){current.x()=p.x();current.y()=p.y();}
+Point cursor_position() const {return current;}
 
 void add(Shape*);
 void remove(Shape*);
 int handle(int i);  // Для общего базового virtual int handle();
+void set_tool(tool*);
+void set_tool(creating_t  p);
+
 protected:
 void set_parent(void *v);  // tool*
 

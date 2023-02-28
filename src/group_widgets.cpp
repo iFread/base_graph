@@ -34,7 +34,7 @@ void Layout::add(Widget &w){
     w.create({element.x(),element.y()},w.w(),w.h());
       // t.create({loc.x()+w().position().x(),loc.y()+w().position().y()},w.w(),w.h());
     element={element.x()+w.w(),element.y()+w.h()};
-     reference_to<Fl_Group>(pw).add(w.content());
+     reference_to<Fl_Group>(pw).add(w.content()); //w.create();
 }
 
 
