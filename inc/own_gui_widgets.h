@@ -41,17 +41,18 @@ namespace Graph
 
 */
 using tool =base_tool;
-using creating_t=Shape*(*)(Point);
+using cb_creating_t= Shape*(*)(Point);  // указатель на функцию возвращающую созданную фигуру
+
 class Canvas: public Widget  //
 {
     Point current{0,0};  // текущее положение мыши
-    tool* t{nullptr};
+    tool* tl_{nullptr};
 public:
     Canvas(Point p,int w,int h):Widget(p,w,h){}
-  Canvas(Canvas&& c):Widget(std::move(c)),t(c.t){}
+  Canvas(Canvas&& c):Widget(std::move(c)),tl_(c.tl_){}
     Widget& create();
  void create(Point p,int w,int h);
-  ~Canvas() {if(t) delete t;}
+  ~Canvas() {if(tl_) delete tl_;}
 Fl_Widget& content();
 
 void cursor_position(Point p){current.x()=p.x();current.y()=p.y();}
@@ -60,8 +61,10 @@ Point cursor_position() const {return current;}
 void add(Shape*);
 void remove(Shape*);
 int handle(int i);  // Для общего базового virtual int handle();
+
+// установить либо новый инструмент creat_tool/modify_tool либо указатель на функцию создания объекта фигура
 void set_tool(tool*);
-void set_tool(creating_t  p);
+void set_tool(cb_creating_t  p);
 
 protected:
 void set_parent(void *v);  // tool*

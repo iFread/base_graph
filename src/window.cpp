@@ -32,19 +32,19 @@ void window::resize(int x, int y, int w, int h){
     w_=w;
     h_=h;
 //std::cout<<"x = "<<x<<", "<<"y = "<<y<<"\n";
-  Fl_Window::resize(x,y,w_,h_);
+  Fl_Window::resize(x,y,w,h);
   //  Fl_Widget::resize(x,y,w_,h_);
  // Fl_Group::resize(x,y,w,h);
  //
 // после изменения размера Fl_Widgets
  // поогнать размер  Widgets виджетов
+ // std::cout<<"in window size pw: "<<w_<<", "<<h_<<"\n";
 for(Widget*w :wid){
-    std::cout<<"in window size pw: "<<w->content().w()<<", "<<w->content().h()<<"\n";
+ //   std::cout<<"in window size pw: "<<w->content().w()<<", "<<w->content().h()<<"\n";
  //  w->set_position(Point( w->position().x(), w->position().y()));
- // w->move(x,y);
-//  w->resize(w->content().w(),w->content().h());
+ // w->move(x,y);   w->resize(w->content().w(),w->content().h());
  // w->set_position(Point{static_cast<float>(w->content().x()),static_cast<float>(w->content().y())});
-    w->resize(w->w(),w->h());
+  w->resize(w->w(),w->h());
 
 }
 
@@ -55,7 +55,7 @@ for(Widget*w :wid){
 //         w->resize(w->w(),w->h());
 //     }
 
- Fl_Window::redraw();
+Fl_Window::redraw();
 //Fl_Group::redraw();
 //  for(Widget*w :wid){
 //   //  w->set_position(Point( w->position().x(), w->position().y()));

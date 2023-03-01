@@ -11,6 +11,14 @@
 using namespace std;
 
 using namespace::math;
+
+class line_creat{
+
+    Graph::Shape* operator()(Point p){
+        return new Graph::line(p,{p.x()+1,p.y()+1});
+    }
+};
+
 void show_area(area_t ar);
 int main()
 {
@@ -42,13 +50,13 @@ win.attach(ln);
 //win.attach(vln);
 //ln.add()
 
-Graph::Scroll scrl({210,70},600,500);
+Graph::Scroll scrl({210,70},550,500);
 Graph::Canvas can ({150,50},1000 ,1000);
 
 
 
 win.attach(scrl);
-  scrl.resize(200,400);
+ // scrl.resize(200,400);
 // scrl.add(can1);
  scrl.attach(can);//Graph::Canvas  ({150,50},1000 ,1000));
 
@@ -64,11 +72,12 @@ win.attach(scrl);
 //  },nullptr);
  //can2.add(new Graph::line({250,250},{400,400}));
 ln.attach(Graph::VLayout ({10,210}));
- Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"button6"));
-  Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"button7"));
+ Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"line"));
+ Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"polyline"));
+  Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"rectangle"));
 
-vln.attach(Graph::Button({0,10},70,20,"button1"));
-vln.attach(Graph::Button({0,10},70,20,"button2"));
+vln.attach(Graph::Button({0,10},70,20,"move+"));
+vln.attach(Graph::Button({0,10},70,20,"move-"));
 
  // win.attach(vln);
 // win.attach(Graph::Button({ 300, 300},70,20,"hello8"));
@@ -82,8 +91,16 @@ vln.attach(Graph::Button({0,10},70,20,"button2"));
  //ln.attach(Graph::Button({ 0, 0},70,40,"hello5")); //bt);
 
 
-
-
+vln[0].callback([](Graph::Address,Graph::Address adr){
+    Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+     //p.set_tool(Graph::get_line);
+p.move(10,10);
+},&can);
+vln[1].callback([](Graph::Address,Graph::Address adr){
+    Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+     //p.set_tool(Graph::get_line);
+p.move(-10,-10);
+},&can);
 //vln.add(Graph::Button ({0,10},90,20,"hello2"));
 Graph::Layout& l=Graph::reference_to<Graph::Layout>(&ln[0]);
 //l[0].resize(100,100);
@@ -96,14 +113,22 @@ Graph::Layout& l=Graph::reference_to<Graph::Layout>(&ln[0]);
 
 l[0].callback([](Graph::Address,Graph::Address adr){
       Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
-       p.set_tool(Graph::get_line);
-  },&can);
+  p.set_tool( Graph::get_line);
+//p.move(-10,-10);
+},&can);
+l[1].callback([](Graph::Address,Graph::Address adr){
+      Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+  p.set_tool( Graph::get_polyline);
+//p.move(-10,-10);
+},&can);
+
 
 //Graph::reference_to<Graph::Layout>(&ln[0])[1].
-//l[1].callback([](Graph::Address,Graph::Address adr){
- // Graph:: Layout& p=Graph::reference_to<Graph::Layout>(adr);
-  //  p.move(-10,-10);
- //},&ln);
+ l[2].callback([](Graph::Address,Graph::Address adr){
+  Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+  //p.move(10,10);
+ p.set_tool(Graph::get_rectangle);
+ },&can);
 
 
 //for(int i=0;i<10;++i) {

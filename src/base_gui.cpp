@@ -2,6 +2,7 @@
 #include <Fl/Fl_Button.H>
 #include <Fl/Fl_Output.H>
 #include <Fl/Fl_Input.H>
+#include <typeinfo>
 
 #include <iostream>
 #include "window.h"
@@ -19,6 +20,7 @@ void Widget::attach(window &w)
  own=&w;
   create(loc,w_,h_);
 
+//  /own->resizable(pw);
 //own->attach(pw);
 }
 
@@ -35,12 +37,14 @@ void Widget::move(int x, int y){
 
 void Widget::resize(int w,int h)
 {
-    w_=w;
-    h_=h;
- if(pw)
-    pw->resize(loc.x(),loc.y(),w_,h_);
 
+ if(pw)
+    pw->resize(loc.x(),loc.y(),w,h);
+ w_=pw->w();
+ h_=pw->h();
  //  own->redraw();
+ std::cout<<"new size for" <<typeid (pw).name()<<" : "<<pw->w()<<pw->h()<<"\n";
+ std::cout<<"new size for" <<typeid (this).name()<<" : "<<w_<<", "<<h_<<"\n";
 }
 
 void Widget::callback(Callback cb,Address adr){
@@ -105,7 +109,7 @@ void Out_Box::create(Point p, int w, int h)
 loc=p;
 w_=w;
 h_=h;
- //   pw= new Fl_Output(p.x(),p.y(),w,h,label.c_str());
+   pw= new Fl_Output(p.x(),p.y(),w,h,label.c_str());
  //op->value("determinant");
   // return op;
 }

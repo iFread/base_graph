@@ -39,7 +39,10 @@ Vertex* Vertex_list::remove()
 {
   // если есть что удалять удаляем,
  if(ptr)
+ {
+  size_-=1;
      return  (Vertex*)ptr->prev()->remove();
+  }
  return nullptr;
 }
 //********************
@@ -120,7 +123,7 @@ void Vertex_list::add(Point p)
 
 Vertex* Vertex_list::operator[](int i)
 {
- int cnt=(i<size_)?i:size_;
+ int cnt=(i<size_-1)?i:size_-1;
  Vertex*w=ptr;
 
  while(cnt>0) // while(cnt--){}
@@ -134,14 +137,13 @@ Vertex* Vertex_list::operator[](int i)
   Vertex* Vertex_list::operator[](int i) const
 {
      Vertex*w=ptr;
-   int cnt=(i<size())?i:size();
+   int cnt=(i<size()-1)?i:size()-1;
 //  std::cout<<"cnt = "<<cnt<<"\n";
    while(cnt > 0) // while(cnt--){}
         {
-
-    w=w->cv();
-cnt--;
-     }
+       w=w->cv();
+       cnt--;
+      }
  //std::cout<<"cnt = "<<cnt<<"\n";
 
  //  std::cout<<"w = "<<w->x()<<", "<<w->y()<<"\n";
@@ -152,16 +154,50 @@ cnt--;
 
 //*****************************
 
+  Shape& Shape:: operator=(Shape&& sh){
+if(this==&sh)
+    return *this ;
+  v=std::move(sh.v);  // заберем данные
+ lcolor=sh.lcolor;
+ ls=sh.ls;
+ fcolor=sh.fcolor;
+ type_=sh.type_;
+ return *this;
+}
+
+  Shape::line_type Shape:: type() const {return type_;}
+
 void Shape:: draw()const{
 
       Fl_Color old=fl_color();
         fl_color(lcolor.as_int());
         fl_line_style(ls.style(),ls.width());
         draw_lines();
-
+    //draw_lines()
         fl_color(old);
         fl_line_style(0);
     }
+
+void Shape::add(Point p){
+    v.add(p);
+}
+
+void Shape::remove(int index)
+{
+  index=(index>size()-1)?size()-1:index;
+ delete v[index]->remove();
+
+}
+void Shape::draw(Point o,int sc) const {
+
+    Fl_Color old=fl_color();
+      fl_color(lcolor.as_int());
+      fl_line_style(ls.style(),ls.width());
+      draw_lines(o,sc);
+      fl_color(old);
+      fl_line_style(0);
+}
+
 
 // здесь const  метод, он не может вызывать не константные методы
  void Shape:: draw_lines()const {
@@ -179,6 +215,18 @@ for(int i=1;i<v.size();i++) // перемещение
 
  }
 
+ void Shape:: draw_lines(Point p, int scale)const{
+
+     for(int i=1;i<v.size();i++) // перемещение
+     {
+       fl_line(v[i-1]->x()*scale+p.x(), v[i-1]->y()*scale+p.y(), v[i]->x()*scale+p.x(),v[i]->y()*scale+p.y());
+     }
+
+
+ }
+
+
+
  void line::draw_lines()const{
  //    Shape::draw_lines();
      for(int i=1;i<v.size();i++) // перемещение
@@ -186,6 +234,23 @@ for(int i=1;i<v.size();i++) // перемещение
        fl_line(v[i-1]->x(),v[i-1]->y(),v[i]->x(),v[i]->y());
      }
  }
+
+ void line:: draw_lines(Point p, int scale)const{
+
+     for(int i=1;i<v.size();i++) // перемещение
+     {
+       fl_line(v[i-1]->x()*scale+p.x(), v[i-1]->y()*scale+p.y(), v[i]->x()*scale+p.x(),v[i]->y()*scale+p.y());
+     }
+ }
+
+ void line:: change( Point p, int i)
+ {
+     i=(v.size()<i)?v.size()-1:i;
+ if(p.isValid())
+     v[i]->change(p);
+  }
+
+
 
 //***************************lines
  void lines::draw_lines()const{
@@ -199,12 +264,41 @@ fl_line(v[b-1]->x(),v[b-1]->y(),v[b]->x(),v[b]->y());
  }
  }
 
+ void lines::draw_lines(Point p, int sc)const{
+for(int b=1,e= (type_==open_line)?v.size():v.size();b<e;) // на последней вершине так же итерируемся
+{
+    std::cout<<v.size()<<" : "<<e<<"\n";
+//if(type_==open_line && b==e ) {
+//    fl_line(v[0]->x()*sc+p.x(),v[0]->y()*sc+p.y(),v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y());
+//    break;
+//}
+
+fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
+++b;
+//if(b==e)
+//    break;
+}
+ }
+ void lines:: change( Point p,int i)
+ {
+  // i=(v.size()-1<i)?v.size() :i;
+   if(i==-1) {
+        i=size()-1 ;
+      }
+   if(p.isValid())
+      v[i]->change(p);
+
+ }
+
+
+
+
  //******************
- rectangle::rectangle(Point a,Point b):Shape(a)
+ rectangle::rectangle(Point a,Point b,line_type tp):Shape(a,tp)
 { // добавляет еще три вершины
-add({b.x(),a.y()});
-add(b);
-add({a.x(),b.y()});
+ Shape::add({b.x(),a.y()});
+ Shape:: add(b);
+ Shape::add({a.x(),b.y()});
 }
  void rectangle::draw_lines() const
  {    std::cout<<typeid (this).name()<<"\n";
@@ -220,6 +314,34 @@ add({a.x(),b.y()});
      }
 
  }
+void rectangle::draw_lines(Point p,int sc) const {
+
+    for(int b=1,e=  v.size()+1;b<=e;++b) // на последней вершине так же итерируемся
+    {
+    if(b==e ) {
+        fl_line(v[0]->x()*sc+p.x(),v[0]->y()*sc+p.y(),v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y());
+        break;
+    }
+    fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
+
+ }
+}
+
+void rectangle:: change( Point p,int i)
+{ // сохранить инвариант прямоугольника
+   // для этого нужна вершина диагональная данной
+i=(v.size()<i)?v.size():i;
+v[i]->change(p);// меняем нужную вершину
+Vertex* cross=v[i]->ccv()->ccv();//->content(); // соординаты противоположной точки
+ // для импользования move operator, всеравно вызывать конструктор
+// v= rectangle(*cross,*v[i]).v ;
+int w=v[i]->x()-cross->x();//(v[i]->content()<cross)?v[i]->x()-cross.x():v[i]->x()-cross.x();
+ int h=v[i]->y()-cross->y();
+// меняем остальные фигуры
+ cross->ccv()->change({cross->x(),cross->y()+h});
+ cross->cv()->change({cross->x()+w,cross->y()});
+}
+
 
  //******************* poligon
 
@@ -227,6 +349,11 @@ add({a.x(),b.y()});
  void poligon::add(Point o){
 //Здесь проверить что новые грани не пересекают уже существующие
      Shape::add(o);
+
+ }
+
+ void poligon::change( Point p,int i) {
+
 
  }
 

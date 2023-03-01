@@ -33,52 +33,75 @@ void Canvas::add(Shape *sh)
  reference_to<fl_canvas>(pw).add(sh);
  }
 
+void Canvas::remove(Shape *sh){
+ reference_to<fl_canvas>(pw).remove(sh);
+}
 void Canvas::set_parent(void *v) {
 
 pw->user_data(v);
 }
 
 
-void Canvas::set_tool(creating_t p)
+void Canvas::set_tool(cb_creating_t p)
 {
-    if(t)
-        delete t;
-    t=new creat_tool();
-reference_to<creat_tool>(t).set_shape(p);
+    if(tl_)
+        delete tl_;
+    tl_=new creat_tool();
+reference_to<creat_tool>(tl_).set_shape(p);
 }
+
+void Canvas::set_tool(tool* tl){
+if(tl_) delete tl_;
+tl_=tl;
+  }
+
+
+// этапы создания  фигуры:
+     /*
+1. Создать фигуру в заданной точке          // левая кнопка мыши
+2. Модифицировать ее до нужного состояния   // движение мыши, после создания фигуры
+3. Передать в canvas или удалить    // левая кнопка мыши=зафиксировать состояние фигуры (и передать в canvas)
+ // либо правая кнопка удаляет фигуру
+
+
+*/
 
 int Canvas::handle(int i){
+ if(tl_) tl_->action(this,i);
+//    switch (i)
+//    {
+//         //tool->action(this);
+//    case FL_MOVE:
 
-    switch (i)
-    {
-         //tool->action(this);
-    case FL_MOVE:
-        std::cout<<"move mouse in Canvas\n"<<i<<"\n";
-      std::cout<< current.x()<<", "<<current.y()<<"\n";
-        break;
-    case FL_PUSH:
-           //t->action(this); =   void action(Canvas* c) { c.add(create({current})) }
+//      std::cout<< current.x()<<", "<<current.y()<<"\n";
+//        break;
+//    case FL_PUSH:
+//           //t->action(this); =   void action(Canvas* c) { c.add(create({current})) }
+//        break;
 
-        // current, точка относительно начала canvas
-         // в функции Shape::draw() следует принимать точку начала отсчета, и масштаб виджета
-       //
-        add(reference_to<creat_tool>(t).create({current.x(),current.y()}));
+//    case FL_RELEASE:
 
-        std::cout<<"push button in Canvas\n"<<i<<"\n";
-        break;
+//        break;
 
-    case FL_RELEASE:
-        std::cout<<"Release button in Canvas\n"<<i<<"\n";
-        break;
+//    default:
+//        std::cout<<"unknown event in Canvas : "<<i<<"\n";
 
-    default:
-        std::cout<<"unknown event in Canvas\n";
+//    }
+    pw->redraw();
 
-    }
-std::cout<<" \t"<<i<<"\n";
-    return 1;
-
+    return i;
 }
+//***************************
+//        switch (Fl::event_button())
+//        {
+//        case FL_LEFT_MOUSE:
+//           std::cout<<"left mouse button pushed\n";
+//            break;
+//        case FL_RIGHT_MOUSE:
+//            std::cout<<"right mouse button pushed\n";
+//            break;
+
+//        }
 
 
 }

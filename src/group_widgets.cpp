@@ -41,12 +41,16 @@ void Layout::add(Widget &w){
 void Layout::resize(int x, int y){
 
    //  if( resizable){
-//    reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,x,y); //  Widget::resize(x,y);
-          w_=x;
-    h_=y;   //}
+   //  Widget::resize(x,y);
+//Widget::resize(x,y);
 //    else // изменение размера без изменения виджета
-if(pw) {
-   reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,w_,h_);
+  w_=x;
+  h_=y;
+
+  if(pw) {
+     // Widget::resize(x,y);
+  // reference_to<Fl_Group>(pw).
+          pw-> resize(loc.x_,loc.y_,w_,h_);
   //reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,content().w(),content().h());
 Point n_element={loc.x_,loc.y_};
 Point sz={0,0};
@@ -63,8 +67,9 @@ sz={sz.x()+w.w(),sz.y()+w.h()};
     }
  // reference_to<Fl_Group>(pw).resize(loc.x_,loc.y_,sz.x(),sz.y());
  //std::cout<<"size layout base: "<<typeid(*this).name()<<" "<<sz.x()<<", "<<sz.y()<<"\n";
-}
- std::cout<<"size layout base: "<<typeid(*this).name()<<" "<<w_<<", "<<h_<<"\n";
+pw->redraw();
+  }
+ std::cout<<"size layout base: "<<typeid(*this).name()<<" "<<w_<<", "<<h_<<"with new "<<x<<", "<<y<<"\n";
 
 }
 Point Layout::children_size(){
@@ -211,14 +216,15 @@ Widget& VLayout:: create(){
 void Scroll::create(Point p, int w, int h) {
    // создать область скроллинга и добавить в нее элементы
  std::cout<<" create scroll :"<<w<<", "<<h<<"\n";
-    scrl=new Fl_Scroll(p.x(),p.y(),w,h);
+
+ scrl=new Fl_Scroll(p.x(),p.y(),w,h);
    scrl->type(Fl_Scroll::BOTH);
    // здесь добавить все виджеты
-   Layout::create(p,w,h);
+ Layout::create(p,w,h);
    for(int i=0;i<size();++i)
       { //operator[](i).create()
 
-       scrl->add(this->operator[](i).content());
+       scrl->add(pw);// this->operator[](i).content());
 
     }
 std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<w_<<", "<<h_<<"\n";
@@ -250,13 +256,17 @@ std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<w_<<", "<<h_<<"\n";
       }
   void Scroll::resize(int x,int y)
   {
-    Layout::resize(x,y);
+  // L
     //   std::cout<<"in Scroll Layout  {"<<w()<<", "<<h_<<"}\n";
-     w_=x;
-      h_=y;
-if(scrl)
-     scrl->resize(loc.x(),loc.y(),scrl->w(),scrl->h());
-//   scrl->resize(loc.x(),loc.y(),w_,h_);
+ //  reference_to<Fl_Group>(pw).resize(loc.x(),loc.y(),w(),h());
+  //  w_=x;
+   //   h_=y;
+if(scrl) {
+ scrl->resize(loc.x(),loc.y(),scrl->w(),scrl->h());
+    reference_to<Fl_Group>(pw).resize(loc.x(),loc.y(),pw->w(),pw->h());
+ // Layout::resize(x,y);
+}
+ pw->redraw();
   }
 
 

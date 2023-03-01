@@ -25,7 +25,12 @@ public:
   Point operator+(float i) const {return {x_+i,y_+i};}
   Point operator-(float i) const {return {x_-i,y_-i};}
   Point operator*(float i) const {return {x_*i,y_*i};}
-
+  bool operator<(const Point &p)const {
+                                if(*this==p) return false;          //если точки равны то не меньше
+                                      if(fabs(x_ -p.x())<fl_eps)    // если равны по x
+                                              return y_<p.y_;      // значит не равны по y
+                                        return x_<p.x_;
+                                       }
 
   // операторы работы с точкой больше оперируют векторам,
 

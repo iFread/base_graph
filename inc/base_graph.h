@@ -54,7 +54,7 @@ public:
      Vertex* v() {return this;}
      Vertex* ccv() {return reinterpret_cast<Vertex*>(prev());}
      Vertex*cv() {return reinterpret_cast<Vertex*>(next());}
-
+   void change(Point p){this->x()=p.x();this->y()=p.y();}
 
      void trace(std::ostream &os){
        // Vertex*p=reinterpret_cast<Vertex*>(ptr->next()) ;
@@ -94,7 +94,7 @@ int size()const {return size_;}
  Vertex* operator[](int i);
 
  Vertex* operator[](int i)const;
-Vertex* operator->(){return ptr;}
+ Vertex* operator->(){return ptr;}
 
 //пройти по всему списку, и удалить вершины
 // удаляем в обратном порядке
@@ -114,22 +114,26 @@ void clear();
 
 
 class Shape {
+public:
+     enum line_type :uint8_t {none_,open_line,close_line};
 protected: // но это не точно
+
     Vertex_list v;
    Color lcolor{Fl_Color()};
   Line_style ls{0};
   Color fcolor{Color::invisible};
+  line_type type_{none_};
 
 public:
 
-Shape(Point a):v(){v.add(a);std::cout<<"default shape\n";}
+Shape(Point a,line_type tp=none_):v(),type_(tp){v.add(a);std::cout<<"default shape\n";}
 // определить copy operator=()
 //Shape(const Shape&)=delete;
 Shape(const Shape& sp):v(sp.v) {}
-Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor)
+Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),type_(none_)
 {std::cout<<"move ctor\n";}
-
-
+Shape& operator=(Shape&& sh);
+line_type type() const;
 virtual ~Shape(){}
 
 
@@ -147,15 +151,22 @@ vp->ccv()->trace(os);
 }
 Vertex_list& operator->(){return v;}
 
-//
+virtual void change(Point p,int i=-1) =0;//{v[i]->change(p);}  // либо определить функцию  int index(Point p) - возвращает индекс вершины, координаты которой соответствуют точке p
+// change(const Point vert, Point v);  поставить в соответствие точке      //=> или -1, если такой точки нет
+// так же определить capche_vertex(Point p)  // примерное соответствие вершины,
+// или определить move() для vertex
 Point operator[](int i) const { return *(v[i]); }
-
+void remove(int index=-1);
 int size()const {return v.size();}
  void draw() const;
+ void draw(Point o,int sc=1) const;
+virtual void add(Point p)=0;//{v.add(p);}
 protected:
 virtual void draw_lines() const=0;
-void add(Point p){v.add(p);} // virtual???
+ virtual void draw_lines(Point p,int scale ) const=0;
+// virtual???
 
+// изменение текущей фигуры :
 
 
 };
@@ -165,25 +176,32 @@ class line:public Shape{
 
 public:
     line(Point a,Point b):Shape(a){
-        add(b);
+        Shape::add(b);
                                  }
-
+ void change(Point p,int i=1);
+protected:
  void draw_lines()const;
-
+ void draw_lines(Point p, int sc=1)const;
+private:
+ void add(Point ) {return;} // ничуго не делаем
 };
 
 // линии от них наследуются полигон и ломанная линия
 class lines:public Shape
 { protected:
-    enum line_type :uint8_t {open_line,close_line};
+
 public:
 
-    lines(Point a,line_type tp=open_line):Shape(a),type_(tp){}//line_type::open_line){}             // ломанная
+    lines(Point a,line_type tp=open_line):Shape(a,tp){}//line_type::open_line){}             // ломанная
   //  lines(Point a,Point b):Shape(a),type_(line_type::close_line){add(b);}  // полигон
    void add(Point p){Shape::add(p);}
+    void change( Point p,int i=-1);
+protected:
    void draw_lines()const;
+   void draw_lines(Point p, int sc=1)const;
+
 private:
-line_type type_;
+//line_type type_;
 
 };
 
@@ -192,8 +210,14 @@ class rectangle:  public Shape
 {
 
 public:
-    rectangle(Point a,Point b);
-void draw_lines() const;
+    rectangle(Point a,Point b,line_type tp=none_);
+     void change(Point p,int i=2);
+protected:
+    void draw_lines() const;
+void draw_lines(Point p, int sc=1)const;
+
+private:
+void add(Point) {return;}
 };
 
 
@@ -202,7 +226,9 @@ class poligon:public lines{
 public:
     poligon(Point a):lines(a,lines::close_line){}
     void add(Point o);
-
+     void change(Point p,int i=0);  //как бы получить размер фигуры?
+protected:
+ //    void draw_lines(Point p, int sc=1)const;
 };
 
 
