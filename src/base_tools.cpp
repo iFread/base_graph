@@ -5,6 +5,17 @@ namespace Graph {
 
 
 void creat_tool::set_shape(creat_ptr ptr) {
+
+    if(current)
+    {
+
+ if( stage==modify_sh && !(current->type()==Shape::none_)) // если многоугольник удаляем последнюю точку
+         current->remove(current->size());
+
+ free(current);
+      current=nullptr;
+    stage=none_sh;
+    }
 create=ptr;
 }
 
@@ -19,7 +30,7 @@ Fl::focus(&c->content());
          c->add(current);
          stage=modify_sh; }}
 
- else if (stage==modify_sh){  // если фигура создана можно завершить модификацию, или модифицировать фигуру
+ else if (stage==modify_sh) {  // если фигура создана можно завершить модификацию, или модифицировать фигуру
       switch (ev)
       {
       case FL_MOVE: // change виртуальная функция
@@ -33,6 +44,7 @@ Fl::focus(&c->content());
        case FL_LEFT_MOUSE:  // левая кнопка, сохраняет фигуру, переводим в раздел готова
         if(current->type()==Shape::none_)
           {  stage=ready_sh;
+            capche(current);
              break;
             }
           current->add(c->cursor_position());
@@ -45,28 +57,27 @@ Fl::focus(&c->content());
           break;
         }
   // для polyline and polygon  убираем последнюю точку
-          std::cout<<"remove vertex : "<<current->size()<<"\n";
-          current->remove(current->size());
-          stage=ready_sh;
-          std::cout<<" after remove vertex : "<<current->size()<<"\n";
 
+          current->remove(current->size());
+          capche(current);
+          stage=ready_sh;
           break;
         }
           break;
       default:
           std::cout<<"unknoun event :"<<ev<<"\n";   }}
-
   else {
         // при установке ready_sh  фигура должна быть выделенной , в этот момент ее можно удалить правой кнопкой
      if(ev==FL_PUSH) {
       if(Fl::event_button()==FL_RIGHT_MOUSE)
        {
-          c->remove(current);
+            c->remove(current);
              current=nullptr;
              stage=none_sh;
      }
       if(Fl::event_button()==FL_LEFT_MOUSE)
          {
+         free(current);
           current=nullptr;
           stage=none_sh;
        }
@@ -75,38 +86,41 @@ Fl::focus(&c->content());
       c->remove(current);
          current=nullptr;
          stage=none_sh;
-   }
+      }
     }
 }
 
+void creat_tool:: capche(Shape* cur){
+   cur->vertex_visible(true);
+    cur->set_vertex(Color::red,5);
+}
+
+void creat_tool::free(Shape *cur){
+    cur->vertex_visible(false);
+     cur->set_vertex(Color::black,1);
+
+
+}
 
 
 
-
-//  if(current){
- //    current->change(2,c->cursor_position());
-
- //  else
-  //  if(create){
-     //create(c->cursor_position()));
-        // c->set_tool()
-
-
-// в tool мщжем проверять состояние
-
-
-
-Shape* get_line(Point p){
-
+Shape* get_line(Point p) {
     return new line(p,p);
-}
+ }
 
-Shape* get_rectangle(Point p){
+Shape* get_rectangle(Point p) {
     return new rectangle(p,p);
-}
+    }
 Shape* get_polyline(Point p) {
-     lines* pl= new lines(p);
+     lines* pl= new lines(p,Shape::close_line);
            pl->add(p);
            return pl; }
-
+Shape* get_polygon(Point p) {
+     polygon* pl= new polygon(p);
+     pl->add(p);
+           return pl; }
+Shape *get_circle(Point p)
+{
+    return new circle(p);
+}
 }

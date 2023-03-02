@@ -75,6 +75,9 @@ ln.attach(Graph::VLayout ({10,210}));
  Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"line"));
  Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"polyline"));
   Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"rectangle"));
+ Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"polygon"));
+Graph::reference_to<Graph::VLayout>(&ln[0]).attach(Graph::Button({10,200},70,20,"circle"));
+
 
 vln.attach(Graph::Button({0,10},70,20,"move+"));
 vln.attach(Graph::Button({0,10},70,20,"move-"));
@@ -128,10 +131,25 @@ l[1].callback([](Graph::Address,Graph::Address adr){
   Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
   //p.move(10,10);
  p.set_tool(Graph::get_rectangle);
+ //p.content().redraw();
+ },&scrl[0]);
+
+ l[3].callback([](Graph::Address,Graph::Address adr){
+  Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+  //p.move(10,10);
+ p.set_tool(Graph::get_polygon);
+ //p.content().redraw();
+ },&scrl[0]);
+ l[4].callback([](Graph::Address,Graph::Address adr){
+  Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
+  //p.move(10,10);
+ p.set_tool(Graph::get_circle);
+ //p.content().redraw();
  },&scrl[0]);
 
 
-//for(int i=0;i<10;++i) {
+
+ //for(int i=0;i<10;++i) {
 //sleep(1);
 //ln[0].move((ln.position()+10).x(),(ln.position()+10).y());
 //win.redraw();

@@ -61,7 +61,7 @@ void fl_canvas::add(Shape* sh){
 
 void fl_canvas::remove(Shape*sh){
 
-    for(int i=0;i<vec.size();++i)
+    for(size_t i=0;i<vec.size();++i)
  {
    if(sh==vec[i])
      {

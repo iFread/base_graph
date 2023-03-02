@@ -24,7 +24,7 @@ class Canvas;
 class base_tool {
 
 public:
-    enum   tool_type:unsigned char{none_t,creating_t,mogify_t};
+    enum   tool_type:uint8_t{none_t,creating_t,mogify_t};
 
     base_tool(tool_type tp):tp_(tp){}
    virtual ~base_tool(){}//if(current) delete current;}
@@ -35,13 +35,14 @@ public:
    // virtual void draw()=0;
     tool_type type()const {return tp_;}
 protected:
-     void capche(Shape* cur);  // Логика: Canvas определяет когда мышь наведена на фигуру
-            // т.е. при нажатии на выделенной(подсвеченна при наведении) фигуре capche() захватывает указатель,
-            // позволяя через него модифицировать фигуры
-
-   // очищает указатель current, причем, нужно понимать владеем мы этой фигурой или нет
-
-
+     void capche(Shape* cur);
+     void free(Shape *cur);
+     // Логика: Canvas определяет когда мышь наведена на фигуру
+              // т.е. при нажатии на выделенной(подсвеченна при наведении) фигуре capche() захватывает указатель,
+              // позволяя через него модифицировать фигуры
+               // очищает указатель current, причем, нужно понимать владеем мы этой фигурой или нет
+ void insert(Shape *p) ;// захват фигуры
+ void erase(Shape* p); // удаление фигуры, здесь фигура уже захваченна, возможно не стоит передавать параметр
 protected:
     Shape* current{nullptr};
     tool_type tp_{tool_type::none_t};
@@ -62,13 +63,17 @@ class creat_tool:public base_tool
  //этапы создания фигуры,
 enum stage_tool:uint8_t {none_sh, modify_sh,ready_sh};
 
-
-
 public:
     creat_tool():base_tool(tool_type::creating_t){}
-      void set_shape(creat_ptr ptr); //create=ptr ;
+
+   ~creat_tool() { ;}
+
+    void set_shape(creat_ptr ptr); //create=ptr ;
  // ac
   void action(Canvas *c,int ev); // Widget *w ???
+protected:  // virtual in base class??
+  void capche(Shape* cur);
+  void free(Shape *cur);
 
 private:
                  //   action() {      // Возможно определить статический флаг, для вызова action
@@ -83,7 +88,8 @@ private:
  Shape* get_line(Point p);
 Shape* get_rectangle(Point p);
 Shape* get_polyline(Point p);// {return new lines(p);}
-
+Shape* get_polygon(Point p);
+Shape* get_circle(Point p);
 class modify_tool:public base_tool {
 
 

@@ -1,4 +1,6 @@
 #include "base_graph.h"
+#include "math/math_primitives.h"
+
 #include <typeinfo>
 
 namespace Graph {
@@ -38,7 +40,7 @@ return this;
 Point Vertex_list::remove(int index)
 {
   // если есть что удалять удаляем,
- index=(index>size()-1)?size()-1:index;
+ index=(index>size())?size():index;
 if(ptr)
  {
  Vertex*v= operator[](index);//->remove();
@@ -115,7 +117,7 @@ void Vertex_list::add(Point p)
 
 Vertex* Vertex_list::operator[](int i)
 {
- int cnt=(i<size_)?i:size_;
+ int cnt=(i<size_ -1)?i:size_ -1;
  Vertex*w=ptr;
 
  while(cnt>0) // while(cnt--){}
@@ -129,7 +131,7 @@ Vertex* Vertex_list::operator[](int i)
   Vertex* Vertex_list::operator[](int i) const
 {
      Vertex*w=ptr;
-   int cnt=(i<size()-1)?i:size()-1;
+   int cnt=(i<size_ -1)?i:size_-1;
    while(cnt > 0) // while(cnt--){}
         {
        w=w->cv();
@@ -172,20 +174,33 @@ void Shape::add(Point p){
 
 void Shape::remove(int index)
 {
-  index=(index>size()-1)?size()-1:index;
+ // index=(index>size()-1)?size()-1:index;
+   index=(index>size())?size():index;
   v.remove(index);
 
 }
 void Shape::draw(Point o,int sc) const {
-
+//vertex_visible(true);
     Fl_Color old=fl_color();
       fl_color(lcolor.as_int());
       fl_line_style(ls.style(),ls.width());
-      draw_lines(o,sc);
+       draw_lines(o,sc);
+   if(vertex_visible())
+          draw_vertex(o,sc);
       fl_color(old);
       fl_line_style(0);
 }
+void Shape::draw_vertex(Point p, int sc) const
+{
 
+for(int i=0;i<size();++i)
+{
+    int k=vs.v_r()/2;
+  fl_color(vs.v_color());
+  fl_pie(v[i]->x()*sc+p.x()-k,v[i]->y()*sc+p.y()-k,vs.v_r(),vs.v_r(),0,360);
+}
+
+}
 
 // здесь const  метод, он не может вызывать не константные методы
  void Shape:: draw_lines()const {
@@ -248,11 +263,9 @@ fl_line(v[b-1]->x(),v[b-1]->y(),v[b]->x(),v[b]->y());
  }
 
  void lines::draw_lines(Point p, int sc)const{
-for(int b=1,e= (type_==open_line)?v.size():v.size();b<e;) // на последней вершине так же итерируемся
+for(int b=1,e= (type_==open_line)?v.size():v.size();b<=e;) // на последней вершине так же итерируемся
 {
-    std::cout<<v.size()<<" : "<<e<<"\n";
-
-fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
+ fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
 ++b;
 //if(b==e)
 //    break;
@@ -262,7 +275,7 @@ fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*s
  {
   // i=(v.size()-1<i)?v.size() :i;
    if(i==-1) {
-        i=size()-1 ;
+        i=size() ;
       }
    if(p.isValid())
       v[i]->change(p);
@@ -325,18 +338,88 @@ int w=v[i]->x()-cross->x();//(v[i]->content()<cross)?v[i]->x()-cross.x():v[i]->x
  //******************* poligon
 
 
- void poligon::add(Point o){
-//Здесь проверить что новые грани не пересекают уже существующие
-     Shape::add(o);
+bool polygon::isAcross(int idx) const
+{    if(size()>3)   // если у нас только меньше 4 точек, проверять не нужно
+    { int next,prev;
+       next=(idx==size()-1)?0:idx+1;
+       prev=(idx==0)?size()-1:idx-1;
+        if(isAcross(idx,next)||isAcross(idx,prev))
+            return true;
+    }
+    return false;
+}
+bool polygon::isAcross(int id1,int id2) const{
 
+if(size()>3)
+{
+    using namespace math ;
+    vector2d v1(*v[id1],*v[id2]);
+    for(int i=0;i<size();++i){
+      if(i==id1||i==id2) continue;
+   if(i==size()-1) {
+       if(v1.intersect({*v[0],*v[i]}))
+           return true;
+       return false;
+    }
+      if(v1.intersect({*v[i],*v[i+1]}))
+          return true;
+    }
+
+}return false;
+}
+
+ void polygon::add(Point o){
+// проверить что для  отрезков [v[0],p] и  [v[size()-1],p]  нет пересечения с другими  гранями
+ // точка o - уже является вершиной полигона,- последней вершиной по индексу size()-1
+    if(!isAcross(size()-1))
+        Shape::add(o);
  }
 
- void poligon::change( Point p,int i) {
+ void polygon:: draw_lines(Point p, int sc)const {
+     Fl_Color old =fl_color();
+     for(int b=1,e= v.size();b<= e;++b) // на последней вершине так же итерируемся
+     {
 
+         if(isAcross(b-1,b))
+            fl_color(FL_RED);
+
+       if(b==e) {
+         if(isAcross(0,b-1))
+          fl_color(FL_RED);
+              fl_line(v[0]->x()*sc+p.x(),v[0]->y()*sc+p.y(),v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y());
+              fl_color(old);
+            break;
+      }
+  fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
+
+  fl_color(old);
+      }
+ }
+
+ void polygon::change( Point p,int i) {
+     if(i==-1) {
+          i=size() ;
+        }
     lines:: change(p,i);
 
  }
 
+ //*********************circle
+
+ void circle::draw_lines(Point p,int sc) const {
+
+fl_arc((v[0]->x()-r)*sc+p.x(),(v[0]->y()-r)*sc+p.y(),(r+r)*sc,(r+r)*sc,0,360);
+ }
+ void circle::draw_lines() const{
+
+ }
+ // устанавливает новый радиус как расстояние между p и центром
+
+ void circle::change( Point p,int ) {
+int w=v[0]->x()-p.x();
+int h=v[0]->y()-p.y();
+  r=sqrt(w*w+h*h)+0.5;
+  }
 }
 
 

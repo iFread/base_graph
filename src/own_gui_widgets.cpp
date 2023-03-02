@@ -44,10 +44,12 @@ pw->user_data(v);
 
 void Canvas::set_tool(cb_creating_t p)
 {
-    if(tl_)
-        delete tl_;
-    tl_=new creat_tool();
-reference_to<creat_tool>(tl_).set_shape(p);
+    if(!(tl_ && tl_->type()==tool::creating_t))
+    {      delete tl_;
+        tl_=new creat_tool();
+         }
+    reference_to<creat_tool>(tl_).set_shape(p);
+     pw->redraw();
 }
 
 void Canvas::set_tool(tool* tl){
@@ -87,6 +89,11 @@ int Canvas::handle(int i){
 //        std::cout<<"unknown event in Canvas : "<<i<<"\n";
 
 //    }
+
+
+ // отрисовку виджета следует выполнять по необходимости,
+ // будет вызываться по результатам action()
+ // так в режиме модификации вызывать при движении, в режиме ready_sh вызывать по нажатию
     pw->redraw();
 
     return i;

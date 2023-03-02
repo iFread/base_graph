@@ -48,7 +48,9 @@ public:
 
      void change(Point p){this->x()=p.x();this->y()=p.y();}
 
-     void trace(std::ostream &os){
+     Point operator*(){return *this;}
+
+    void trace(std::ostream &os){
        // Vertex*p=reinterpret_cast<Vertex*>(ptr->next()) ;
        // while (p!=ptr)
         {os<<x()<<", "<<y()<<"\n";
@@ -117,6 +119,8 @@ protected: // но это не точно
    Color lcolor{Fl_Color()};
   Line_style ls{0};
   Color fcolor{Color::invisible};
+  Vertex_style vs;
+
   line_type type_{none_};
 
 public:
@@ -125,13 +129,22 @@ Shape(Point a,line_type tp=none_):v(),type_(tp){v.add(a);std::cout<<"default sha
 // определить copy operator=()
 //Shape(const Shape&)=delete;
 Shape(const Shape& sp):v(sp.v) {}
-Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),type_(none_)
+Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),vs(sh.vs),type_(none_)
 {std::cout<<"move ctor\n";}
 Shape& operator=(Shape&& sh);
 line_type type() const;
 virtual ~Shape(){}
 
+// функции для отображения фигур
 
+// Вершины
+void vertex_visible(bool b){ls.set_vertex(b);};
+bool vertex_visible() const {return ls.vertex_visible();}
+void set_vertex(Color c,int r=1){vs.set_vertex_style(c,r);}
+ // ребра
+  Color color() const{return lcolor;}
+  Line_style style() const {return ls;}
+  Color fillcolor() const {return fcolor;}
 
 void trace(std::ostream &os) {
     Vertex*vp=v[0];//->cv();//reinterpret_cast<Vertex*>(v->next());
@@ -159,7 +172,9 @@ virtual void add(Point p)=0;//{v.add(p);}
 protected:
 virtual void draw_lines() const=0;
  virtual void draw_lines(Point p,int scale ) const=0;
-// virtual???
+
+ void draw_vertex(Point o,int sc) const;
+ // virtual???
 
 // изменение текущей фигуры :
 
@@ -178,7 +193,7 @@ protected:
  void draw_lines()const;
  void draw_lines(Point p, int sc=1)const;
 private:
- void add(Point ) {return;} // ничуго не делаем
+ void add(Point ) {return;} // ничего не делаем
 };
 
 // линии от них наследуются полигон и ломанная линия
@@ -216,15 +231,39 @@ void add(Point) {return;}
 };
 
 
-class poligon:public lines{
+class polygon:public lines{
 
 public:
-    poligon(Point a):lines(a,lines::close_line){}
+    polygon(Point a):lines(a,lines::close_line){}
     void add(Point o);
      void change(Point p,int i=0);  //как бы получить размер фигуры?
 protected:
- //    void draw_lines(Point p, int sc=1)const;
+    void draw_lines(Point p, int sc=1)const;
+    // полигон выпуклый, но при изменении вершины это свойство может нарушится,
+    // но для наглядности, при пересечении отображаем другим цветом
+    bool isAcross(int idx=0) const; // проверка пересечения смежных ребер вершины idx с остальными
+    bool isAcross(int id1,int id2) const; // проверка пересечения для конкретного ребра
 };
+
+class circle:public Shape{
+ int r;
+
+public:
+    circle(Point p,int rad=0):Shape(p),r(rad){}
+  // варианты, если r<=0, то устанваливаем радиус как расстояние между точками,
+   // если r>0, изменяется центр(move(shape???))
+    void change(Point p,int r=-1);
+protected:
+    void draw_lines(Point p,int sc=1) const;
+   void draw_lines() const;
+
+private:
+    void add(Point ){return;}
+
+
+
+};
+
 
 
 

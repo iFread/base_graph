@@ -56,9 +56,24 @@ struct Line_style {
 
     int width() const { return w; }
     int style() const { return s; }
+    void set_vertex(bool vert){v=vert;}
+    bool vertex_visible()const {return v;}
 private:
     int s;
     int w;
+    bool v{false}; // отображает верщины
+};
+
+struct Vertex_style{
+private:
+    Color c;
+  int sz;
+public:
+  Vertex_style(Color col=Fl_Color(),int o=3):c(col),sz(o){}
+ // Vertex_style(Color col):c(col),r(1){}
+  int v_r() const {return sz;}
+ int v_color() const {return c.as_int();}
+ void set_vertex_style(Color cl, int s=3){c=cl;sz=s;}
 };
 
 class Font {
