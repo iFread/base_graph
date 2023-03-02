@@ -35,15 +35,19 @@ return this;
 
 
 
-Vertex* Vertex_list::remove()
+Point Vertex_list::remove(int index)
 {
   // если есть что удалять удаляем,
- if(ptr)
+ index=(index>size()-1)?size()-1:index;
+if(ptr)
  {
-  size_-=1;
-     return  (Vertex*)ptr->prev()->remove();
+ Vertex*v= operator[](index);//->remove();
+ Point r=v->content();
+ delete v;
+ size_--;
+  return r;
   }
- return nullptr;
+return {NAN,NAN};
 }
 //********************
 Vertex_list::Vertex_list(const Vertex_list& cv){
@@ -54,8 +58,7 @@ for(int i=0;i<cv.size();++i){
 }
 Vertex_list& Vertex_list:: operator=(const Vertex_list& cv)
 {
-  //  this->size_=cv.size_;
-    //remove();  // нужно удалить все существующие точки
+      //remove();  // нужно удалить все существующие точки
    clear(); //
     for(int i=0;i<size();++i){
        add(*cv[i]);
@@ -88,42 +91,31 @@ vl.ptr=tmp;
 
 void Vertex_list::clear()
 {
-    Vertex*p=ptr->ccv();
-    while (p!=ptr)
-    {
-     delete p->remove();
-  p=ptr->ccv();
-    }
-  delete ptr;
 
-ptr=nullptr;
+  for(int i=size();i>0;--i){
+    remove(i);
+    }
+
 }
 
 Vertex_list::~Vertex_list()
 {
-//    Vertex *p=ptr->ccv();
-  if(ptr) {
-    Vertex*p=ptr->ccv();
-    while (p!=ptr)
-    {
-     delete p->remove();
-  p=ptr->ccv();
-    }
-  delete ptr;
- }}
+clear();
+}
 
 
 void Vertex_list::add(Point p)
 {if(ptr)
-         ptr->insert(new Vertex(p));
-         else ptr=new Vertex(p);
+    {     ptr->insert(new Vertex(p));
+        }
+    else ptr=new Vertex(p);
      std::cout<<"insert "<<p.x()<<", "<<p.y()<<"\n";
                    size_++;
                   }
 
 Vertex* Vertex_list::operator[](int i)
 {
- int cnt=(i<size_-1)?i:size_-1;
+ int cnt=(i<size_)?i:size_;
  Vertex*w=ptr;
 
  while(cnt>0) // while(cnt--){}
@@ -138,15 +130,11 @@ Vertex* Vertex_list::operator[](int i)
 {
      Vertex*w=ptr;
    int cnt=(i<size()-1)?i:size()-1;
-//  std::cout<<"cnt = "<<cnt<<"\n";
    while(cnt > 0) // while(cnt--){}
         {
        w=w->cv();
        cnt--;
       }
- //std::cout<<"cnt = "<<cnt<<"\n";
-
- //  std::cout<<"w = "<<w->x()<<", "<<w->y()<<"\n";
    return w;
    }
 
@@ -185,7 +173,7 @@ void Shape::add(Point p){
 void Shape::remove(int index)
 {
   index=(index>size()-1)?size()-1:index;
- delete v[index]->remove();
+  v.remove(index);
 
 }
 void Shape::draw(Point o,int sc) const {
@@ -201,13 +189,8 @@ void Shape::draw(Point o,int sc) const {
 
 // здесь const  метод, он не может вызывать не константные методы
  void Shape:: draw_lines()const {
-     //const  Vertex * w=v->v(); // no const
-//     for(;v->v();)//;v->cv()!=v->v();w=w->cv())
-//     {
-//       fl_line(w->_x,w->_y,w->cv()->_x,w->cv()->_y);
-//     }
- //* * * *
-  std::cout<<typeid (this).name()<<"\n";
+
+ // std::cout<<typeid (this).name()<<"\n";
 for(int i=1;i<v.size();i++) // перемещение
 {
   fl_line(v[i-1]->x(),v[i-1]->y(),v[i]->x(),v[i]->y());
@@ -268,10 +251,6 @@ fl_line(v[b-1]->x(),v[b-1]->y(),v[b]->x(),v[b]->y());
 for(int b=1,e= (type_==open_line)?v.size():v.size();b<e;) // на последней вершине так же итерируемся
 {
     std::cout<<v.size()<<" : "<<e<<"\n";
-//if(type_==open_line && b==e ) {
-//    fl_line(v[0]->x()*sc+p.x(),v[0]->y()*sc+p.y(),v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y());
-//    break;
-//}
 
 fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
 ++b;
@@ -354,6 +333,7 @@ int w=v[i]->x()-cross->x();//(v[i]->content()<cross)?v[i]->x()-cross.x():v[i]->x
 
  void poligon::change( Point p,int i) {
 
+    lines:: change(p,i);
 
  }
 

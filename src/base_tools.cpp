@@ -38,15 +38,19 @@ Fl::focus(&c->content());
           current->add(c->cursor_position());
           break;
       case FL_RIGHT_MOUSE: // удалить фигуру, из canvas
-  if(current->type()==Shape::none_){
+   if(current->type()==Shape::none_){
           c->remove(current);
            current=nullptr;
           stage=none_sh;
-          break;}
+          break;
+        }
   // для polyline and polygon  убираем последнюю точку
-   current->remove(current->size()-1);
+          std::cout<<"remove vertex : "<<current->size()<<"\n";
+          current->remove(current->size());
           stage=ready_sh;
-              break;
+          std::cout<<" after remove vertex : "<<current->size()<<"\n";
+
+          break;
         }
           break;
       default:

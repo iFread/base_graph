@@ -41,7 +41,7 @@ srand(time(0));
   //Graph::Shape* sh2=  new Graph::Shape;
   //Graph::Button bt1({10,10},70,20,"hello");
   // Graph::Button bt2({10,30},70,20,"hello");
-  Graph::HLayout ln({ 0,  0});
+  Graph::HLayout ln({ 10,  70});
 //Graph::Out_Box({200,200},70,20,"hello2"));
   Graph::VLayout vln({10,10});
 //win.attach(bt1);
@@ -50,15 +50,15 @@ win.attach(ln);
 //win.attach(vln);
 //ln.add()
 
-Graph::Scroll scrl({210,70},550,500);
-Graph::Canvas can ({150,50},1000 ,1000);
+Graph::Scroll scrl({230,70},550,500);
+//Graph::Canvas can ({150,50},1000 ,1000);
 
 
 
 win.attach(scrl);
  // scrl.resize(200,400);
 // scrl.add(can1);
- scrl.attach(can);//Graph::Canvas  ({150,50},1000 ,1000));
+ scrl.attach(Graph::Canvas  ({150,50},1000 ,1000));
 
 // can2.set_tool(&can2); // устанавливаем родителя для класса
 
@@ -95,12 +95,12 @@ vln[0].callback([](Graph::Address,Graph::Address adr){
     Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
      //p.set_tool(Graph::get_line);
 p.move(10,10);
-},&can);
+},&scrl[0]);
 vln[1].callback([](Graph::Address,Graph::Address adr){
     Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
      //p.set_tool(Graph::get_line);
 p.move(-10,-10);
-},&can);
+},&scrl[0]);
 //vln.add(Graph::Button ({0,10},90,20,"hello2"));
 Graph::Layout& l=Graph::reference_to<Graph::Layout>(&ln[0]);
 //l[0].resize(100,100);
@@ -115,12 +115,12 @@ l[0].callback([](Graph::Address,Graph::Address adr){
       Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
   p.set_tool( Graph::get_line);
 //p.move(-10,-10);
-},&can);
+},&scrl[0]);
 l[1].callback([](Graph::Address,Graph::Address adr){
       Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
   p.set_tool( Graph::get_polyline);
 //p.move(-10,-10);
-},&can);
+},&scrl[0]);
 
 
 //Graph::reference_to<Graph::Layout>(&ln[0])[1].
@@ -128,7 +128,7 @@ l[1].callback([](Graph::Address,Graph::Address adr){
   Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
   //p.move(10,10);
  p.set_tool(Graph::get_rectangle);
- },&can);
+ },&scrl[0]);
 
 
 //for(int i=0;i<10;++i) {

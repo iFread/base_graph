@@ -35,18 +35,9 @@ public:
      Vertex(const Vertex &v)  =delete;
      Vertex(Vertex&& v)=delete;
 ~Vertex(){}
-     // для Vertex следует определить  сравнение
-     //
+      Point content()const {return *this;}
 
-     Point content()const {return *this;}
-     Vertex & operator=(const Vertex& v) =delete;
- //{
-         //  НАшу точку выставить равной точке v
-      //     this->next()=v.next();
-     //    this->prev()=v.prev();
- // *reinterpret_cast<Point*>(this) =v.content();
- // return *this;
- // }
+      Vertex & operator=(const Vertex& v) =delete;
 
     // const Vertex* v()const {return this;}
    //  const Vertex* ccv() const {return reinterpret_cast<Vertex*>(this->Node::prev());}
@@ -54,7 +45,8 @@ public:
      Vertex* v() {return this;}
      Vertex* ccv() {return reinterpret_cast<Vertex*>(prev());}
      Vertex*cv() {return reinterpret_cast<Vertex*>(next());}
-   void change(Point p){this->x()=p.x();this->y()=p.y();}
+
+     void change(Point p){this->x()=p.x();this->y()=p.y();}
 
      void trace(std::ostream &os){
        // Vertex*p=reinterpret_cast<Vertex*>(ptr->next()) ;
@@ -63,6 +55,8 @@ public:
         //p=reinterpret_cast<Vertex*>(p->next());
         }
 }
+
+
 };
 
 
@@ -88,13 +82,14 @@ void add(Point p);
 // -->  void add(Point p);   -->   // нужно добавлять вершину после определенной вершины
 
 void add(const Vertex *v, Point p); //добавить вершину, после ,v
-Vertex* remove();
+Point remove(int index);
 int size()const {return size_;}
 
  Vertex* operator[](int i);
 
  Vertex* operator[](int i)const;
- Vertex* operator->(){return ptr;}
+
+//Vertex* operator->(){return ptr;}
 
 //пройти по всему списку, и удалить вершины
 // удаляем в обратном порядке
@@ -118,7 +113,7 @@ public:
      enum line_type :uint8_t {none_,open_line,close_line};
 protected: // но это не точно
 
-    Vertex_list v;
+   Vertex_list v;
    Color lcolor{Fl_Color()};
   Line_style ls{0};
   Color fcolor{Color::invisible};
@@ -139,23 +134,23 @@ virtual ~Shape(){}
 
 
 void trace(std::ostream &os) {
-    Vertex*vp=v->cv();//reinterpret_cast<Vertex*>(v->next());
+    Vertex*vp=v[0];//->cv();//reinterpret_cast<Vertex*>(v->next());
 while(true){
- vp->ccv()->trace(os);
+ vp->trace(os);
  vp=vp->cv();
-  if(vp==v->v()){
-vp->ccv()->trace(os);
+  if(vp==v[0]){
+//vp->ccv()->trace(os);
  break;
   }
 }
 }
-Vertex_list& operator->(){return v;}
+//Vertex_list& operator->(){return v;}
 
 virtual void change(Point p,int i=-1) =0;//{v[i]->change(p);}  // либо определить функцию  int index(Point p) - возвращает индекс вершины, координаты которой соответствуют точке p
-// change(const Point vert, Point v);  поставить в соответствие точке      //=> или -1, если такой точки нет
-// так же определить capche_vertex(Point p)  // примерное соответствие вершины,
-// или определить move() для vertex
+
+// доступ только к точке
 Point operator[](int i) const { return *(v[i]); }
+
 void remove(int index=-1);
 int size()const {return v.size();}
  void draw() const;
