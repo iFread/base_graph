@@ -16,18 +16,12 @@ h_=h;
 Widget & Canvas::create(){
 
     return *new Canvas(std::move(*this));
-
 }
-
-
-
 
 Fl_Widget & Canvas::content() {
 
     return reference_to<fl_canvas>(pw);
 }
-
-
 void Canvas::add(Shape *sh)
 {
  reference_to<fl_canvas>(pw).add(sh);
@@ -69,27 +63,15 @@ tl_=tl;
 */
 
 int Canvas::handle(int i){
- if(tl_) tl_->action(this,i);
-//    switch (i)
-//    {
-//         //tool->action(this);
-//    case FL_MOVE:
-
-//      std::cout<< current.x()<<", "<<current.y()<<"\n";
-//        break;
-//    case FL_PUSH:
-//           //t->action(this); =   void action(Canvas* c) { c.add(create({current})) }
-//        break;
-
-//    case FL_RELEASE:
-
-//        break;
-
-//    default:
-//        std::cout<<"unknown event in Canvas : "<<i<<"\n";
-
-//    }
-
+ // по ссылке удобнее: it(tl_)tl_-action(*this,i)
+    if(tl_) tl_->action(this,i);
+// Подумать :1. если canvas будет выбирать tool который устанавливается в данный момент???
+    // 2.canvas содержит стек tool = после создания фигуры (creat_tool), в стек добавляется transform_tool
+    // после завершения модификации убираем transform_tool
+    // transform_tool так же может иметь различия по изменениям фигур,
+    // например в полигон можно добавить вершину, в прямоугольник нельзя,
+        //  для изменения класса фигур отдельная функция: transform_to() // варианты трансформирования (прямоугольник - полигон, или ломанная)
+     // окружнось- элипс/ элипс- окружность(с явным выбором центра)// окружность- дуга окружности, и т.д.
 
  // отрисовку виджета следует выполнять по необходимости,
  // будет вызываться по результатам action()
@@ -98,17 +80,7 @@ int Canvas::handle(int i){
 
     return i;
 }
-//***************************
-//        switch (Fl::event_button())
-//        {
-//        case FL_LEFT_MOUSE:
-//           std::cout<<"left mouse button pushed\n";
-//            break;
-//        case FL_RIGHT_MOUSE:
-//            std::cout<<"right mouse button pushed\n";
-//            break;
 
-//        }
 
 
 }

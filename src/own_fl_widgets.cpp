@@ -12,9 +12,7 @@
 
 
 fl_canvas::fl_canvas(Point p, int w,int h):Fl_Widget(p.x(),p.y(),w,h,""),w_(w),h_(h)
-{
-
-}
+ {}
 fl_canvas::~fl_canvas(){
    for(Shape*p: vec)
        delete p;

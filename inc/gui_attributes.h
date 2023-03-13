@@ -3,7 +3,7 @@
 // определяет общие атрибуты для программы :
 // Цвет, тип линий, характеристики текста и шрифты
 // возможно продолжить
-
+#include <stdint.h>
  #include <FL/fl_draw.H>
 //#include <Fl/Fl.H>
 //#include <Fl/Fl_Window.H>
@@ -19,14 +19,14 @@ enum orientation {vertical, horisontal};
 
 
 struct Color {
-    enum Color_type {
+    enum Color_type :uint  {
         red=FL_RED, blue=FL_BLUE, green=FL_GREEN,
         yellow=FL_YELLOW, white=FL_WHITE, black=FL_BLACK,
         magenta=FL_MAGENTA, cyan=FL_CYAN, grey=FL_GRAY0,dark_red=FL_DARK_RED,
         dark_green=FL_DARK_GREEN, dark_yellow=FL_DARK_YELLOW, dark_blue=FL_DARK_BLUE,
         dark_magenta=FL_DARK_MAGENTA, dark_cyan=FL_DARK_CYAN,
     };
-    enum Transparency { invisible = 0, visible=255 };
+    enum Transparency:uint8_t { invisible = 0, visible=255 };
 
     Color(Color_type cc) :c(Fl_Color(cc)), v(visible) { }
     Color(Color_type cc, Transparency vv) :c(Fl_Color(cc)), v(vv) { }
@@ -43,7 +43,7 @@ private:
 
 
 struct Line_style {
-    enum Line_style_type {
+    enum Line_style_type:uint8_t {
         solid=FL_SOLID,      //_______
         dash=FL_DASH,       // - - - -
         dot=FL_DOT,         // .......
@@ -59,7 +59,7 @@ struct Line_style {
     void set_vertex(bool vert){v=vert;}
     bool vertex_visible()const {return v;}
 private:
-    int s;
+    char s;
     int w;
     bool v{false}; // отображает верщины
 };
@@ -67,9 +67,9 @@ private:
 struct Vertex_style{
 private:
     Color c;
-  int sz;
+  uint8_t sz;
 public:
-  Vertex_style(Color col=Fl_Color(),int o=3):c(col),sz(o){}
+  Vertex_style(Color col=Fl_Color(),uint8_t o=3):c(col),sz(o){}
  // Vertex_style(Color col):c(col),r(1){}
   int v_r() const {return sz;}
  int v_color() const {return c.as_int();}
@@ -78,7 +78,7 @@ public:
 
 class Font {
 public:
-    enum Font_type {
+    enum Font_type:uint8_t {
         helvetica=FL_HELVETICA,
         helvetica_bold=FL_HELVETICA_BOLD,
         helvetica_italic=FL_HELVETICA_ITALIC,

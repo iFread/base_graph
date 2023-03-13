@@ -169,15 +169,24 @@ void Shape:: draw()const{
     }
 
 void Shape::add(Point p){
-    v.add(p);
+    v.add(p); // если точка добавляется нет смысла перебирать всю фигуру,
+               // просто проверить, что данная точка лежит в диапазоне фигуры, либо изменить диапазон если это не так
+get_limits(p);
+     // get_limit_x();
+     //    get_limit_y();
 }
+
+// при удалении вершины следует так же проверять на изменение пределов
 
 void Shape::remove(int index)
 {
  // index=(index>size()-1)?size()-1:index;
    index=(index>size())?size():index;
-  v.remove(index);
-
+ Point p=v.remove(index);
+   if((p.x()==lim_x.x()||p.x()==lim_x.y())||p.y()==lim_y.x()||p.y()==lim_y.y())
+    { lim_x=get_limit_x();
+       lim_y=get_limit_y();
+    }
 }
 void Shape::draw(Point o,int sc) const {
 //vertex_visible(true);
@@ -222,8 +231,49 @@ for(int i=1;i<v.size();i++) // перемещение
 
 
  }
+ void Shape:: get_limits(Point o){
+   if(o.x()>lim_x.y())  // если больше верхнего диапазона, расширяем
+       lim_x.y()=o.x();
+   else if(o.x()<lim_x.x())  // если меньше нижнего расширяем
+       lim_x.x()=o.x();
+              // для y() аналогично
+  if(o.y()>lim_y.y())
+       lim_y.y()=o.y();
+  else if(o.y()<lim_y.y())
+     lim_y.y()=o.y();
+
+ }
+
+ // за линейное время O(N)
+ Point Shape::get_limit_x()  {
+    int min=v[0]->x();
+    int max=v[0]->x();
+
+    for(int i=1;i<size();++i) {
+       if(min>v[i]->x())
+            min=v[i]->x();
+       if(max<v[i]->x())
+           max=v[i]->x();
+    }
+    return Point(min,max);
+ }
+
+ Point Shape::get_limit_y(){
+    int min=v[0]->y();
+    int max=v[0]->y();
+
+    for(int i=1;i<size();++i) {
+       if(min>v[i]->y())
+            min=v[i]->y();
+       if(max<v[i]->y())
+           max=v[i]->y();
+    }
+    return Point(min,max);
+ }
 
 
+//************************************************************
+ //**********************
 
  void line::draw_lines()const{
  //    Shape::draw_lines();
@@ -250,6 +300,7 @@ for(int i=1;i<v.size();i++) // перемещение
 
 
 
+//***************************************************************
 //***************************lines
  void lines::draw_lines()const{
 for(int b=1,e= (type_==close_line)?v.size():v.size()-1;b<=e;++b) // на последней вершине так же итерируемся

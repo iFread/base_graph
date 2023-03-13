@@ -60,7 +60,7 @@ void add(Widget&& t){
 
 class Layout:public Widget{
 public:
-    enum Kind{none,horisontal,vertical};
+    enum Kind:uint8_t{none,horisontal,vertical};
  // хранит собственные виджеты
 // возможно виджеты должны быть одного типа, например кнопки, и т.д
 private:

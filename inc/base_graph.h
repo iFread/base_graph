@@ -120,9 +120,9 @@ protected: // но это не точно
   Line_style ls{0};
   Color fcolor{Color::invisible};
   Vertex_style vs;
-
   line_type type_{none_};
-
+Point lim_x;
+Point lim_y;
 public:
 
 Shape(Point a,line_type tp=none_):v(),type_(tp){v.add(a);std::cout<<"default shape\n";}
@@ -154,31 +154,37 @@ while(true){
   if(vp==v[0]){
 //vp->ccv()->trace(os);
  break;
-  }
-}
-}
+  } }}
 //Vertex_list& operator->(){return v;}
-
-virtual void change(Point p,int i=-1) =0;//{v[i]->change(p);}  // либо определить функцию  int index(Point p) - возвращает индекс вершины, координаты которой соответствуют точке p
 
 // доступ только к точке
 Point operator[](int i) const { return *(v[i]); }
 
-void remove(int index=-1);
 int size()const {return v.size();}
  void draw() const;
  void draw(Point o,int sc=1) const;
-virtual void add(Point p)=0;//{v.add(p);}
+
 protected:
 virtual void draw_lines() const=0;
  virtual void draw_lines(Point p,int scale ) const=0;
-
  void draw_vertex(Point o,int sc) const;
  // virtual???
 
-// изменение текущей фигуры :
+ // изменение текущей фигуры :
+public:
 
+ void remove(int index=-1);
+ virtual void change(Point p,int i=-1) =0;
+ virtual void add(Point p)=0;//{v.add(p);}
+// Анализ фигуры :
 
+protected:
+Point get_limit_x();  // возвращает {minX, maX} для фигуры
+Point get_limit_y();   // возвращает {minY, maxY} для фигуры
+void get_limits(Point o);
+public:
+Point limit_x()const{return lim_x;}
+Point limit_y() const {return lim_y;}
 };
 
  // одиночная линия

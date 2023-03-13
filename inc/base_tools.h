@@ -24,7 +24,7 @@ class Canvas;
 class base_tool {
 
 public:
-    enum   tool_type:uint8_t{none_t,creating_t,mogify_t};
+    enum   tool_type:uint8_t{none_t,creating_t,transform_t};
 
     base_tool(tool_type tp):tp_(tp){}
    virtual ~base_tool(){}//if(current) delete current;}
@@ -50,24 +50,18 @@ protected:
 
 // !!!!
 /*
- current указывает на фигуру которая не находится в canvas
-
-
-
+ current указывает на фигуру которая  находится в canvas
 */
 
 class creat_tool:public base_tool
  {
    // указатель на функцию создания фигуры
-    using creat_ptr= Shape*(*)(Point);
+ using creat_ptr= Shape*(*)(Point);
  //этапы создания фигуры,
 enum stage_tool:uint8_t {none_sh, modify_sh,ready_sh};
-
 public:
     creat_tool():base_tool(tool_type::creating_t){}
-
-   ~creat_tool() { ;}
-
+   ~creat_tool() { }
     void set_shape(creat_ptr ptr); //create=ptr ;
  // ac
   void action(Canvas *c,int ev); // Widget *w ???
@@ -84,17 +78,37 @@ private:
 };
 //
 // функции для создания фигур
-
+// ********************************************************************
  Shape* get_line(Point p);
 Shape* get_rectangle(Point p);
 Shape* get_polyline(Point p);// {return new lines(p);}
 Shape* get_polygon(Point p);
 Shape* get_circle(Point p);
-class modify_tool:public base_tool {
+
+//***********************************************************************
+
+/*
+  в первую очередь:
+     1. Все модификации над фигурой происходят только после ее захвата, (capche(Shape*)/insert(Shape*))
+     2. При наведении на фигуру она подсвечивается
+       // т.е. нужно проверить попадает ли текущая точка(курсор) на какую либо фигуру
+        // сортировка фигур (или указателей на фигуры ):  1. представить фигуру бинарным деревом
+                                                             (как производить обход фигуры при change(Point), если ее вершины меняются ???)
+                                                          2. Определить экстренумы фигуры, (и хранить отсортированный массив экстренумов) // дерево
+                                                               или создавать такой массив, при выборе transform_tool  //дерево
+                                                           при изменении фигуры как просеивать это дерево ??? (поиск фигуры удаление из массива, и добавление снова)
+                                                           // а при изменении группы фигур (поиск каждой фигуры, удаление, добавление)
+*/
 
 
 
+class transform_tool:public base_tool {
+
+public:
+    transform_tool():base_tool(tool_type::transform_t){}
+   void action(Canvas *c, int ev);
 };
+
 
 }
 
