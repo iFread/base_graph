@@ -1,6 +1,8 @@
  #ifndef BASE_TOOL_H_
 #define  BASE_TOOL_H_
 #include "base_graph.h"
+#include "algorithm/t_rb_tree.h"
+#include <vector>
 /*
   Инструмнент может иметь собственные Shape, или нет:
 Вариант 1. Может: например при модификации фигуры, инструмент получает копию и модифицирует ее,
@@ -11,6 +13,29 @@
 
 
 */
+namespace Graph {
+template <typename T>
+// Not RAII
+class ref_list
+{ // ref_list<Shape*>
+ // T ptr;  //  Если T = Type*
+std::vector<T*> vec;
+//std::vector<T*> own;
+
+
+public:
+ref_list(){} // вывод Type будет в конструкторе, или в push_back// но вектор, уже будет типа T
+
+void push_back(T &t) { vec.push_back(&t); } // что за бред, если сунуть переменную, будет жопа// если T=Type* std::vector<Type*> v
+void push_back(T* t) {vec.push_back(t);}
+T& operator[](int i){ return *vec[i];}
+//const T& operator[](int i) const {return *vec[i];}
+size_t size() const {return vec.size();}
+void clear(){vec.clear();}
+};
+
+}
+
 
 struct  Point;
 namespace Graph {
@@ -20,13 +45,13 @@ class Shape;
 class Canvas;
   // intrface
 
-
+// следует опраделить proxy-class для хранения указателей на фигуру
 class base_tool {
 
 public:
     enum   tool_type:uint8_t{none_t,creating_t,transform_t};
 
-    base_tool(tool_type tp):tp_(tp){}
+    base_tool(tool_type tp):current(nullptr),tp_(tp){}
    virtual ~base_tool(){}//if(current) delete current;}
 
     virtual void action(Canvas* c,int ev)=0; // нужен ли здесь Canvas* p_can //
@@ -34,6 +59,8 @@ public:
     //  virtual int handle(int e)=0;
    // virtual void draw()=0;
     tool_type type()const {return tp_;}
+
+virtual void draw(Point p) const;
 protected:
      void capche(Shape* cur);
      void free(Shape *cur);
@@ -66,8 +93,8 @@ public:
  // ac
   void action(Canvas *c,int ev); // Widget *w ???
 protected:  // virtual in base class??
-  void capche(Shape* cur);
-  void free(Shape *cur);
+//  void capche(Shape* cur);
+ // void free(Shape *cur);
 
 private:
                  //   action() {      // Возможно определить статический флаг, для вызова action
@@ -101,12 +128,61 @@ Shape* get_circle(Point p);
 */
 
 
+template <typename  T>
+class Comparator {
+public:
+    bool operator() (T obj1, T obj2)// const Shape& obj1,const Shape& obj2) {
+  {      return obj1<obj2;
+   }
+
+};
+
+template <>
+class Comparator<Shape>
+{public:
+    bool operator()(Shape *sh1, Shape *sh2)
+    {
+
+//     if(sh1->limit_x()==sh2->limit_x())
+//           return sh1->limit_y()<sh2->limit_y();
+        return sh1->limit_x()<sh2->limit_x();
+     }
+
+};
 
 class transform_tool:public base_tool {
+// перенести в базовый класс
 
+   enum stage_modify:uint8_t {none_md,cur_md,ready_md };
+ enum modify_type:uint8_t {mode_none_t,mode_move_t,mode_rotat_t, mode_change_t, mode_remove_t}; // типы модификации фигуры, движение, вращение, изменение вершины, удаление вершины(для типов )
+   rbtree<Shape* ,Comparator<Shape>> tr;//(Comparator<Shape>);
+ref_list<Shape*> list;
+ //std::vector<Shape> tr;
 public:
-    transform_tool():base_tool(tool_type::transform_t){}
+transform_tool(Canvas *can);//:base_tool(tool_type::transform_t),curs(nullptr)//new rectangle(can->loc(),can->loc()))
+    //{       init_tree(can);    }
    void action(Canvas *c, int ev);
+ ~transform_tool() { //tr.clear();//list.clear();//delete tr ;
+          if(curs) delete curs;      }
+
+ void draw(Point p) const;
+ protected:
+   void init_tree(Canvas* s); // доступ к фигурам
+   void search_under(Shape* cursor);
+   inline void clear_list(){for(size_t i=0;i<list.size();++i) free(list[i]); list.clear(); }
+
+   void search_under2(Shape* cursor);
+   // курсор
+   void init_cursor(Point p); // для инициализации нужны две точки,
+        //  обычное состояние курсора - прамоугольник 2 * 2
+private:
+   bool isAcross(Shape* sh,Shape* cur);
+
+
+private:
+  stage_modify stage{none_md}; // нет модификации никакой фигуры
+  modify_type m_type{mode_none_t};
+ Shape *curs; // в последствии заменить на объект cursor
 };
 
 

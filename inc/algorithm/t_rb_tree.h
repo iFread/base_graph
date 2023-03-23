@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-class Shape;
+
 template <typename T>
 class Compare {
 
@@ -15,37 +15,33 @@ class Compare {
 
 };
 
-template <>
-class Compare<Shape&> {
 
-
-public:
-    bool operator() ( const Shape& obj1,const Shape& obj2) {
-        return true;
-   }
-
-};
 
 
 template <typename T,  class Comp= std::less<T> >
 class rbtree {
 
-    template<class U>  // T =type & то U = type &
+    template<class U>  //    Здесь U = T*    T =type & то U = type &
     struct Node{
      enum color_node:unsigned char{red,black};
      Node<U>* parent,*left,*right;
      color_node c;
-     U* data;
-     bool own;
+    // U* u  тогда в конструкторе должен принимать указатель
+     //  или ссылку  U * data = Shape **
+     U  data;  // Здесь U data ==> в конструкторе   data(u) // в качестве типа шаблона   rbtree <Shape*, my_comp<Shape*> > // нужна функция для сравнения
+     bool own;  // U = T*
 
     public:
-      Node<U>():parent(nullptr),left(nullptr),right(nullptr),c(Node<U>::black){}
-      explicit Node<U>(const U & u,color_node cl=Node<T>::red):parent(nullptr),left(nullptr),right(nullptr),c(cl),data(new U ),own(true){*data=u;}
-       explicit Node<U>(U *u,color_node cl=Node<T>::red):parent(nullptr),left(nullptr),right(nullptr),c(cl),data(u){ }
-     ~Node(){
-         delete left;delete right;
-         if(own)
-             delete data;
+      Node<U>():parent(nullptr),left(nullptr),right(nullptr),c(Node<U>::black){} // если указатель то data(nullptr)
+    //  explicit Node<U>(const U & u,color_node cl=Node<T>::red):parent(nullptr),left(nullptr),right(nullptr),c(cl),data(new U ),own(true){*data=u;}
+       explicit Node<U>(U u,color_node cl=Node<T>::red):parent(nullptr),left(nullptr),right(nullptr),c(cl),data(u),own(false){ }
+     // Node<U> (const U& u) { data= &u} // при передаче переменной, все сломается
+      // Node<U>(U u) {data=new U(u) ; } // тогда копирование
+      // Node<U> U&&u {data=std::move(u); }// захват
+      ~Node(){
+   //  delete left;delete right;
+          if(own)
+            delete data;
      }
     };
 
@@ -66,7 +62,8 @@ template<typename  Iter>
  typedef iterator_type* pointer ;
 
  iterator_type *value;
- private:
+
+  private:
  Iterator(iterator_type *t):value(t){}
  // публичный конструктор копирования
   public:
@@ -87,9 +84,9 @@ template<typename  Iter>
      return !(*this==other);
  }
 
-   T  operator*()
+  iterator_type&  operator*()
  {
-    return     *value->data;
+    return   *value ;
 
  }
 // реализует обход дерева с лева на право
@@ -110,6 +107,26 @@ template<typename  Iter>
      }
      return *this;
  }
+Iterator & less_than()  // проход к следующему элементу, меньше чем текущий
+{
+ if(value->left)      // если в корне поддерева (в корне окажемся если пришли справа, поэтому, идем один раз влево и вправо до конца)
+ { value=value->left;
+  while(value->right)
+      value=value->right;
+ // return *this;
+ } else   // 1 если находимся слева, поднимаемся к родителю, пока не придем к родителю справа
+  {
+      while(value->parent&& value->parent->left==value)
+          value=value->parent;
+      // здесь два варианта: либо в корне, либо встретили правый переход
+     if(!value->parent)
+         value=nullptr; // обрабатываем корень
+     else // здесь встретили правый переход, идем туда
+         value=value->parent;
+ } return *this;
+
+
+}
 
  Iterator& greater_than( )
  {
@@ -117,14 +134,14 @@ template<typename  Iter>
      {      value=value->right;
           while(value->left)
                value=value->left;
-           return *this;
+         //  return *this;
       }
    else // если сами с права идем наверх пока не встретим левый переход
   {        while(value->parent && value->parent->right==value)
                 value=value->parent;  //
       if(!value->parent) // если достигли корня, конец
            value=nullptr;
-       if(value)
+       else
        value=value->parent;
     }
        return *this;
@@ -137,7 +154,7 @@ template<typename  Iter>
 
 
  Node<T> *root;
-  Comp  cmp; // компаратор для сравления
+  Comp  &cmp; // компаратор для сравления
 public:
   typedef Iterator<Node<T>> iterator ;
   typedef Iterator< const Node<T>> const_iterator ;
@@ -147,28 +164,100 @@ public:
  iterator begin()
  {
    Node<T>* l = root;
-   while(l->left)
+   while(l&&l->left)
    {
      l=l->left;
    }
    return iterator(l);
  }
+  // возможно доработать, добавить node<T> nil, c указателем (nil->parent = самый правый элемент) на самый больший элемент
  iterator end()
  {
      return nullptr;
  }
  // вернуть итератор на первый элемент меньше или равный key
- iterator lower_bound( const key_type& key)
+
+
+ // вернуть {-n, если слева, 0, если в корне, n}  если переданный ключ должен бать справа
+
+ int where(key_type key)
+ {
+   int cnt=0;
+Node<T> *n=root;
+// проверка на корень
+ if((!cmp(key,n->data))&&(!cmp(n->data,key)))
+    {return cnt; }//
+
+    if(cmp(key,n->data))
+    {
+     while (n->left&&cmp(key,n->left->data))
+    {  n=n->left;
+        cnt--; }
+    }
+    else if(cmp(n->data,key))
+    { while(n->right&&cmp(n->right->data,key))
+      {  n=n->right;
+     cnt++;}
+     }
+    //break;
+       return cnt;}
+
+ // возвратить первый элемент > key
+ iterator upper_bound(key_type key)
+ { Node<T>*n=root;
+     while(n)
+     {
+         if(cmp(key,n->data))
+         { // идем влево пока ключ меньше данных
+             if(n->left&& cmp(key,n->left->data))
+                n=n->left;
+             else  //if(!n->left) // если некуда в лево вернем n, или в лево элемент меньше чем key, вернем текущий n
+                 return iterator(n);
+          }
+          else  // если key>=data, нужно вернуть строго больше, если нет элемента строго больше key, вернем nullptr
+           {
+              n=n->right;
+                   }
+  }
+     return iterator(n);
+
+
+ }
+ iterator  lower_bound2( key_type key)
+ {
+   Node<T> * n=root;
+   while(n)
+   {
+      if(cmp(key,n->data)) // ключ меньше data, идем влево
+      {
+         if(n->left && cmp(key,n->left->data))
+             n=n->left;
+         else
+             return iterator(n);
+      } else  //ключ больше или равен data
+       { if(!cmp(key,n->data)&&!cmp(n->data,key)) // если равен вернем итератор на элемент
+              return iterator(n);
+         else if(n->right ) //  ключ больше, идем вправо
+        {
+          n=n->right;
+          } else return iterator(n);
+      }
+   }
+
+ }
+
+ iterator  lower_bound( key_type key)
  {
   Node<T> *n=root;
  // Node<T> *p=root; // родитель
   while(n){
-  if(cmp(key, *n->data)&&n->left) // key  меньше data , идем в лево, если можно
+  if(cmp(key,n->data)&& n->left) // key < data , идем в лево, если можно
       n=n->left;
-   else  // значение key больше или равно узла больше
-    { if(cmp(*n->data,key))  // значение узла в дереве меньше key
-      {     if(n->right && cmp(*n->data,key)) // если справа что то есть
-             {   n=n->right; // идем в право
+
+   else  // нашли число не больше key ( меньше или равно)
+    { if(cmp(n->data,key))  // значение узла в дереве меньше key
+      {     if(n->right && cmp( n->right->data,key)) // если справа что то есть
+             {   n=n->right; // идем в право пока не встретим элемент больше key
               continue;}
          }
       // и проверяем
@@ -180,19 +269,36 @@ public:
  // return nullptr;
  }
 public:
-rbtree():rbtree(Comp()){}
-  rbtree( const Comp &c ):root(nullptr) ,cmp(c){}
-~rbtree(){   delete root; }
+ //rbtree(Comp cp =Comp()):cmp(cp){}
+  rbtree( Comp  c=Comp() ):root(nullptr) ,cmp(c){}
+~rbtree(){ clear(root); }
  //template<typename  cmp,class C>
  // class Iter - инкапсуляция указателя на ноду
-Node<T>* search(const T &key);
-void insert(T &&  dd);
-void insert(const T &dd);
-void insert(T *dd);
+iterator search(  T  key);
+//void insert(T &&  dd);
+//void insert(const T &dd);
+void insert(T  dd);
 
 void show_tree() const;
+void clear(Node<T>* &n)
+{
+    if(n) {
 
- void remove(const T & t)
+        if(n->left) clear(n->left);
+        if(n->right) clear(n->right);
+        // delete root->right;
+    delete n; n=nullptr;
+  //root->left=root->right=nullptr;
+  }
+}
+
+  void clear()
+    {
+      clear(root);
+    }
+
+
+void remove(const T & t)
 {   remove(search(t));
 }
 
@@ -246,26 +352,49 @@ void rbtree<T,Comp>::show_tree() const
 }
 
  template <typename T, class Comp >
-typename rbtree<T,Comp>::template Node<T>* rbtree<T,Comp> :: search(const T & key) // возвращать данные хранимые по ключу или, если такого ключа нет ??
+ typename rbtree<T,Comp>::iterator rbtree<T,Comp>:: search(T key) // возвращать данные хранимые по ключу или, если такого ключа нет ??
 
  {
    Node<T>* l=root;
    while(l)
    {
-       if( cmp(key,*l->data))
+       if( cmp(key,l->data))
           l=l->left;
         else {
-           if(cmp(*l->data,key))
+           if(cmp(l->data,key))
             l=l->right;
-            else if(!cmp(*l->data,key)&&!cmp(key,*l->data))
-                         return l;
+            else if(!cmp(l->data,key)&&!cmp(key,l->data))
+                         return iterator(l);
        }
    }
-   return l;
+   return iterator(l);
  }
 
+//template <typename T,class Comp>
+//void rbtree<T,Comp>::insert(const T& dd)
+//{
+// if(root)
+// {
+//   Node<T>* l=root;
+//   Node<T>*p =root;
+
+//   while(l)
+//   {
+//     p=l;
+//    l=(cmp(dd,*l->data))?l->left:l->right; //Comp(l->data,dd)?l->right:nullptr;
+//      }
+//   l=new Node<T>(dd);
+//   l->parent=p;
+//    // смотрим откуда пришли
+//   ( cmp(*l->data,*p->data))?p->left=l:p->right=l;
+//   correct(l);
+//    } else
+//        root=new Node<T>(dd,Node<T>::black);
+// }
+
+
 template <typename T,class Comp>
-void rbtree<T,Comp>::insert(const T& dd)
+void rbtree<T,Comp>::insert(T  dd)
 {
  if(root)
  {
@@ -275,35 +404,12 @@ void rbtree<T,Comp>::insert(const T& dd)
    while(l)
    {
      p=l;
-    l=(cmp(dd,*l->data))?l->left:l->right; //Comp(l->data,dd)?l->right:nullptr;
+    l=(cmp(dd,l->data))?l->left:l->right; //Comp(l->data,dd)?l->right:nullptr;
       }
    l=new Node<T>(dd);
    l->parent=p;
     // смотрим откуда пришли
-   ( cmp(*l->data,*p->data))?p->left=l:p->right=l;
-   correct(l);
-    } else
-        root=new Node<T>(dd,Node<T>::black);
- }
-
-
-template <typename T,class Comp>
-void rbtree<T,Comp>::insert(T *dd)
-{
- if(root)
- {
-   Node<T>* l=root;
-   Node<T>*p =root;
-
-   while(l)
-   {
-     p=l;
-    l=(cmp(*dd,*l->data))?l->left:l->right; //Comp(l->data,dd)?l->right:nullptr;
-      }
-   l=new Node<T>(dd);
-   l->parent=p;
-    // смотрим откуда пришли
-   ( cmp(*l->data,*p->data))?p->left=l:p->right=l;
+   ( cmp(l->data,p->data))?p->left=l:p->right=l;
    correct(l);
     } else
         root=new Node<T>(dd,Node<T>::black);

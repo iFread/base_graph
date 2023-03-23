@@ -261,6 +261,7 @@ std::cout<<"scroll size "<<loc.x()<<", "<<loc.y()<<" ,"<<w_<<", "<<h_<<"\n";
  //  reference_to<Fl_Group>(pw).resize(loc.x(),loc.y(),w(),h());
   //  w_=x;
    //   h_=y;
+
 if(scrl) {
  scrl->resize(loc.x(),loc.y(),scrl->w(),scrl->h());
     reference_to<Fl_Group>(pw).resize(loc.x(),loc.y(),pw->w(),pw->h());

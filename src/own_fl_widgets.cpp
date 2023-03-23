@@ -14,19 +14,30 @@
 fl_canvas::fl_canvas(Point p, int w,int h):Fl_Widget(p.x(),p.y(),w,h,""),w_(w),h_(h)
  {}
 fl_canvas::~fl_canvas(){
-   for(Shape*p: vec)
-       delete p;
+//   for(Shape*p: vec)
+//       delete p;
 
 }
+//size_t fl_canvas::count() const
+//{
+//    return vec.size();
+//}
+
+//Shape& fl_canvas::operator[](int i)
+//{
+//  i=(i<vec.size()-1?i:vec.size()-1);
+//     return *vec[i];
+//}
 
 void fl_canvas::draw(){
 
     fl_rectf(x(),y(),w_,h_,FL_WHITE);
    // отрисовка фигуры должна происходить с учетом положения scroll()
-    for(Shape*p: vec)
-        p->draw(Point(x(),y()));
+//    for(size_t i=0;i<vec.size();++i)//Shape*p: vec)
+//        vec[i]->draw(Point(x(),y()));
 //  так же можно отрисовывать изменения инструментов,
    // Graph::reference_to<Graph::Canvas*>(user_data())->draw();
+  static_cast<Graph::Canvas*>(user_data())->draw();
 }
 
 
@@ -40,6 +51,7 @@ int fl_canvas::handle(int e){
  //std::cout<<Fl::event_x()-x()<<", "<<Fl::event_y()-y()<<"\n";
         break;
     case FL_MOVE:
+    case FL_DRAG:
      reinterpret_cast <Graph::Canvas*>(user_data())->cursor_position( {(float)Fl::event_x()-x(),(float) Fl::event_y()-y()});
      break;
     }
@@ -53,20 +65,22 @@ int fl_canvas::handle(int e){
    }
    return e;
 }
-void fl_canvas::add(Shape* sh){
-    vec.push_back(sh);
-}
 
-void fl_canvas::remove(Shape*sh){
+//void fl_canvas::add(Shape* sh){
+//    vec.push_back(sh);
+//}
 
-    for(size_t i=0;i<vec.size();++i)
- {
-   if(sh==vec[i])
-     {
-      delete *vec.erase(vec.begin()+i);
-       break;
-      }
- }
-}
+//void fl_canvas::remove(Shape*sh){
+
+//    for(size_t i=0;i<vec.size();++i)
+// {
+//   if(sh==vec[i])
+//     {
+//        *vec.erase(vec.begin()+i);
+//       delete sh;
+//       break;
+//      }
+// }
+//}
 
 

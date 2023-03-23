@@ -6,30 +6,42 @@ namespace math {
 line_t::line_t(Point p1,Point p2)
 {
     // направляющий вектор
-    Point vec {p2.x()-p1.x(),p2.y()-p1.y()};
- a=vec.y();
- b=-vec.x();
- c=vec.x()*p1.y()-p1.x()*vec.y();
+     Point vec {p2.x()-p1.x(),p2.y()-p1.y()};
 
-        float tmp;
-        float m= (fabs(a)<(tmp=(fabs(c)<fabs(b))?c:b))?a:tmp;
-        if(fabs(m)>0) {
+     a=p1.y_-p2.y_;
+     b=p2.x_-p1.x_;//-(p2.x_-p1.x_);
+   //  c=p1.y_*p2.x_-p1.x_*p2.y_;
+c=-a*p1.x_-b*p1.y_;
+       // float tmp=(p2.x_-p1.x_)*p2.y_-(p2.y_-p1.y_)*p2.x_;
+     //float tmp=p1.y_*p2.x_-p1.x_*p2.y_;
+      // float m= a < (tmp=(c<b)?c:b)?a:tmp;
 
-         a/=m;
-     b/=m;
-     c/=m;
-}
+float z=std::sqrt(a*a+b*b);
+
+    //    float m=(a<b)?((a<c)?a:c):((b<c)?b:c);
+        //  float m=(vec.y_ < vec.x_)?((vec.y_ < tmp)?vec.y_:tmp ):((vec.x_< tmp)?vec.x_:tmp);
+//       if(fabs(m)>2) {
+//m=(m<0)?-m:m;
+         a/=z;
+      b/=z;
+      c/=z;
+// }
+//c=tmp;
+//        a= vec.y_;//p2.y_-p1.y_;
+//        b=-vec.x_;//-(p2.x_-p1.x_);
+//        c= tmp;//p1.y_*p2.x_-p1.x_*p2.y_;//tmp;//vec.x()*p2.y()-p2.x()*vec.y();
 
 }
 
 
 area_t line_t::get_area(const Point &p) const{
 // подставим координаты в уравнение
+
     float side= a*p.x()+b*p.y()+c;
 
-if(side>fl_eps*100) return RIGHT;  // Почему то в cam_as наоборот,
+if(side>fl_eps*100) return LEFT;  // Почему то в cam_as наоборот,
 if((side<fl_eps)&& (side>-fl_eps)) return INTER;
-return LEFT;
+return RIGHT;
 }
 
 bool line_t::separates(const Point &p1, const Point &p2) const
@@ -155,7 +167,7 @@ bool vector2d::intersect(const vector2d &other) const
     if(ln.separates(other.begin(),other.end())) {
         Point pt=ln.point_intersect(line_t(other.b,other.e));
       if(pt.isValid())
-          return get_area(pt)==INTER&&other.get_area(pt)==INTER;
+          return get_area(pt)==INTER && other.get_area(pt)==INTER;
     }
     return false;
 

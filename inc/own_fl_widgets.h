@@ -31,7 +31,7 @@ using Graph:: Shape;
 
 class fl_canvas:public Fl_Widget{
  // в fl_canvas все Shape* принадлежат классу, т.е. любая фигура уже создана
-    std::vector<Shape*> vec;     //  возможно ref_vector<Shape>
+ //   std::vector<Shape*> vec;     //  возможно ref_vector<Shape>
 int w_,h_;
 
 
@@ -41,8 +41,10 @@ fl_canvas(Point p, int w,int h);
 
 // работа с Shape
 
-void add(Shape*);  // Shape&
-void remove(Shape*) ;
+//void add(Shape*);  // Shape&
+//void remove(Shape*) ;
+//Shape& operator[](int i);
+//size_t count() const;
 
 
 // методы  Fl_Widget

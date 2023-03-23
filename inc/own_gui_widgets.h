@@ -52,16 +52,17 @@ public:
   Canvas(Canvas&& c):Widget(std::move(c)),tl_(c.tl_){}
     Widget& create();
  void create(Point p,int w,int h);
-  ~Canvas() {if(tl_) delete tl_;}
+  ~Canvas();// {if(tl_) delete tl_;}
 Fl_Widget& content();
-
+Shape& operator[](int i);
 void cursor_position(Point p){current.x()=p.x();current.y()=p.y();}
 Point cursor_position() const {return current;}
+void draw()const;
 
 void add(Shape*);
 void remove(Shape*);
 int handle(int i);  // Для общего базового virtual int handle();
-
+size_t count()const;
 // установить либо новый инструмент creat_tool/modify_tool либо указатель на функцию создания объекта фигура
 void set_tool(tool*);
 void set_tool(cb_creating_t  p);
@@ -69,6 +70,9 @@ void set_tool(cb_creating_t  p);
 protected:
 void set_parent(void *v);  // tool*
 
+
+private:
+std::vector<Shape*> vec;
 };
 
 

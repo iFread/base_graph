@@ -3,51 +3,96 @@
 
 namespace Graph {
 
+Canvas:: ~Canvas() {
+    if(tl_) delete tl_;
+       for(Shape*p: vec)
+         delete p;
+
+}
+
+
 void Canvas::create(Point p, int w, int h){
 loc=p;
 w_=w;
 h_=h;
     pw=new fl_canvas(p,w,h);
-
-// связь с родителем по умолчанию, можно переопределить
+   // связь с родителем по умолчанию, можно переопределить
     pw->user_data(this); //
 }
 
 Widget & Canvas::create(){
-
-    return *new Canvas(std::move(*this));
+     return *new Canvas(std::move(*this));
 }
 
 Fl_Widget & Canvas::content() {
 
     return reference_to<fl_canvas>(pw);
 }
+
 void Canvas::add(Shape *sh)
 {
- reference_to<fl_canvas>(pw).add(sh);
+    vec.push_back(sh);
+// reference_to<fl_canvas>(pw).add(sh);
  }
 
 void Canvas::remove(Shape *sh){
- reference_to<fl_canvas>(pw).remove(sh);
+
+
+    for(size_t i=0;i<vec.size();++i)
+ {
+   if(sh==vec[i])
+     {
+        *vec.erase(vec.begin()+i);
+       delete sh;
+       break;
+      }
+ }
+   // reference_to<fl_canvas>(pw).remove(sh);
 }
 void Canvas::set_parent(void *v) {
 
 pw->user_data(v);
 }
 
+Shape& Canvas::operator[](int i)
+{
+   // return reference_to<fl_canvas>(pw)[i];
+    return *vec[i] ;
+}
+
+void Canvas::draw()const
+{
+    // здесь передается реальная позиция fl_canvas, т.к. смещение позиции может быть по Fl_scroll
+     //  в дальнейшем подумать, как передавать позицию pw, в loc, помещенного в Scroll контейнера
+   for(size_t i=0;i<vec.size();++i)
+     vec[i]->draw(Point(pw->x(),pw->y()));//reference_to<>position());
+if(tl_) tl_->draw(loc);
+ //   std::cout<<"Draw Canvas calling\n";
+}
+
+size_t Canvas::count()const
+{
+    return vec.size();
+    //return reference_to<fl_canvas>(pw).count();
+}
 
 void Canvas::set_tool(cb_creating_t p)
 {
-    if(!(tl_ && tl_->type()==tool::creating_t))
-    {      delete tl_;
+    if( tl_ )
+   {   if(tl_->type()!=tool::creating_t)
+     {
+       delete tl_;
+     tl_=new creat_tool();
+     }
+    } else
         tl_=new creat_tool();
-         }
+
     reference_to<creat_tool>(tl_).set_shape(p);
      pw->redraw();
 }
 
 void Canvas::set_tool(tool* tl){
-if(tl_) delete tl_;
+if(tl_) {delete tl_; }
 tl_=tl;
   }
 
@@ -76,7 +121,7 @@ int Canvas::handle(int i){
  // отрисовку виджета следует выполнять по необходимости,
  // будет вызываться по результатам action()
  // так в режиме модификации вызывать при движении, в режиме ready_sh вызывать по нажатию
-    pw->redraw();
+   //  pw->redraw();
 
     return i;
 }

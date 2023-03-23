@@ -111,7 +111,7 @@ void clear();
 
 
 class Shape {
-public:
+public: // тип фигуры должен быть доступен, во внешней среде
      enum line_type :uint8_t {none_,open_line,close_line};
 protected: // но это не точно
 
@@ -121,19 +121,18 @@ protected: // но это не точно
   Color fcolor{Color::invisible};
   Vertex_style vs;
   line_type type_{none_};
-Point lim_x;
-Point lim_y;
-public:
+Point lim_x;  //vector2d
+Point lim_y; // vector2d
 
-Shape(Point a,line_type tp=none_):v(),type_(tp){v.add(a);std::cout<<"default shape\n";}
+public:
+ Shape(Point a,line_type tp=none_):v(),type_(tp),lim_x({a.x_,a.x()}),lim_y({a.y_,a.y_}) {v.add(a);}
 // определить copy operator=()
 //Shape(const Shape&)=delete;
-Shape(const Shape& sp):v(sp.v) {}
-Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),vs(sh.vs),type_(none_)
-{std::cout<<"move ctor\n";}
-Shape& operator=(Shape&& sh);
-line_type type() const;
-virtual ~Shape(){}
+ Shape(const Shape& sp):v(sp.v) {}
+ Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),vs(sh.vs),type_(none_) {}
+ Shape& operator=(Shape&& sh);
+ line_type type() const;
+ virtual ~Shape(){}
 
 // функции для отображения фигур
 
@@ -145,6 +144,10 @@ void set_vertex(Color c,int r=1){vs.set_vertex_style(c,r);}
   Color color() const{return lcolor;}
   Line_style style() const {return ls;}
   Color fillcolor() const {return fcolor;}
+
+void set_color(Color col) { lcolor = col; }
+void set_style(Line_style sty) { ls = sty; }
+ void set_fillcolor(Color col) { fcolor = col; }
 
 void trace(std::ostream &os) {
     Vertex*vp=v[0];//->cv();//reinterpret_cast<Vertex*>(v->next());
@@ -159,7 +162,7 @@ while(true){
 
 // доступ только к точке
 Point operator[](int i) const { return *(v[i]); }
-
+Vertex_list& operator*(){return v;}
 int size()const {return v.size();}
  void draw() const;
  void draw(Point o,int sc=1) const;
@@ -176,15 +179,23 @@ public:
  void remove(int index=-1);
  virtual void change(Point p,int i=-1) =0;
  virtual void add(Point p)=0;//{v.add(p);}
-// Анализ фигуры :
+ void move(int x,int y);// void move(vector2d vec){}  // {12,15} => for(auto el: v) {el.x+vec.x, el.y+vec.y }
+ // Анализ фигуры :
 
 protected:
-Point get_limit_x();  // возвращает {minX, maX} для фигуры
-Point get_limit_y();   // возвращает {minY, maxY} для фигуры
-void get_limits(Point o);
+ void set_limits(Point p); // установить экстремумы фигуры , если p, больше их
+ void control_limits();
+
+
+
 public:
-Point limit_x()const{return lim_x;}
-Point limit_y() const {return lim_y;}
+inline Point limit_x()const{return lim_x;}
+inline Point limit_y() const {return lim_y;}
+
+// отношения фигур
+virtual bool intersect(const Shape* sh)const =0; // пересечение фигур
+virtual bool contain(const Point& p)const =0;     //проверка на содержание точки
+// Point point_intersect();
 };
 
  // одиночная линия
@@ -194,7 +205,10 @@ public:
     line(Point a,Point b):Shape(a){
         Shape::add(b);
                                  }
- void change(Point p,int i=1);
+    bool intersect(const Shape* sh) const; // пересечение фигур
+    bool contain(const Point &p) const;
+
+    void change(Point p,int i=1);
 protected:
  void draw_lines()const;
  void draw_lines(Point p, int sc=1)const;
@@ -212,6 +226,10 @@ public:
   //  lines(Point a,Point b):Shape(a),type_(line_type::close_line){add(b);}  // полигон
    void add(Point p){Shape::add(p);}
     void change( Point p,int i=-1);
+
+    bool intersect(const Shape* sh)const; // пересечение фигур
+    bool contain(const Point& p) const;
+
 protected:
    void draw_lines()const;
    void draw_lines(Point p, int sc=1)const;
@@ -228,12 +246,15 @@ class rectangle:  public Shape
 public:
     rectangle(Point a,Point b,line_type tp=none_);
      void change(Point p,int i=2);
+     bool intersect(const Shape* sh) const; // пересечение фигур
+     bool contain(const Point &p) const;
+
 protected:
     void draw_lines() const;
 void draw_lines(Point p, int sc=1)const;
 
 private:
-void add(Point) {return;}
+void add(Point x) {Shape::add(x);}
 };
 
 
@@ -243,6 +264,10 @@ public:
     polygon(Point a):lines(a,lines::close_line){}
     void add(Point o);
      void change(Point p,int i=0);  //как бы получить размер фигуры?
+
+     bool intersect(const Shape* sh) const; // пересечение фигур
+     bool contain(const Point &p) const;
+
 protected:
     void draw_lines(Point p, int sc=1)const;
     // полигон выпуклый, но при изменении вершины это свойство может нарушится,
@@ -255,10 +280,14 @@ class circle:public Shape{
  int r;
 
 public:
-    circle(Point p,int rad=0):Shape(p),r(rad){}
+ circle(Point p,int rad=0):Shape(p),r(rad){set_limits({p.x()+r,p.y()+r});}
   // варианты, если r<=0, то устанваливаем радиус как расстояние между точками,
    // если r>0, изменяется центр(move(shape???))
     void change(Point p,int r=-1);
+
+    bool intersect(const Shape* sh) const; // пересечение фигур
+    bool contain(const Point& p) const;
+
 protected:
     void draw_lines(Point p,int sc=1) const;
    void draw_lines() const;

@@ -102,21 +102,23 @@ void Vertex_list::clear()
 
 Vertex_list::~Vertex_list()
 {
-clear();
+ clear();
+ ptr=nullptr;
 }
 
 
 void Vertex_list::add(Point p)
 {if(ptr)
-    {     ptr->insert(new Vertex(p));
-        }
+         ptr->insert(new Vertex(p));
+
     else ptr=new Vertex(p);
-     std::cout<<"insert "<<p.x()<<", "<<p.y()<<"\n";
+   //  std::cout<<"insert "<<p.x()<<", "<<p.y()<<"\n";
                    size_++;
                   }
 
 Vertex* Vertex_list::operator[](int i)
 {
+   // std::cout<<" input index : "<<i<<"\n";
  int cnt=(i<size_ -1)?i:size_ -1;
  Vertex*w=ptr;
 
@@ -168,12 +170,23 @@ void Shape:: draw()const{
         fl_line_style(0);
     }
 
+void Shape::set_limits(Point p) // установить лимит для фигуры, если p превышает установленные
+{ // control x
+    lim_x=  { (p.x()<lim_x.x())?p.x():lim_x.x(),
+              (p.x()>lim_x.y())?p.x():lim_x.y()
+              };
+ // constrol y
+    lim_y ={  (p.y()< lim_y.x())?p.y():lim_y.x() ,
+               (p.y()>lim_y.y())?p.y():lim_y.y()
+               };
+}
+
+
+
 void Shape::add(Point p){
     v.add(p); // если точка добавляется нет смысла перебирать всю фигуру,
                // просто проверить, что данная точка лежит в диапазоне фигуры, либо изменить диапазон если это не так
-get_limits(p);
-     // get_limit_x();
-     //    get_limit_y();
+set_limits(p);
 }
 
 // при удалении вершины следует так же проверять на изменение пределов
@@ -184,14 +197,14 @@ void Shape::remove(int index)
    index=(index>size())?size():index;
  Point p=v.remove(index);
    if((p.x()==lim_x.x()||p.x()==lim_x.y())||p.y()==lim_y.x()||p.y()==lim_y.y())
-    { lim_x=get_limit_x();
-       lim_y=get_limit_y();
+    { control_limits();
     }
 }
 void Shape::draw(Point o,int sc) const {
 //vertex_visible(true);
     Fl_Color old=fl_color();
-      fl_color(lcolor.as_int());
+  // Fl_Color f_old=fl_color()
+    fl_color(lcolor.as_int());
       fl_line_style(ls.style(),ls.width());
        draw_lines(o,sc);
    if(vertex_visible())
@@ -231,46 +244,57 @@ for(int i=1;i<v.size();i++) // перемещение
 
 
  }
- void Shape:: get_limits(Point o){
-   if(o.x()>lim_x.y())  // если больше верхнего диапазона, расширяем
-       lim_x.y()=o.x();
-   else if(o.x()<lim_x.x())  // если меньше нижнего расширяем
-       lim_x.x()=o.x();
-              // для y() аналогично
-  if(o.y()>lim_y.y())
-       lim_y.y()=o.y();
-  else if(o.y()<lim_y.y())
-     lim_y.y()=o.y();
+
+void Shape::move(int x, int y)
+{
+ for(int i=0;i<v.size();++i)
+ {
+   v[i]->change({v[i]->x()+x,v[i]->y()+y});
+ }
+ control_limits();
+}
+
+
+ void Shape::control_limits()
+ { // проходит по всем точкам фигуры, устанавливая максимальную,
+
+  lim_x.x()=lim_x.y() =v[0]->x();
+  lim_y.x()=lim_y.y()  =v[0]->y();
+    for(int i=1;i<v.size();++i)
+     {
+      set_limits(v[i]->content()) ;
+     }
 
  }
 
- // за линейное время O(N)
- Point Shape::get_limit_x()  {
-    int min=v[0]->x();
-    int max=v[0]->x();
+// проверка, что точка лежит внутри фигуры
+ bool Shape::contain(const Point &p) const
+ {  using namespace math;
+     // пройти по всем ребрам, определить что точка лежит с одинаковой стороны справа
+   // не проверяет последнюю грань
 
-    for(int i=1;i<size();++i) {
-       if(min>v[i]->x())
-            min=v[i]->x();
-       if(max<v[i]->x())
-           max=v[i]->x();
-    }
-    return Point(min,max);
+     bool flg=true;
+  for(int i=1;i<=size();++i)
+   {  line_t vec(*v[i-1],*v[i]); // при i==size() вернет нулевой вектор,
+     // проверка последней грани
+      if(i==size())
+           vec=line_t(*v[size()],*v[0]);
+
+      if(vec.get_area(p)==LEFT)
+            flg=false;
+      }
+     return flg;
  }
-
- Point Shape::get_limit_y(){
-    int min=v[0]->y();
-    int max=v[0]->y();
-
-    for(int i=1;i<size();++i) {
-       if(min>v[i]->y())
-            min=v[i]->y();
-       if(max<v[i]->y())
-           max=v[i]->y();
-    }
-    return Point(min,max);
+//  для каждой грани фигуры проверить, пересечение с каждой гранью другой фигуры
+ bool Shape::intersect(const Shape *sh) const
+ {
+   for(int i=1;i<size();++i)
+   {
+     if(sh->contain(*v[i]))
+         return true;
+   }
+   return false;
  }
-
 
 //************************************************************
  //**********************
@@ -293,10 +317,32 @@ for(int i=1;i<v.size();i++) // перемещение
 
  void line:: change( Point p, int i)
  {
-     i=(v.size()<i)?v.size()-1:i;
+   // для линии только 1 и 2
+   //  i=(v.size()-1<i)?v.size()-1:i;
  if(p.isValid())
-     v[i]->change(p);
+  {   v[i]->change(p);
+
   }
+ control_limits();
+ }
+
+ bool line::contain(const Point &p) const
+ {
+     return math::vector2d(*v[0],*v[1]).contain(p);
+ }
+// пересечение с точки зрения линии
+ bool line::intersect(const Shape *sh) const
+ {
+
+   // return Shape::intersect(sh);
+ math::vector2d vec(*v[0],*v[1]);
+      for(int i=1;i<sh->size();++i)
+      { if(vec.intersect(math::vector2d(sh->operator[](i-1), sh->operator[](i))))
+             return true  ;
+     }
+      return false;
+ }
+
 
 
 
@@ -328,11 +374,30 @@ for(int b=1,e= (type_==open_line)?v.size():v.size();b<=e;) // на послед�
    if(i==-1) {
         i=size() ;
       }
-   if(p.isValid())
+   if(p.isValid()) {
       v[i]->change(p);
-
+ control_limits();}
  }
+// пресечение для ломанной
+bool lines::contain(const Point &p) const
+{
+    for(int i=1;i<size();++i)
 
+        if(math::vector2d(*v[i-1],*v[i]).contain(p))
+            return true;;
+    return false;
+}
+
+bool lines::intersect(const Shape *sh) const
+{
+    for(int i=0;i<size();++i)
+    {
+       if(line(*v[i-1],*v[i]).intersect(sh))
+           return true;
+    }
+    return false;
+
+}
 
 
 
@@ -373,7 +438,8 @@ void rectangle::draw_lines(Point p,int sc) const {
 void rectangle:: change( Point p,int i)
 { // сохранить инвариант прямоугольника
    // для этого нужна вершина диагональная данной
-i=(v.size()<i)?v.size():i;
+//i=(v.size()<i)?v.size():i;
+if(i==-1) i=size()-1;
 v[i]->change(p);// меняем нужную вершину
 Vertex* cross=v[i]->ccv()->ccv();//->content(); // соординаты противоположной точки
  // для импользования move operator, всеравно вызывать конструктор
@@ -383,7 +449,52 @@ int w=v[i]->x()-cross->x();//(v[i]->content()<cross)?v[i]->x()-cross.x():v[i]->x
 // меняем остальные фигуры
  cross->ccv()->change({cross->x(),cross->y()+h});
  cross->cv()->change({cross->x()+w,cross->y()});
+control_limits();
 }
+
+// прямоугольник будет содержать точку, если точка лежит одинаково относительно всех его граней
+bool rectangle::contain(const Point &p) const
+{
+    using namespace math;
+         // пройти по всем ребрам, определить что точка лежит с одинаковой стороны справа
+       // не проверяет последнюю грань
+
+         bool flg=true;
+      for(int i=1;i<=size();++i)
+       {  line_t vec(*v[i-1],*v[i]); // при i==size() вернет нулевой вектор,
+         // проверка последней грани
+          if(i==size())
+               vec=line_t(*v[size()-1],*v[0]);
+
+          if(vec.get_area(p)==LEFT)
+                flg=false;
+          }
+         return flg;
+
+}
+// bool rectangle::separates(Point p1,Point p2) const
+bool rectangle::intersect(const Shape *sh) const
+{ using namespace math;
+
+  const Shape& ref=*sh;
+    for(int i=1;i<=size();++i)
+    {    vector2d vec(v[i-1]->content(),v[i]->content());
+               if(i==size())
+             vec= vector2d (v[size()-1]->content(),v[0]->content());
+        for(int j=1;j<=sh->size();++j)
+        {vector2d oth(ref[j-1],ref[j]);
+
+            if(j==ref.size()&& ref.type()==Shape::close_line)
+                oth=vector2d(ref[ref.size()-1],ref[0]);
+          if(vec.intersect(vector2d(ref[j-1],ref[j])))
+          {
+              return true;
+          }
+        }
+   }
+    return false;
+}
+
 
 
  //******************* poligon
@@ -405,14 +516,14 @@ if(size()>3)
 {
     using namespace math ;
     vector2d v1(*v[id1],*v[id2]);
-    for(int i=0;i<size();++i){
-      if(i==id1||i==id2) continue;
-   if(i==size()-1) {
-       if(v1.intersect({*v[0],*v[i]}))
+    for(int i=1;i<=size();++i){
+    //  if(i==id1||i==id2) continue;
+   if(i==size()) {
+       if(v1.intersect({*v[i-1],*v[0]}))
            return true;
        return false;
     }
-      if(v1.intersect({*v[i],*v[i+1]}))
+      if(v1.intersect({*v[i-1],*v[i]}))
           return true;
     }
 
@@ -422,8 +533,10 @@ if(size()>3)
  void polygon::add(Point o){
 // проверить что для  отрезков [v[0],p] и  [v[size()-1],p]  нет пересечения с другими  гранями
  // точка o - уже является вершиной полигона,- последней вершиной по индексу size()-1
-    if(!isAcross(size()-1))
+    if(!isAcross(size()-1)){
         Shape::add(o);
+     set_limits(o);
+    }
  }
 
  void polygon:: draw_lines(Point p, int sc)const {
@@ -433,7 +546,6 @@ if(size()>3)
 
          if(isAcross(b-1,b))
             fl_color(FL_RED);
-
        if(b==e) {
          if(isAcross(0,b-1))
           fl_color(FL_RED);
@@ -443,7 +555,7 @@ if(size()>3)
       }
   fl_line(v[b-1]->x()*sc+p.x(),v[b-1]->y()*sc+p.y(),v[b]->x()*sc+p.x(),v[b]->y()*sc+p.y());
 
-  fl_color(old);
+   fl_color(old);
       }
  }
 
@@ -454,6 +566,15 @@ if(size()>3)
     lines:: change(p,i);
 
  }
+
+ bool polygon::contain(const Point &p) const
+ {
+
+ }
+bool polygon::intersect(const Shape *sh) const
+{
+
+}
 
  //*********************circle
 
@@ -470,8 +591,23 @@ fl_arc((v[0]->x()-r)*sc+p.x(),(v[0]->y()-r)*sc+p.y(),(r+r)*sc,(r+r)*sc,0,360);
 int w=v[0]->x()-p.x();
 int h=v[0]->y()-p.y();
   r=sqrt(w*w+h*h)+0.5;
-  }
-}
+  set_limits(v[0]->content()+r);
+ set_limits(v[0]->content()-r);
+  // устанавливаем новый предел
+ }
+
+
+
+ bool circle::contain(const Point &p) const
+ {
+
+ }
+ bool circle::intersect(const Shape *sh) const
+ {
+
+ }
+
+ }
 
 
 
