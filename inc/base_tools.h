@@ -172,6 +172,7 @@ transform_tool(Canvas *can);//:base_tool(tool_type::transform_t),curs(nullptr)//
    inline void clear_list(){for(size_t i=0;i<list.size();++i) free(list[i]); list.clear(); }
 
    void search_under2(Shape* cursor);
+      void search_under3(Shape* cursor);
    // курсор
    void init_cursor(Point p); // для инициализации нужны две точки,
         //  обычное состояние курсора - прамоугольник 2 * 2

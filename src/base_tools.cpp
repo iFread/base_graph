@@ -178,32 +178,52 @@ void transform_tool::search_under2(Shape* cursor)
        auto It=tr.upper_bound(&ln);   // ищем  фигуру следующую ща ней //lower_bound2(cursor);
    // ставим итератор на фигуру в списке, и добавляем фигуры если нужно
        for(auto i= tr.search(list[list.size()-1]);i!=It;i.greater_than())
-       {  if((*i).data->limit_x().y()>cursor->limit_x().y() && (*i).data->limit_x().x()<cursor->limit_x().y())
-            {
-               Point y=(*i).data->limit_y();
-              if(y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
-                list.push_back( (*i).data);
-             }
+       { // if((*i).data->limit_x().x()<cursor->limit_x().x()) //(*i).data->limit_x().y()>cursor->limit_x().y() &&
+
+           //    Point y=(*i).data->limit_y();
+             // if(y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
+         if(cursor->intersect((*i).data))
+           list.push_back( (*i).data);
 
        }
-
     } else // если же список пуст то, первый заход , заполняем от начала до cursor
-
-   { auto It=tr.upper_bound(cursor);
-       for( auto I=tr.begin();I!=It;I.greater_than())
-       { // здесь уже проверяем по x, чтобы незаканчивалась раньше курсора,
+       { auto It=tr.upper_bound(cursor);
+       auto I=tr.begin();
+      //if(It==I){list.push_back((*It).data);}
+       for( ;I!=It;I.greater_than())
+          { // здесь уже проверяем по x, чтобы незаканчивалась раньше курсора,
            // и по y, что лежит в пределах курсора
-           if((*I).data->limit_x().y()>cursor->limit_x().y() && (*I).data->limit_x().x()<cursor->limit_x().y())
-           { Point y=(*I).data->limit_y();
-              if(y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
-              {
-                 list.push_back( (*I).data);
-                   }
-             }
-       }
+         // if((*I).data->limit_x().x()<cursor->limit_x().y())// && (*I).data->limit_x().x()<cursor->limit_x().y())
+              //Point y=(*I).data->limit_y();
+              //if (y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
+               //{
+          if(cursor->intersect((*I).data))
+           list.push_back( (*I).data);
+                 //  }
 
-   }
+           }
+        }
+ }
 
+void transform_tool::search_under3(Shape *cursor)
+{ line ln(cursor->operator[](2),cursor->operator[](2)+2);
+
+    auto It=tr.upper_bound(&ln);//cursor);
+           auto I=tr.begin();
+        //  if(It==I&&It!=tr.end()){list.push_back((*It).data);}
+           for(;I!=It;I.greater_than())
+              { // здесь уже проверяем по x, чтобы незаканчивалась раньше курсора,
+               // и по y, что лежит в пределах курсора
+             // if((*I).data->limit_x().x()<cursor->limit_x().y())// && (*I).data->limit_x().x()<cursor->limit_x().y())
+                  //Point y=(*I).data->limit_y();
+                  //if (y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
+                   //{
+              if(cursor->intersect((*I).data))
+               list.push_back( (*I).data);
+                     //  }
+               }
+           if(It!=tr.end()&&cursor->intersect((*It).data))
+               list.push_back( (*It).data);
 
 }
 
@@ -327,7 +347,7 @@ case FL_PUSH:
      case FL_LEFT_MOUSE:
             //???
              clear_list();
-            search_under2(curs);
+         //   search_under3(curs);
       break;
      case FL_RIGHT_MOUSE:
          // если правая кнопка, нужно возвращать все как было
@@ -342,10 +362,10 @@ case FL_PUSH:
         switch (Fl::event_button())
      {
          case FL_LEFT_MOUSE:
-          curs->change(c->cursor_position(),2);
-            search_under2(curs);
+        //  curs->change(c->cursor_position(),2);
+            search_under3(curs);
             for(size_t i=0;i<list.size();++i)
-             if(isAcross(list[i],curs) )
+             if(curs->intersect(list[i]))
                 capche(list[i]);
 
             if(list.size())

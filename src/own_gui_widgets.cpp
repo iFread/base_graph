@@ -66,7 +66,7 @@ void Canvas::draw()const
      //  в дальнейшем подумать, как передавать позицию pw, в loc, помещенного в Scroll контейнера
    for(size_t i=0;i<vec.size();++i)
      vec[i]->draw(Point(pw->x(),pw->y()));//reference_to<>position());
-if(tl_) tl_->draw(loc);
+if(tl_) tl_->draw(Point(pw->x(),pw->y()));
  //   std::cout<<"Draw Canvas calling\n";
 }
 

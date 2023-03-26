@@ -137,7 +137,7 @@ void tst_rbtree()
 Canvas &can= reference_to<Canvas>(&scrl[0]);
 
 Point p1={10,10};
-for(int i=0;i<1000;i++)
+for(int i=0;i<10000;i++)
 {
     can.add(new rectangle(p1,{p1.x()+20,p1.y()+30}));
     p1={p1.x()+22,p1.y()};

@@ -39,9 +39,9 @@ area_t line_t::get_area(const Point &p) const{
 
     float side= a*p.x()+b*p.y()+c;
 
-if(side>fl_eps*100) return LEFT;  // Почему то в cam_as наоборот,
+if(side>fl_eps*100) return RIGHT;  // Почему то в cam_as наоборот,
 if((side<fl_eps)&& (side>-fl_eps)) return INTER;
-return RIGHT;
+return LEFT;
 }
 
 bool line_t::separates(const Point &p1, const Point &p2) const

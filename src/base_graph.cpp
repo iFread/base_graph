@@ -459,7 +459,7 @@ bool rectangle::contain(const Point &p) const
          // пройти по всем ребрам, определить что точка лежит с одинаковой стороны справа
        // не проверяет последнюю грань
 
-         bool flg=true;
+         //bool flg=true;
       for(int i=1;i<=size();++i)
        {  line_t vec(*v[i-1],*v[i]); // при i==size() вернет нулевой вектор,
          // проверка последней грани
@@ -467,32 +467,39 @@ bool rectangle::contain(const Point &p) const
                vec=line_t(*v[size()-1],*v[0]);
 
           if(vec.get_area(p)==LEFT)
-                flg=false;
+               return false;
           }
-         return flg;
+         return true;
 
 }
 // bool rectangle::separates(Point p1,Point p2) const
 bool rectangle::intersect(const Shape *sh) const
 { using namespace math;
-
+ bool lies_in =true;
   const Shape& ref=*sh;
-    for(int i=1;i<=size();++i)
+
+  for(int i=1;i<=size();++i)
     {    vector2d vec(v[i-1]->content(),v[i]->content());
                if(i==size())
              vec= vector2d (v[size()-1]->content(),v[0]->content());
-        for(int j=1;j<=sh->size();++j)
-        {vector2d oth(ref[j-1],ref[j]);
 
+        for(int j=1;j<=sh->size();++j)
+        {if(vec.isNull())
+                lies_in=false;
+            vector2d oth(ref[j-1],ref[j]);
             if(j==ref.size()&& ref.type()==Shape::close_line)
                 oth=vector2d(ref[ref.size()-1],ref[0]);
           if(vec.intersect(vector2d(ref[j-1],ref[j])))
           {
               return true;
           }
+        // если sh лежит внутри прямоугольника
+          if((vec.get_area(oth.begin())==math::LEFT && vec.get_area(oth.end())==math::LEFT))
+          lies_in=false;
         }
+
    }
-    return false;
+    return   lies_in;
 }
 
 
