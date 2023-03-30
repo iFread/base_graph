@@ -19,7 +19,7 @@ template <typename T>
 class ref_list
 { // ref_list<Shape*>
  // T ptr;  //  Если T = Type*
-std::vector<T*> vec;
+std::vector<T*> vec;   // std::vector<Shape**> vec
 //std::vector<T*> own;
 
 
@@ -28,6 +28,18 @@ ref_list(){} // вывод Type будет в конструкторе, или �
 
 void push_back(T &t) { vec.push_back(&t); } // что за бред, если сунуть переменную, будет жопа// если T=Type* std::vector<Type*> v
 void push_back(T* t) {vec.push_back(t);}
+
+void remove(T* t)
+{
+  for(size_t i=0;i<vec.size();++i)
+      if(vec[i]==t)
+      vec.erase(t);
+}
+void remove(T& t)
+{
+  remove(&t);
+}
+
 T& operator[](int i){ return *vec[i];}
 //const T& operator[](int i) const {return *vec[i];}
 size_t size() const {return vec.size();}
@@ -49,7 +61,7 @@ class Canvas;
 class base_tool {
 
 public:
-    enum   tool_type:uint8_t{none_t,creating_t,transform_t};
+    enum   tool_type:uint8_t{none_t,selected_t,creating_t,transform_t};
 
     base_tool(tool_type tp):current(nullptr),tp_(tp){}
    virtual ~base_tool(){}//if(current) delete current;}
@@ -79,6 +91,8 @@ protected:
 /*
  current указывает на фигуру которая  находится в canvas
 */
+
+
 
 class creat_tool:public base_tool
  {
@@ -150,9 +164,48 @@ class Comparator<Shape>
 
 };
 
+class select_tool //:public base_tool
+{
+public:
+   enum sh_state:uint8_t {none_state,modify_state,ready_state} ;
+private:
+    ref_list<Shape> vec;
+     rbtree<Shape* ,Comparator<Shape>> tr;//(Comparator<Shape>);
+    // Shape *curs; // прямоугольная область
+     sh_state current_state{none_state};
+public:
+    select_tool();
+   void add(Shape*sh)   {sh->vertex_visible(true);
+                         sh->set_vertex(Color::green,3);
+                         vec.push_back(sh);}
+   void remove(Shape* sh)  //
+   { sh->vertex_visible(false);
+
+   }
+    virtual void action(Canvas* c,int ev); // считает фигуры которые попали в область курсора,
+  // virtual void draw(Point p) const; // здесь не нужен
+    ~select_tool(){    // if(curs) delete curs;
+                            vec.clear();
+                                      }
+    bool isEmpty()const {return vec.size()==0;}
+    void clear(){
+               if(!isEmpty())
+                   for(size_t i=0;i<vec.size();++i)
+                    remove(&vec[i]);
+                      vec.clear();
+                    //  current_state=select_tool::none_state;
+                }
+    Shape& operator[](int i) {i=i<vec.size()?i:vec.size(); return vec[i];}
+    void set_state(sh_state st){current_state=st;}
+    sh_state state() const{return current_state;}
+protected:
+     void init_tree(Canvas* s); // std::vector<Shape*>& v ;
+     void search_under_cursor(Shape* cursor);  // искать фигуры которые попадают в область курсора
+};
+
+
 class transform_tool:public base_tool {
 // перенести в базовый класс
-
    enum stage_modify:uint8_t {none_md,cur_md,ready_md };
  enum modify_type:uint8_t {mode_none_t,mode_move_t,mode_rotat_t, mode_change_t, mode_remove_t}; // типы модификации фигуры, движение, вращение, изменение вершины, удаление вершины(для типов )
    rbtree<Shape* ,Comparator<Shape>> tr;//(Comparator<Shape>);

@@ -1,6 +1,8 @@
 #include "base_gui.h"
 #include "own_fl_widgets.h"
 #include "base_tools.h"
+#include "shape_factory.h"
+
 namespace Graph
 {
 // возможно следует унаследовать от Widget общий класс,
@@ -44,18 +46,37 @@ using tool =base_tool;
 using cb_creating_t= Shape*(*)(Point);  // указатель на функцию возвращающую созданную фигуру
 
 class Canvas: public Widget  //
-{
-    Point current{0,0};  // текущее положение мыши
-    tool* tl_{nullptr};
+{class cursor
+    {  Shape*cursor_{nullptr};
+        bool vsbl{false};
+    public:
+        cursor():cursor_(new rectangle({0,0},{5,5})){}
+        Point position()const;
+        void position(Point p);
+      // если nullptr тогда все поломается
+         Shape& data(){return *cursor_;}
+ Shape& operator*(){return *cursor_;}
+ const Shape& operator*()const{return *cursor_;}
+        ~cursor(){delete cursor_;}
+         void visible(bool fl){vsbl=fl;}
+         bool visible() const{return vsbl;}
+    };
+
+     Factory factory;
+     select_tool select;
+     mod2 mod;
+    cursor cursor;
+     Point current{0,0};  // текущее положение мыши
+     tool* tl_{nullptr};
 public:
-    Canvas(Point p,int w,int h):Widget(p,w,h){}
-  Canvas(Canvas&& c):Widget(std::move(c)),tl_(c.tl_){}
+    Canvas(Point p,int w,int h):Widget(p,w,h){}//,cursor(new rectangle(p,p+5)){ }
+  Canvas(Canvas&& c):Widget(std::move(c)),tl_(c.tl_){}//,cursor(new rectangle(c.cursor_position(),c.cursor_position()+5)){}
     Widget& create();
  void create(Point p,int w,int h);
   ~Canvas();// {if(tl_) delete tl_;}
 Fl_Widget& content();
 Shape& operator[](int i);
-void cursor_position(Point p){current.x()=p.x();current.y()=p.y();}
+void cursor_position(Point p){current.x()=p.x();current.y()=p.y();cursor.position(p);}
 Point cursor_position() const {return current;}
 void draw()const;
 
@@ -66,13 +87,22 @@ size_t count()const;
 // установить либо новый инструмент creat_tool/modify_tool либо указатель на функцию создания объекта фигура
 void set_tool(tool*);
 void set_tool(cb_creating_t  p);
-
+void set_tool(shape_type tp){factory.set_type(tp);}
 protected:
 void set_parent(void *v);  // tool*
+
+// обработка курсора
+//void init_cursor();
+
 
 
 private:
 std::vector<Shape*> vec;
+
+
+
+
+
 };
 
 

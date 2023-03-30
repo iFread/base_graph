@@ -7,7 +7,8 @@ Canvas:: ~Canvas() {
     if(tl_) delete tl_;
        for(Shape*p: vec)
          delete p;
-
+//       if(cursor)
+//           delete  cursor;
 }
 
 
@@ -67,6 +68,8 @@ void Canvas::draw()const
    for(size_t i=0;i<vec.size();++i)
      vec[i]->draw(Point(pw->x(),pw->y()));//reference_to<>position());
 if(tl_) tl_->draw(Point(pw->x(),pw->y()));
+if(cursor.visible())
+    (*cursor).draw(Point(pw->x(),pw->y()));
  //   std::cout<<"Draw Canvas calling\n";
 }
 
@@ -96,6 +99,25 @@ if(tl_) {delete tl_; }
 tl_=tl;
   }
 
+ Point Canvas::cursor::position()const
+{
+     return (*cursor_)[0];
+}
+
+ void Canvas::cursor::position(Point p)
+ { // move cursor_ в позицию p
+  cursor_->move(p.x()-(*cursor_)[0].x(),p.y()-(*cursor_)[0].y());
+
+ }
+
+//void Canvas::init_cursor()
+//{
+//    int dx= cursor_position().x()-cursor->operator[](0).x();
+//    int dy=  cursor_position().y()-cursor->operator[](0).y();
+
+//    cursor->move(dx,dy);
+////cursor->change((*cursor)[0],2);
+//}
 
 // этапы создания  фигуры:
      /*
@@ -109,19 +131,209 @@ tl_=tl;
 
 int Canvas::handle(int i){
  // по ссылке удобнее: it(tl_)tl_-action(*this,i)
-    if(tl_) tl_->action(this,i);
-// Подумать :1. если canvas будет выбирать tool который устанавливается в данный момент???
+
+  /* если factory == sh_none_t
+    режим захвата, (инструмент захвата)
+     режим модификации  ()
+ */
+
+// создание фигуры и модификацию выделенной фигуры отделить друг от друга по принципу:
+    //1. При создании фигуры не происходит выделения фигур, созданная фигура (уже является выделенной), сразу модифицируется
+    //2. При модификации , необходимо сначала выделять фигуру,(т.е. если нет выделенной фигуры, или фигур модификация не включается)
+    // таким образом: создали фигуру ==> модифицировали ее(после окончания модификации),==> очистить список выделения,
+       // при создании фигуры доступна только модификация (изменение вершины), и никакие другие
+       // создание фигуры отключается правой кнопкой мыши, при очищенном списке модификации
+
+     // обработка создания фигуры, пока флаг создания фигуры установлен,
+     // иначе будем обрабатывать выделение фигуры, и/или модификацию:
+      // {модификация обрабатывается если есть выделенные фигуры, и курсор находится в области для модификации:
+      //    ==> если курсор внутри фигуры, или в области фигуры(прямоугольника описанного вокруг фигуры
+      //        применяется модификатор move, если же в область курсора попадает вершина фигуры
+    //          применяется модификатор change() для данной вершины, или вершин, если же включен режим mod2 модификатор  rotate()
+    //          вокруг точки по центру выделения )}
+    if(factory.type()==sh_none_t)
+    {         // если в select нет фигур пытаемся выделить
+        if(select.isEmpty()) // обработка выделения фигур
+        { cursor.visible(true);
+            switch (i)
+            {
+              case FL_PUSH:
+                switch (Fl::event_button())
+                { case FL_LEFT_MOUSE:  // при нажатии левой кнопки фиксируем точку курсора
+                                        // при отжатии расчитываем фигуры какие попали в область курсора, или  содержат/пересекают курсор
+
+                    break;
+                 case FL_RIGHT_MOUSE:
+
+                    select.clear();
+                    break;
+                }
+
+                break;
+              case FL_RELEASE:
+
+                break;
+           case FL_DRAG:
+                         // рисуем курсор
+
+                break;
+            case FL_MOVE: // можно изменять курсор обозначая момент когда фигуру можно выделить нажатием
+  //  init_cursor();
+                break;
+           }
+         }
+         else // обработка модификации фигур
+         {
+            switch (i)
+            {
+            case FL_PUSH:
+
+                break;
+            case FL_RELEASE:
+
+                break;
+             case FL_DRAG:
+
+              break;
+             case FL_MOVE:  // при выделенной фигуре, меняем тип модификатора, если попадаем нужную в область
+
+                break;
+               }
+
+
+            }
+    }
+      else    // add_new_shape(i)
+    {cursor.visible(false);
+        switch (i)
+        {
+        case FL_PUSH:
+            switch (Fl::event_button())
+            {    // если левая кнопка мыши: создать фигуру, если она не созданна, либо дабавить точку к созданной фигуре
+              case FL_LEFT_MOUSE:
+               if(!select.isEmpty()) // если есть созданная фигура, и  она не простая(полигон или polyline)
+              { if(select.state()==select_tool::ready_state) {
+                   select.clear();
+                 //break;
+                   } else  // фигура не готова
+                   if(select[0].type()!=Shape::none_)  // добавить к ней следующую вершину
+                 { select[0].add(cursor_position()); //
+                       break;
+                     } else // для простой фигуры очищаем select
+                        {// для простой фигуры переводим в разряд готовый
+                        if(select.state()!=select_tool::ready_state){
+                          select.set_state(select_tool::ready_state);
+                            break;
+                         }
+
+                          }
+               }// else    // здесь select пуст, добавим новую фигуру
+                  //может быть здесь else??
+                 { add(factory.create(cursor_position()));// добавить в canvas/ или не добавлять в canvas???
+                  select.add(vec[vec.size()-1]);
+                  select.set_state(select_tool::modify_state);
+                  mod.set_type(mod2::change_t);
+                }
+                break;
+               case FL_RIGHT_MOUSE:  // для сложных фигур сначала удалить последнюю вершину
+                if(!select.isEmpty())
+                { if(select.state()!=select_tool::ready_state)
+                    {
+                        if(select[0].type()!=Shape::none_)
+                        {   select[0].remove(select[0].size());
+                            select.set_state(select_tool::ready_state);
+                            break;
+                        }
+                       }
+                    Shape& pt=select[0];
+                     select.clear();
+                     remove(&pt);
+
+                } else // select пуст
+                      factory.set_type(sh_none_t);
+
+               /* if(select.state()!=select_tool::ready_state)
+                 { if(select[0].type()!=Shape::none_)
+                     {
+                        select[0].remove(select[0].size());
+                        select.set_state(select_tool::ready_state);
+                      }}
+                   else // если простая не готова, просто удаляем ее
+
+                       if(!select.isEmpty())
+                      {  Shape& pt=select[0];
+                       select.clear();
+                       select.set_state(select_tool::ready_state);
+                       remove(&pt);
+
+                    }
+                  else
+                    // if(!select.isEmpty())
+                     factory.set_type(sh_none_t);*/// если select пуст, сбросить инструмент
+//                    else
+//                    factory.set_type(sh_none_t);// если select пуст, сбросить инструмент
+//                 }
+//                  else if(select[0].type()!=Shape::none_)      // в разряд готовых
+//                 {  select[0].remove(select[0].size());
+//                    select.set_state(select_tool::ready_state);
+//                  }
+            //   break;
+}
+            break;
+         case FL_RELEASE:
+            switch (Fl::event_button())
+            {
+              case FL_LEFT_MOUSE:
+
+                break;
+              case FL_RIGHT_MOUSE:
+
+                break;
+            }
+
+            break;
+        case FL_MOVE:  // модификатор ==change(Shape,point, int n);
+ if(!select.isEmpty()&&select.state()==select_tool::modify_state)
+ {     mod(select[0],cursor_position());
+  // select[0].change(cursor_position());
+  }
+         break;
+         case FL_DRAG:
+            break;
+
+
+
+    }}
+
+
+//    if(select.isEmpty()) // если есть выделенные фигуры, проверяем модификаторы
+//      {
+//        if(factory.type()!=sh_none_t)
+//        { // select.add(factory_create)
+//             factory.create(cursor_position()); // создать фигуру, захватить ее и включить модификацию,
+//           // захват созданной фигуры
+//        }}
+//    else   // здесь проверить требуется  модификация или захват новых фигур
+//     {    // Для этого разделения модификация возможна лишь в определенных областях фигуры
+
+
+//     } // далее модификация фигуры,
+// после создания фигуры, здесь должен быть режим изменение вершины
+  //  if(tl_) tl_->action(this,i);
+
+    //
+ // Подумать :1. если canvas будет выбирать tool который устанавливается в данный момент???
     // 2.canvas содержит стек tool = после создания фигуры (creat_tool), в стек добавляется transform_tool
     // после завершения модификации убираем transform_tool
     // transform_tool так же может иметь различия по изменениям фигур,
     // например в полигон можно добавить вершину, в прямоугольник нельзя,
-        //  для изменения класса фигур отдельная функция: transform_to() // варианты трансформирования (прямоугольник - полигон, или ломанная)
+        //  для изменения класса фигур отдельная фу/нкция: transform_to() // варианты трансформирования (прямоугольник - полигон, или ломанная)
      // окружнось- элипс/ элипс- окружность(с явным выбором центра)// окружность- дуга окружности, и т.д.
 
  // отрисовку виджета следует выполнять по необходимости,
  // будет вызываться по результатам action()
  // так в режиме модификации вызывать при движении, в режиме ready_sh вызывать по нажатию
-   //  pw->redraw();
+     pw->redraw();
 
     return i;
 }
@@ -129,3 +341,59 @@ int Canvas::handle(int i){
 
 
 }
+
+/* other variant
+ *
+    switch (i)
+    {
+    case FL_PUSH:
+        switch (Fl::event_button())
+   {
+        case FL_LEFT_MOUSE:  // выбираем что делать: если выбран тип фигуры, создать фигуру, добавить в select, установить модификатор change()
+    if(select.isEmpty()){
+   if(factory.type()!=sh_none_t)    //иначе, если есть выделенная фигура, активировать модификатор ()
+   {                                              // иначе пробуем выделить фигуру
+    add(factory.create(cursor_position()+100));
+    select.add(vec[vec.size()-1]);
+        mod.set_type(transform::change_t); // для определенной вершины
+    }
+  } else
+       select.action(this,i);  // захватить точку курсора, по отжатию определить область выделения ,
+     // если же тип для создания не установлен,
+            break;
+       case FL_RIGHT_MOUSE:
+
+         break;
+         }
+        break;
+    case FL_RELEASE:
+        switch (Fl::event_button())
+        {
+         case FL_LEFT_MOUSE:     // по отжатию левой мыши, модификатор или расчет selected
+        if(select.isEmpty())
+         {  select.action(this,i); // считаем новое выделение
+         } else  // если же в select есть какая то фигура,- то считаем что модифицировали ее
+             {
+              std::cout<<"modification creating shape\n";
+             tl_->action(this,i);// tl_->action(select.data()); //
+               }
+
+            break;
+       case FL_RIGHT_MOUSE:
+           std::cout<<"clear selected\n";
+       select.clear(); // по правой кнопке очищаем
+         break;
+        }
+        break;
+    case FL_MOVE:
+
+        break;
+    case FL_DRAG:
+                //
+        break;
+    }
+
+
+*/
+
+

@@ -139,7 +139,31 @@ Shape *get_circle(Point p)
 }
 //**********************************************
 //**********************************************
+// *****************selected_tool
+select_tool::select_tool()//:curs(nullptr)//:base_tool(tool_type::selected_t),curs(new rectangle(s->cursor_position(),s->cursor_position()+2))
+{
+ //init_tree(s);// можно публично передавать вектор
+}
 
+void select_tool::init_tree(Canvas *s)
+{
+    for(size_t i=0;i<s->count();++i)
+       tr.insert(&(*s)[i]);
+
+}
+
+void select_tool::action(Canvas *c, int ev)
+{
+    std::cout<<"select action active \n";
+
+}
+//void select_tool::draw(Point p) const
+//{
+
+//}
+
+//********************************
+//**********************************
 // дерево нужно строить один раз, при установке инструмента
 
 transform_tool::transform_tool(Canvas *can):base_tool(base_tool::transform_t),curs(new rectangle(can->position(),can->position()+5))

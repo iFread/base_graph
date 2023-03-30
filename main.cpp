@@ -86,12 +86,14 @@ int common_tests()
       l[0].callback([](Graph::Address,Graph::Address adr){
             Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
         p.set_tool( Graph::get_line);
-      //p.move(-10,-10);
+      p.set_tool(Graph::shape_type::sh_line_t);
+        //p.move(-10,-10);
       },&scrl[0]);
       l[1].callback([](Graph::Address,Graph::Address adr){
             Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
         p.set_tool( Graph::get_polyline);
-      //p.move(-10,-10);
+      p.set_tool(Graph::shape_type::sh_polyline_t);
+         //p.move(-10,-10);
       },&scrl[0]);
 
 
@@ -100,6 +102,7 @@ int common_tests()
         Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
         //p.move(10,10);
        p.set_tool(Graph::get_rectangle);
+       p.set_tool(Graph::shape_type::sh_rectangle_t);
        //p.content().redraw();
        },&scrl[0]);
 
@@ -107,12 +110,15 @@ int common_tests()
         Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
         //p.move(10,10);
        p.set_tool(Graph::get_polygon);
+       p.set_tool(Graph::shape_type::sh_polygon_t);
+
        //p.content().redraw();
        },&scrl[0]);
        l[4].callback([](Graph::Address,Graph::Address adr){
         Graph:: Canvas& p=Graph::reference_to<Graph::Canvas>(adr);
         //p.move(10,10);
        p.set_tool(Graph::get_circle);
+       p.set_tool(Graph::shape_type::sh_circle_t);
        //p.content().redraw();
        },&scrl[0]);
 
