@@ -11,8 +11,9 @@
 namespace Graph {
 
 Widget::~Widget(){
-if(pw) pw->hide();
+if(pw)   pw->hide();
  delete pw;
+pw=nullptr;
  }
 
 void Widget::attach(window &w)
@@ -24,7 +25,7 @@ void Widget::attach(window &w)
 //own->attach(pw);
 }
 
-void Widget::show(){pw->show();}
+void Widget::show(){if(pw) pw->show();}
 void Widget::hide(){if(pw)
                       pw->hide();}
 

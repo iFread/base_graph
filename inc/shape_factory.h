@@ -69,15 +69,16 @@ public:
 enum modify_type:uint8_t {none_t, change_t,rotate_t,move_t};
 private:
 modify_type md{none_t};
-
+int index{0};
 public:
 
 void set_type(modify_type tp){md=tp;}
-
+void set_type(modify_type tp,int idx){md=tp; index=idx;}
+modify_type type() const {return md;}
 void operator()(Shape&s,Point p,int i=-1)
 {
  if(md==change_t)
-        s.change(p,i);
+        s.change(p,index);
 // }  //
 //void operator()(Shape& s,Point p)  // int i, для вращения, для расчетов необходимо знать центр вращения и смещение на угол,
 //{

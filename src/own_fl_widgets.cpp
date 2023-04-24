@@ -4,7 +4,7 @@
 #include "own_gui_widgets.h"
 #include "point.h"
 #include "group_widgets.h"
-
+#include "main_menu.h"
 
 #include <Fl/fl_draw.H>
 
@@ -52,7 +52,7 @@ int fl_canvas::handle(int e){
         break;
     case FL_MOVE:
     case FL_DRAG:
-     reinterpret_cast <Graph::Canvas*>(user_data())->cursor_position( {(float)Fl::event_x()-x(),(float) Fl::event_y()-y()});
+   //  reinterpret_cast <Graph::Canvas*>(user_data())->cursor_position( {(float)Fl::event_x()-x(),(float) Fl::event_y()-y()});
      break;
     }
    //
@@ -64,6 +64,22 @@ int fl_canvas::handle(int e){
     //   return 0;
    }
    return e;
+}
+
+fl_empty::fl_empty(Point p,int w,int h):Fl_Widget(p.x(),p.y(),w,h){user_data(nullptr);}
+
+void fl_empty::draw()
+{
+
+  if(user_data())
+    reinterpret_cast<Graph::menu_bar*>(user_data())->draw();   // к чему cast
+}
+
+int fl_empty::handle(int ev)
+{
+  if(user_data())
+      return static_cast<Graph::menu_bar*>(user_data())->handle(ev);   // к чему cast
+  return ev;
 }
 
 //void fl_canvas::add(Shape* sh){

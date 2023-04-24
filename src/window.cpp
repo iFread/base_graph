@@ -24,6 +24,7 @@ wid.clear();
         delete w;
 
     }
+    hide();
   // std::cout<<"window dtor coll\n";
 }
 
@@ -47,6 +48,7 @@ for(Widget*w :wid){
   w->resize(w->w(),w->h());
 
 }
+
 
 
 //    for(Widget*w :owns){
@@ -74,6 +76,11 @@ Fl_Window::redraw();
 //}
 
 }
+void window::set_active(Widget &w, int event)
+{
+ waiting.w=&w;
+ waiting.ev=event;
+}
 
 void window::attach(Widget &sh)
 {
@@ -85,16 +92,53 @@ void window::attach(Widget &sh)
 
 void window::attach(Widget &&N)
 {
-   owns.push_back(&(N.create()));
-   begin();
-   (owns.back())->attach(*this);
-    end();
+    owns.push_back(&(N.create()));
+    //begin();
+   attach(*owns.back());
+    //  (owns.back())->attach(*this);
+    //end();
 }
 
+void window::detach(Widget &w)
+{
+ for(size_t i=0;i<wid.size();++i)
+ {
+     if(wid[i]==&w)
+     { //Widget *del=wid[i];
+         w.hide();
+         wid.erase(wid.begin()+i);
+         remove(w.content());
+        for(size_t j=0;j<owns.size();j++)
+        {
+          if(owns[j]==&w)
+          {
+              owns.erase(owns.begin()+j);
+              delete &w;
+          }
+
+        }
+
+     }
+ }
+}
 
 int window::handle(int e){
-Fl_Window::handle(e);
 
+
+//for(size_t i=0;i<waiting.size();++i)
+//{
+// if(waiting[i])  //flag
+// {
+//    waiting[i]->content().handle(e);
+// }
+//}
+    if(waiting.w&&e==waiting.ev)
+    {
+      Widget* ptr=waiting.w;
+      waiting={nullptr,FL_NO_EVENT};
+      return ptr->content().handle(e);
+    }
+Fl_Window::handle(e);
   return 1;
 
 }
@@ -102,6 +146,10 @@ Fl_Window::handle(e);
 void window::draw()
 {
     Fl_Window::draw();
+//  for(size_t sz=0;sz<wid.size();++sz)
+//  {
+//   wid[sz]->draw();
+//  }
 //   for(auto &sh: shapes)
 //       sh->draw();
 //    for(auto *sh: own_shapes)

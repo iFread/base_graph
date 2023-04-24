@@ -55,29 +55,31 @@ class Canvas: public Widget  //
         void position(Point p);
       // если nullptr тогда все поломается
          Shape& data(){return *cursor_;}
- Shape& operator*(){return *cursor_;}
- const Shape& operator*()const{return *cursor_;}
+   Shape& operator*(){return *cursor_;}
+    const Shape& operator*()const{return *cursor_;}
         ~cursor(){delete cursor_;}
          void visible(bool fl){vsbl=fl;}
          bool visible() const{return vsbl;}
+       void selected(Point p);
     };
 
      Factory factory;
      select_tool select;
      mod2 mod;
-    cursor cursor;
-     Point current{0,0};  // текущее положение мыши
-     tool* tl_{nullptr};
+     cursor cursor;
+
+  //   Point current{0,0};  // текущее положение мыши
+   //  tool* tl_{nullptr};
 public:
     Canvas(Point p,int w,int h):Widget(p,w,h){}//,cursor(new rectangle(p,p+5)){ }
-  Canvas(Canvas&& c):Widget(std::move(c)),tl_(c.tl_){}//,cursor(new rectangle(c.cursor_position(),c.cursor_position()+5)){}
+  Canvas(Canvas&& c):Widget(std::move(c)){}//,tl_(c.tl_){}//,cursor(new rectangle(c.cursor_position(),c.cursor_position()+5)){}
     Widget& create();
  void create(Point p,int w,int h);
   ~Canvas();// {if(tl_) delete tl_;}
 Fl_Widget& content();
 Shape& operator[](int i);
-void cursor_position(Point p){current.x()=p.x();current.y()=p.y();cursor.position(p);}
-Point cursor_position() const {return current;}
+//void cursor_position(Point p){current.x()=p.x();current.y()=p.y();}//cursor.position(p);}
+Point cursor_position() const {return  Point (Fl::event_x()-pw->x(),Fl::event_y()-pw->y());}//current;}
 void draw()const;
 
 void add(Shape*);
@@ -87,9 +89,15 @@ size_t count()const;
 // установить либо новый инструмент creat_tool/modify_tool либо указатель на функцию создания объекта фигура
 void set_tool(tool*);
 void set_tool(cb_creating_t  p);
-void set_tool(shape_type tp){factory.set_type(tp);}
+void set_tool(shape_type tp){factory.set_type(tp);select.clear();}
 protected:
 void set_parent(void *v);  // tool*
+
+// работа с фигурами
+ void creating_shape(int ev); // добавляет новую фигуру
+ void selecting_shape(int ev); // выбор фигуры из уже созданных
+ void modify_shape(int ev);     // изменение фигуры
+
 
 // обработка курсора
 //void init_cursor();
@@ -98,12 +106,7 @@ void set_parent(void *v);  // tool*
 
 private:
 std::vector<Shape*> vec;
-
-
-
-
-
-};
+ };
 
 
 

@@ -146,9 +146,32 @@ select_tool::select_tool()//:curs(nullptr)//:base_tool(tool_type::selected_t),cu
 }
 
 void select_tool::init_tree(Canvas *s)
-{
+{ tr.clear();
     for(size_t i=0;i<s->count();++i)
        tr.insert(&(*s)[i]);
+}
+
+void select_tool::search_under_cursor(Shape* cursor)
+{
+    line ln(cursor->operator[](2),cursor->operator[](2)+2);
+
+        auto It=tr.upper_bound(&ln);//cursor);
+               auto I=tr.begin();
+            //  if(It==I&&It!=tr.end()){list.push_back((*It).data);}
+               for(;I!=It;I.greater_than())
+                  { // здесь уже проверяем по x, чтобы незаканчивалась раньше курсора,
+                   // и по y, что лежит в пределах курсора
+                 // if((*I).data->limit_x().x()<cursor->limit_x().y())// && (*I).data->limit_x().x()<cursor->limit_x().y())
+                      //Point y=(*I).data->limit_y();
+                      //if (y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
+                       //{
+                  if(cursor->intersect((*I).data)||(*I).data->intersect(cursor))
+                    add((*I).data); //vec.push_back( (*I).data);
+                         //  }
+                   }
+            if(It!=tr.end()&&cursor->intersect((*It).data))
+              add((*It).data);//vec.push_back( (*It).data);
+
 
 }
 

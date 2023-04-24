@@ -128,7 +128,7 @@ Iterator & less_than()  // проход к следующему элементу
 
 }
 
- Iterator& greater_than( )
+ Iterator& greater_than()
  {
       if(value->right)
      {      value=value->right;

@@ -146,16 +146,16 @@ Vertex* Vertex_list::operator[](int i)
 
 //*****************************
 
-  Shape& Shape:: operator=(Shape&& sh){
-if(this==&sh)
-    return *this ;
-  v=std::move(sh.v);  // заберем данные
- lcolor=sh.lcolor;
- ls=sh.ls;
- fcolor=sh.fcolor;
- type_=sh.type_;
- return *this;
-}
+//  Shape& Shape:: operator=(Shape&& sh){
+//if(this==&sh)
+//    return *this ;
+//  v=std::move(sh.v);  // заберем данные
+// lcolor=sh.lcolor;
+// ls=sh.ls;
+// fcolor=sh.fcolor;
+// type_=sh.type_;
+// return *this;
+//}
 
   Shape::line_type Shape:: type() const {return type_;}
 
@@ -439,7 +439,7 @@ void rectangle:: change( Point p,int i)
 { // сохранить инвариант прямоугольника
    // для этого нужна вершина диагональная данной
 //i=(v.size()<i)?v.size():i;
-if(i==-1) i=size()-1;
+if(i==-1) i=size()/2;
 v[i]->change(p);// меняем нужную вершину
 Vertex* cross=v[i]->ccv()->ccv();//->content(); // соординаты противоположной точки
  // для импользования move operator, всеравно вызывать конструктор
@@ -455,27 +455,51 @@ control_limits();
 // прямоугольник будет содержать точку, если точка лежит одинаково относительно всех его граней
 bool rectangle::contain(const Point &p) const
 {
-    using namespace math;
-         // пройти по всем ребрам, определить что точка лежит с одинаковой стороны справа
-       // не проверяет последнюю грань
+//    using namespace math;
+//         // пройти по всем ребрам, определить что точка лежит с одинаковой стороны справа
+//       // не проверяет последнюю грань
 
-         //bool flg=true;
-      for(int i=1;i<=size();++i)
-       {  line_t vec(*v[i-1],*v[i]); // при i==size() вернет нулевой вектор,
-         // проверка последней грани
-          if(i==size())
-               vec=line_t(*v[size()-1],*v[0]);
+//         //bool flg=true;
+//      for(int i=1;i<=size();++i)
+//       {  line_t vec(*v[i-1],*v[i]); // при i==size() вернет нулевой вектор,
+//         // проверка последней грани
+//          if(i==size())
+//               vec=line_t(*v[size()-1],*v[0]);
 
-          if(vec.get_area(p)==LEFT)
-               return false;
-          }
-         return true;
+//          if(vec.get_area(p)==LEFT)
+//               return false;
+//          }
+//         return true;
+
+bool result=false;
+         for(int i=0,j=size()-1;i<size();j=i++)
+{if( (v[i]->y() > p.y())!=(v[j]->y()>p.y()) &&
+    (p.x()< (v[j]->x()-v[i]->x())* (p.y()-v[i]->y())/ (v[j]->y()-v[i]->y())+v[i]->x()))
+     result=!result;
 
 }
+
+         return result;
+
+}
+
+
+
+
+//bool rectangle::contain(const Shape *sh) const
+//{
+//   for(int i=0;i<sh->size();++i)
+//   {
+//    if(contain(sh->operator[](i)))
+//        return true;
+//   }
+//   return false;
+//}
+
 // bool rectangle::separates(Point p1,Point p2) const
 bool rectangle::intersect(const Shape *sh) const
 { using namespace math;
- bool lies_in =true;
+// bool lies_in =true;
   const Shape& ref=*sh;
 
   for(int i=1;i<=size();++i)
@@ -485,21 +509,29 @@ bool rectangle::intersect(const Shape *sh) const
 
         for(int j=1;j<=sh->size();++j)
         {if(vec.isNull())
-                lies_in=false;
+               { //lies_in=false;
+               // break;
+                return false;
+             }
             vector2d oth(ref[j-1],ref[j]);
-            if(j==ref.size()&& ref.type()==Shape::close_line)
+            if(j==ref.size()&& ref.type()!=Shape::open_line)
                 oth=vector2d(ref[ref.size()-1],ref[0]);
-          if(vec.intersect(vector2d(ref[j-1],ref[j])))
+          if(vec.intersect(oth))//ref[j-1],ref[j])))
           {
               return true;
           }
-        // если sh лежит внутри прямоугольника
-          if((vec.get_area(oth.begin())==math::LEFT && vec.get_area(oth.end())==math::LEFT))
-          lies_in=false;
+        // если sh лежит снаружи прямоугольника
+//        if(vec.get_area(oth.begin())==math::LEFT && vec.get_area(oth.end())==math::LEFT)
+
+//          lies_in=false;
         }
 
    }
-    return   lies_in;
+  for(int i=0;i<sh->size();++i)
+   if(contain((*sh)[i]))
+      return true;
+
+    return   false;//lies_in;
 }
 
 
@@ -576,10 +608,54 @@ if(size()>3)
 
  bool polygon::contain(const Point &p) const
  {
+//return Shape::contain(p);
+     bool result=false;
+              for(int i=0,j=size()-1;i<size();j=i++)
+     {if( (v[i]->y() > p.y())!=(v[j]->y()>p.y()) &&
+         (p.x()< (v[j]->x()-v[i]->x())* (p.y()-v[i]->y())/ (v[j]->y()-v[i]->y())+v[i]->x()))
+          result=!result;
 
+     }
+
+              return result;
  }
 bool polygon::intersect(const Shape *sh) const
 {
+    using namespace math;
+    // bool lies_in =true;
+      const Shape& ref=*sh;
+
+    //return rectangl::intersect(sh);
+    for(int i=1;i<=size();++i)
+      {    vector2d vec(v[i-1]->content(),v[i]->content());
+                 if(i==size())
+               vec= vector2d (v[size()-1]->content(),v[0]->content());
+
+          for(int j=1;j<=sh->size();++j)
+          {if(vec.isNull())
+                 { //lies_in=false;
+                 // break;
+                  return false;
+               }
+              vector2d oth(ref[j-1],ref[j]);
+              if(j==ref.size()&& ref.type()!=Shape::open_line)
+                  oth=vector2d(ref[ref.size()-1],ref[0]);
+            if(vec.intersect(oth))//ref[j-1],ref[j])))
+            {
+                return true;
+            }
+          // если sh лежит снаружи прямоугольника
+  //        if(vec.get_area(oth.begin())==math::LEFT && vec.get_area(oth.end())==math::LEFT)
+
+  //          lies_in=false;
+          }
+
+     }
+    for(int i=0;i<sh->size();++i)
+     if(contain((*sh)[i]))
+        return true;
+
+      return   false;//lies_in;
 
 }
 

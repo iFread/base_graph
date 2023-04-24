@@ -38,7 +38,7 @@ public:
 enum quarters:uint8_t {none,qw_one,qw_two,qw_three,qw_four};
 
 public:
-vector2d(const Point& p1={0.0f,0.0f},const Point &p2={0.0f,0.0f});
+vector2d(const Point& p1={0 ,0},const Point &p2={0,0});
 Point begin() const {return b;}
 Point end() const {return e;}
 

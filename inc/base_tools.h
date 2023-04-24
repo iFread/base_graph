@@ -176,12 +176,13 @@ private:
 public:
     select_tool();
    void add(Shape*sh)   {sh->vertex_visible(true);
-                         sh->set_vertex(Color::green,3);
+                         sh->set_vertex(Color::red,3);
                          vec.push_back(sh);}
    void remove(Shape* sh)  //
    { sh->vertex_visible(false);
 
    }
+   size_t size() const{ return vec.size();}
     virtual void action(Canvas* c,int ev); // считает фигуры которые попали в область курсора,
   // virtual void draw(Point p) const; // здесь не нужен
     ~select_tool(){    // if(curs) delete curs;
@@ -198,9 +199,11 @@ public:
     Shape& operator[](int i) {i=i<vec.size()?i:vec.size(); return vec[i];}
     void set_state(sh_state st){current_state=st;}
     sh_state state() const{return current_state;}
-protected:
+     void search_under_cursor(Shape* cursor);
+
      void init_tree(Canvas* s); // std::vector<Shape*>& v ;
-     void search_under_cursor(Shape* cursor);  // искать фигуры которые попадают в область курсора
+       // искать фигуры которые попадают в область курсора
+protected:
 };
 
 

@@ -53,6 +53,16 @@ int handle(int e) override;
 
 };
 
+class fl_empty:public Fl_Widget
+{
+
+public:
+ fl_empty(Point p,int w,int h);
+ ~fl_empty(){}
+
+void draw() override;
+int handle(int ev) override;
+};
 
 
 

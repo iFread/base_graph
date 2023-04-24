@@ -128,9 +128,9 @@ public:
  Shape(Point a,line_type tp=none_):v(),type_(tp),lim_x({a.x_,a.x()}),lim_y({a.y_,a.y_}) {v.add(a);}
 // определить copy operator=()
 //Shape(const Shape&)=delete;
- Shape(const Shape& sp):v(sp.v) {}
- Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),vs(sh.vs),type_(none_) {}
- Shape& operator=(Shape&& sh);
+// Shape(const Shape& sp):v(sp.v) {}
+ //Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),vs(sh.vs),type_(none_) {}
+ //Shape& operator=(Shape&& sh);
  line_type type() const;
  virtual ~Shape(){}
 
@@ -197,6 +197,10 @@ virtual bool intersect(const Shape* sh)const =0; // пересечение фи�
 virtual bool contain(const Point& p)const =0;     //проверка на содержание точки
 // Point point_intersect();
 };
+//*******************************
+//      text
+
+
 
  // одиночная линия
 class line:public Shape{
@@ -248,7 +252,7 @@ public:
      void change(Point p,int i=2);
      bool intersect(const Shape* sh) const; // пересечение фигур
      bool contain(const Point &p) const;
-
+//  bool contain(const Shape* sh) const;
 protected:
     void draw_lines() const;
 void draw_lines(Point p, int sc=1)const;
