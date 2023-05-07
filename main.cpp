@@ -38,16 +38,99 @@ void tst_rbtree();
 int common_tests();
 
 int tst_menu();
+int tst_submenu();
+ void cb_quit(void *add,void *add2)
+{
+ Graph::window*win=Graph::reference_to<Graph::window*>(add2);
+ win->hide();
+ delete win;
+ exit(0);
+}
+
+ void cb_open(Graph::Address,Graph::Address adr)
+ {
+     Graph::window &win=Graph::reference_to<Graph::window>(adr);
+
+win.show();
+     while (win.shown()) {
+   Fl::wait();
+
+     }
+     win.hide();
+ }
 
 int main()
 {
 
- // tst_rbtree();
- // common_tests();
-  return tst_menu();
-return 0;
+   //tst_rbtree();
+ //common_tests();
+//  return tst_menu();
+   return tst_submenu();
+    return 0;
     }
 
+
+int tst_submenu()
+{
+    using namespace Graph;
+{
+    window*win= new  Graph::window  (Point{100,100},800,600,"test_submenu");
+  Out_Box bx({200,200},100,20);
+  win->attach(bx);
+
+Graph::window *winM=new Graph::window({100,100},500,600,"open");
+
+  menu m(new item("file"));
+   m.add(new item("view"));
+   m.add(new item("property"));
+   m.add(new item("help"));
+   m.add(new Graph::item("open",cb_open,winM),"file");
+   m.add(new Graph::item("new"),"file");
+    m.add(new Graph::item("save"),"file");
+     m.add(new Graph::item("quit",cb_quit,&win),"file");
+     m.add(new Graph::item("save_as"),"file/save");
+      m.add(new Graph::item("save_curent"),"file/save");
+    m.add(new Graph::item("about"),"help");
+    m.add(new Graph::item("version"),"help");
+    m.add(new Graph::item("constacts"),"help");
+
+Menu m_menu({10,0},&m,orientation::horisontal);
+win->attach(m_menu);
+
+
+Graph::Button* b_ok=new Graph::Button({10,10},70,20,"Ok");
+Graph::Button* b_cancl=new Graph::Button({90,10},70,20,"Cancel");
+winM->set_modal();
+winM->hide();
+winM->attach(*b_ok);
+winM->attach(*b_cancl);
+
+//Graph::Out_Box* bx=reinterpret_cast<Graph::Out_Box*>(adr);
+
+b_ok->callback([](Graph::Address,Graph::Address ad)
+{
+Graph::Out_Box& b= Graph::reference_to<Graph::Out_Box>(ad);
+
+b.put("Ok");
+//b.content().parent()->hide();
+
+},&bx);
+
+b_cancl->callback([](Graph::Address,Graph::Address ad)
+{
+Graph::Out_Box& b= Graph::reference_to<Graph::Out_Box>(ad);
+
+b.put("Cancel");
+
+
+},&bx);
+
+
+
+   return    Graph::gui_run();
+   delete  win;
+}
+    }
 
 int tst_menu()
 {
@@ -59,15 +142,19 @@ int tst_menu()
      menu.add(new Graph::item("open"),"file");
        menu.add(new Graph::item("property")); // menu.add("open,new, ",), menu.add( item*,"file"), menu add(submenu *sb, "file")
        menu.add(new Graph::item("help"));
-
+  menu.add(new Graph::item("new"),"file");
+   menu.add(new Graph::item("save"),"file");
     menu.add(new Graph::item("quit"),"file");
-     menu.add(new Graph::item("new"),"file");
+  menu.add(new Graph::item("version"),"help");
+  menu.add(new Graph::item("about"),"help");
+
           menu.add(new Graph::item("text_edit"),"view");
               menu.add(new Graph::item("panels"),"view");
                   menu.add(new Graph::item("text_editor"),"property");
   win->attach(Graph::Button({ 1, 100},80,20,"transform"));
-                  return    Graph::gui_run();
+                  Graph::gui_run();
     delete win;
+                  return 0;
 }
 
 int common_tests()

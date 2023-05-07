@@ -5,17 +5,14 @@
 namespace Graph {
 
 
-void  item::draw(int x,int y) const
-{
+//void  item::draw(int x,int y) const
+//{
 
- // int ofnt=fl_font();
- // int osz=fl_size();
-    int ofl=fl_color();
- //  fl_rectf(x,y,size()*8,20,FL_GRAY);
-    fl_color(FL_BLACK);
-    fl_draw(txt.c_str(),x,y);
-  fl_color(ofl);
- }
+// // int ofnt=fl_font();
+// // int osz=fl_size();
+//    int ofl=fl_color();
+
+// }
 
 
 const char* item::elem_name(const char *path, char *buf)
@@ -85,10 +82,10 @@ void menu::add(item *it, const char *path)
  cur->add(it);
 }
 
-void menu::draw(int x, int y) const
-{
+//void menu::draw(int x, int y) const
+//{
 
-}
+//}
 
 //item& menu::operator[](int i)
 //{
@@ -151,6 +148,314 @@ void menu::draw(int x, int y) const
 
 // return nullptr;
 //}
+
+//*******************************************************
+//********************* Menu
+
+// drawing menu
+// defines to size the Widget to fit all elements
+
+Menu::~Menu()
+{
+ //   std::cout<<"delete menu for "<<menu_->name()<<"\n";
+
+    if(submenu_)
+{  submenu_->hide();
+    own->detach(*submenu_);
+ Menu* it=submenu_;
+ submenu_=nullptr;
+ delete it;
+
+}
+ //   hide();
+  //  own->detach(*this);
+//Menu*it=this;
+
+          //     submenu_=nullptr;
+
+
+}
+void Menu::create(Point p, int w, int h)
+{
+    pw=new fl_empty(p,w,h);// FL_Box
+     set_widget_size(menu_);
+   //  pw->box(FL_UP_BOX);
+    pw->user_data(this);
+}
+
+void Menu::set_widget_size( const item* it)
+{
+  if(!it) {
+      resize(0,0);
+      return;
+
+      }
+    int wd=0;
+     int ht=0;
+    for(const item*cur=it ;cur;cur=cur->next())
+  {
+   if(orient==orientation::vertical)
+       wd=(wd< (cur->width()*9))?cur->width()*9:wd;
+    else
+        wd+=cur->width()*9;
+     }
+ // height:
+  if(orient==orientation::vertical)
+  { wd+=wd/3;
+     ht=it->size()*20;
+      } else
+    ht=20;
+
+ resize(wd,ht);
+
+}
+void Menu::draw_item(Point o,const item* it) const
+{
+    int ofl=fl_color();
+    fl_color(Fl_Color(FL_BLACK));
+     fl_draw(it->name(),o.x()+5,o.y()+15);
+     fl_color(ofl);
+}
+void Menu:: draw() const
+{
+Point o=loc;
+ const item* cur=menu_;
+  fl_rect(loc.x(),loc.y(),w(),h());
+// fl_rectf(loc.x(),loc.y()-1,w()-1,h()-1,FL_GRAY);
+ // рисуем box
+
+for(;cur;cur=cur->next())
+{
+ int wdth= fl_width(cur->name())+10;
+
+if(curent_item.active_==cur) { // curent_active не изменяется если:
+    // При собьтии Fl_Leave   submenu_visible && положение курсора уходит на submenu_
+    //
+    fl_rectf(o.x(),o.y(),wdth-2,18,FL_GREEN);
+
+} else
+      fl_rectf(o.x(),o.y(),wdth-2,18,FL_GRAY);
+
+ draw_item(o ,cur);
+ if(orient==orientation::vertical)
+ {
+  o.y()+=20;
+ } else
+ {
+  o.x()+=wdth;
+ }
+}
+//if(submenu_ ){
+//    if(dynamic_cast<Menu*>(submenu_)->curent_item.status==submenu_visible)//&& curent_item.active_ && curent_item.status==submenu_visible)
+//    dynamic_cast<Menu*>(submenu_)->draw();
+//}
+}
+
+int Menu::handle(int e)
+{
+
+
+    switch (e)
+    {
+     case FL_LEAVE:
+
+//  if(curent_item.active_&& submenu_){ // если есть submenu_ то возможно переход на submenu_, и убирать его не надо
+//        std::cout<<"leave "<<curent_item.active_->name()<<"  item\n";
+
+//   if(orient==orientation::vertical && submenu_) // если меню вертикальное, убрать submenu
+//     { // куда уходим? на submenu_ или нет
+//        std::cout<< curent_item.active_->name()<<" will be close\n";
+//          own->detach(*submenu_);
+//          delete submenu_;
+//          submenu_=nullptr;
+//      }
+
+ // break;
+  // }else  // если submenu_ не активно
+//    if(orient==orientation::horisontal && submenu_)
+//        break;
+//    else
+    { // curent_item.clear();
+        if(curent_item.active_ && curent_item.status==status_menu::submenu_visible)
+        {
+            // проверить что в границах submenu_
+       if(submenu_){
+         int x_ps=Fl::event_x();
+          int y_ps=Fl::event_y();
+       if(x_ps > submenu_->loc.x()-5  && x_ps<submenu_->loc.x()+submenu_->w())
+       {
+          if(y_ps> submenu_->loc.y()-2 && y_ps< submenu_->loc.y()+submenu_->h())
+              break;
+        }
+     //  delete submenu_;
+     clear();
+//         submenu_->clear();
+       submenu_=nullptr;
+//       submenu_->hide();
+       }
+    }else
+          curent_item.clear();
+ // при оставлении меню, если это не меню первого уровня, нужно уничтожать это меню,
+    // возможно при выходе из меню посылать сигнал родителю, что бы он решал уничтожать submenu или нет
+     pw->redraw();
+    }   break;
+
+    case FL_MOVE:
+    {
+     int dx=Fl::event_x();//-loc.x();
+     int dy=Fl::event_y();
+     int wd=loc.x();
+     int hd=loc.y() ;
+     const item* cur = menu_;
+    for(;cur;cur=cur->next())
+    {
+         if(orient==vertical)
+         { if(dy>hd && dy< hd+20)
+             {
+
+     break;
+             }
+            hd+=20;
+
+         }
+         else
+         {
+             if(dx>wd && dx <wd+cur->width()*9){
+
+                break;
+         }
+
+
+          wd+=cur->width()*9;
+
+
+         }
+    }
+ if(cur &&(cur!=curent_item.active_)){
+     curent_item.orig=orient==orientation::vertical?Point(wd+w(),hd):Point(wd,hd+20);
+     if(submenu_)
+     {
+      clear();
+          delete submenu_;
+         submenu_=nullptr;
+         break;
+     }
+     if(cur->state()==item::as_menu)
+    {
+       curent_item.set_state(cur,status_menu::submenu_visible);
+   submenu_=create_submenu(curent_item.orig,curent_item.active_);
+ } else
+  { //if(cur==curent_item.active_) break;
+      if(strcmp(cur->name(),"quit")==0)
+      {  std::cout << e<<" handle \n";
+       if(curent_item.active_)
+           std::cout<<"active name ="<<curent_item.active_->name()<<"\n";
+      if(cur)
+       std::cout<<" curent elem name = "<<cur->name()<<"\n\n";
+        }
+              curent_item.set_state(cur,status_menu::active);
+         //     break;
+     }
+own->redraw();
+ }
+
+ }
+
+
+        break;
+    case FL_PUSH:
+
+   std::cout<<"submenu position :"<<curent_item.orig.x()<<", "<<curent_item.orig.y()<<"\n";
+
+ if(curent_item.active_ ){
+      if(curent_item.active_->state()==item::as_menu && !submenu_)
+ { std::cout<<"create menu for "<<curent_item.active_->name()<<"\n";
+    curent_item.set_state(curent_item.active_,submenu_visible);
+ //  submenu_=create_submenu(curent_item.orig,curent_item.active_);
+
+} else if(curent_item.active_->state()==item::as_menu && submenu_)
+      {
+     //     delete submenu_;
+        clear();
+      //  clear();
+        submenu_=nullptr;
+        curent_item.set_state(curent_item.active_,active);
+      }
+
+else {
+    std::cout<<"here call callback function for "<<curent_item.active_->name()<<"\n";
+ const_cast<item*>(curent_item.active_)->callback();
+
+}
+}
+own->redraw();
+
+
+// {
+// if(curent_item.active_&&curent_item.active_->state()==item::as_item)
+
+ // закрыть всю цепочку меню,
+
+//    }
+
+        break;
+
+    }
+    return e;
+}
+// создать меню из it->submenu(); или it  уже  submenu
+// привязать к окну : own->attach(*submenu_);
+Menu*Menu::create_submenu(Point o,const item* it)
+{ if(!it || it->state()!=item::as_menu)
+            return nullptr;
+std::cout<<"create menu for " <<it->name()<<"\n";
+   Menu* m=new Menu(o,static_cast<const menu*>(it)->submenu(),vertical);
+    //m->curent_item.set_state(m->menu_,curent_item.status);
+
+   own->attach(*m);
+  // own->set_active(*m,FL_PUSH);
+//   submenu_=m;
+   return m;
+}
+
+void Menu::set_submenu(Point o, const item *it)
+{//1. Можно удалить старое и создать новое,
+  // 2. Изменить размер и положение виджета
+ // Variant 2
+    if(it)
+  std::cout<<"set submenu for "<<it->name()<<"\n";
+if(it&&it->state()==item::as_menu && static_cast<const menu*>(it)->submenu())
+{ const item* pit=static_cast<const menu*>(it)->submenu();
+
+//submenu_->clear();
+   // submenu_->hide();
+
+// submenu_->loc=o;//(loc.x()-o.x(),loc.y()-o.y());
+//submenu_->set_widget_size(pit);
+//submenu_->menu_=pit;
+//submenu_->show();
+//} else {
+//submenu_->hide();
+//submenu_->set_widget_size(nullptr);
+//submenu_->menu_=nullptr;
+
+}
+
+}
+void Menu::clear()
+{
+
+    if(submenu_) {
+  submenu_->hide();
+  // submenu_->clear();
+     Menu* it=submenu_;
+ own->detach(*it);
+        submenu_=nullptr;
+//std::cout<<"delete "<<it->menu_->name()<<"\n";
+        delete it;  }
+
+
+}
 
 //*********************************
 item* menu_bar::parser_path(const char* name )
@@ -248,62 +553,113 @@ int menu_bar::parser(item* it)
 void menu_bar::create(Point p, int w, int h)
 {
     pw=new fl_empty(p,w,h);
-    pw->box(FL_DOWN_BOX);
+    pw->box(FL_UP_BOX);
     pw->user_data(this);
 
 
 }
 Widget& menu_bar::create()
 {
-    return *this;
+    return  *this;
 }
 
-void menu_bar::draw()
+void menu_bar::draw() const
 {
-  int dx=Fl::event_x();
-     int wd=0;
+//fl_rect(pw->x()-1,pw->y()+1,pw->w()+1,pw->h()+1,FL_BLACK);
+ Point orig=loc;
 
-    for(size_t i=0;i<arr.size();i++)
+  item* cur=menu_;
+     for(int i=0;i<menu_->size();i++,cur=cur->next())
     {
+         double wdth= fl_width(cur->name());
+   if(menu_curent.active==cur)
+   {  fl_rectf(orig.x(),orig.y(),wdth+10,20,FL_GREEN);
+    if(menu_curent.flag==menu_bar::submunu_visible)
+       draw_submenu(orig,menu_curent.active);
+    }
+       else
+         fl_rectf(orig.x(),orig.y(),wdth+10,20,FL_GRAY);
+   draw_item(Point(orig.x(),orig.y()),cur);
 
-   if(arr[i]==active)
-    fl_rectf(loc.x()+wd-2,loc.y(),parser( arr[i])+4,20,FL_BLUE);
-   else
-       fl_rectf(loc.x()+wd-2,loc.y(),parser( arr[i])+4,20,FL_GRAY);
-
-  arr[i]->draw(loc.x()+wd,loc.y()+15 );
-  wd+=parser(arr[i]);
+    orig.x()=orig.x()+wdth+10;
    }
-  // здесь отрисовка виджета
-     if(pt) pt->content().redraw();
+//     if(menu_curent.active && (menu_curent.flag==menu_bar::submunu_visible))//||menu_curent.flag==menu_bar::menu_active))
+//     {
+//       draw_submenu({100,100},menu_curent.active);
+//      std::cout<<"active name ->"<<menu_curent.active->name()<<"\n";
+//     }
  }
 
-int menu_bar::handle(int ev)
+void menu_bar::draw_item(Point o, const item *it) const
 {
+      int ofl=fl_color();
+    fl_color(Fl_Color(FL_BLACK));
+     fl_draw(it->name(),o.x()+5,o.y()+15);
+     fl_color(ofl);
+}
+
+void menu_bar::draw_submenu(Point o, const item *it) const
+{
+   //const item* c=it->state()==item::as_menu?static_cast<const menu*>(it):it;
+
+   int hd= it->state()==item::as_menu?static_cast<const menu*>(it)->submenu()->size()*20:20;//it->size()*20;
+   // определить ширину виджета, (можно определять ширину при добавлении item) ширина должна учитывать возможность быстрого доступа
+   // т.е.  item->name() " + space +" "Ctrl+ O" // комбинация быстрого доступа
+    int wd=150;
+  fl_rectf(o.x(),o.y()+20,wd,hd,FL_GREEN);
+  if(it->state()==item::as_menu)
+  { const item* m=static_cast<const menu*>(it)->submenu();
+    for(int hd=0;m;m=m->next())
+     {// double wdth=fl_width(m->name());
+
+         draw_item(Point(o.x(),o.y()+hd+20),m);
+
+      hd+=20;
+     }
+
+
+  }
+
+}
+
+int menu_bar::handle(int ev)
+{ Point o=loc; // при движении по меню устанавливаем o в начало нового элемента
     switch (ev)
     {
        case FL_LEAVE:
-        if(active){
-            active=nullptr;
-           pw->redraw();
+        if(menu_curent.active){
+           if(menu_curent.flag==submunu_visible)
+      {     break;
+        } else {     menu_curent.clear();
+             pw->redraw();}
+
         }
-      //  std::cout<<" leave in widget\n" ;
+
         break;
     case FL_MOVE:
     {
      int dx=Fl::event_x();//-loc.x();
-  int wd=0;
-    for(size_t i=0;i<arr.size();++i)
-     {
-    if(dx>loc.x()+wd && dx <loc.x()+wd+parser( arr[i])) {
-     { if( active!=arr[i]){
-           active= arr[i];
-           pw->redraw();}
 
-       }
+     int wd=0;
+    for(item* cur = menu_;cur;cur=cur->next())
+    {
+    if(dx>loc.x()+wd && dx <loc.x()+wd+(cur->width()*9)) {
+       if(menu_curent.active!=cur){
+      // status_menu m=menu_curent.flag;
+ if(pt)
+      pt->content().label(cur->name());
 
+       if(menu_curent.flag==menu_bar::submunu_visible)
+          menu_curent.set_state(cur,menu_bar::submunu_visible);
+        else
+           menu_curent.set_state(cur,menu_active);
+       pw->redraw();
+own->redraw();
+
+}
+ break;
     }
- wd+=parser(arr[i]);
+ wd+=cur->width()*9;
 
 }
 
@@ -322,6 +678,7 @@ int menu_bar::handle(int ev)
               if(pt ) {own->detach(*pt);
                     delete pt;
                 pt=nullptr;
+              menu_curent.clear();
                 return ev;
               }
          } else
@@ -330,21 +687,24 @@ int menu_bar::handle(int ev)
     //      std::cout<<"in widget cliced\n";
           }
  // при нажатии, пункт меню,
-         if(active)
+         if(menu_curent.active)
            { //std::cout<<"new creating widget\n";
           //   menu_bar* bar=new menu_bar(loc+100);
-               Button *b=new Button(loc+100,70,20,"new button");
-            const item* it=active ;
+               Button *b=new Button(loc+100,70,20,menu_curent.active->name());
+            const item* it=menu_curent.active ;
+           menu_curent.flag=menu_bar::submunu_visible;
             //  own->attach(*bar);
-            for(;it->next();){
-               it=it->next();
-                std::cout<<it->name()<<"\n";
+           const item *sub= it->state()==item::as_menu?static_cast<const menu*>(it)->submenu():it->next();
+           for(;sub;){
+                std::cout<<sub->name()<<"\n";
+                sub=sub->next();
 
              // bar->add(*it,active->name());
              // pt=bar;
            } //b->attach(*own);
              own->attach(*b);
              own->set_active(*this,FL_PUSH);
+            if(pt) delete pt;
              pt=b;
 
              //b->content().take_focus();
@@ -388,30 +748,19 @@ int menu_bar::handle(int ev)
  */
 void menu_bar::add(item *it, const char *path, unsigned char ind) // file, view, help
 {
-//   if(!path)
-//    {
-//      // arr.push_back(new item(it.name()));
 
-//       resize(pw->w()+parser(&it)+4,20);
-//    }
-//     else
-//    {
-//     for(size_t i=0;i<arr.size();++i) {
-//      item* cur=
-//               parser_path(path, arr[i]);
-//        if(cur) {
-//             cur->add(it);
-//             return;
-//        }
-//     }   //arr[0].add(*new item(it));
-
-//   }
-    if(menu_)
+ if(!path){ resize(w()+it->width()*9 ,20);
+  std::cout<<"width widget more  "<<it->width()<<"\n";
+ }
+     if(menu_)
         static_cast<menu*>(menu_)->add(it,path);
      else
-     {   menu_=new menu(std::move(*it));
-    delete it;}
-// std::cout<<"pw->size() =="<<pw->w()<<"\n";
+     {   menu_=new menu( std::move(*it)) ;
+        delete it;
+    }
+
+
+
 }
 //size_menu++;
 

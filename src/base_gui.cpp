@@ -2,6 +2,7 @@
 #include <Fl/Fl_Button.H>
 #include <Fl/Fl_Output.H>
 #include <Fl/Fl_Input.H>
+#include "own_fl_widgets.h"
 #include <typeinfo>
 
 #include <iostream>
@@ -11,9 +12,12 @@
 namespace Graph {
 
 Widget::~Widget(){
-if(pw)   pw->hide();
- delete pw;
+if(pw)  { //  pw->hide();
+ //  own->remove(pw);
+delete pw;
 pw=nullptr;
+ }
+//own=nullptr;
  }
 
 void Widget::attach(window &w)
@@ -39,13 +43,12 @@ void Widget::move(int x, int y){
 void Widget::resize(int w,int h)
 {
 
- if(pw)
+ if( pw)
     pw->resize(loc.x(),loc.y(),w,h);
- w_=pw->w();
- h_=pw->h();
+  w_=w;
+  h_=h;
  //  own->redraw();
- std::cout<<"new size for" <<typeid (pw).name()<<" : "<<pw->w()<<pw->h()<<"\n";
- std::cout<<"new size for" <<typeid (this).name()<<" : "<<w_<<", "<<h_<<"\n";
+
 }
 
 void Widget::callback(Callback cb,Address adr){
@@ -54,6 +57,19 @@ void Widget::callback(Callback cb,Address adr){
  pw->callback(reinterpret_cast<Fl_Callback*>(do_it),adr);
 
 }
+// ********************EMPTY
+
+void Empty::create(Point p,int w,int h)
+{
+loc=p;
+w_=w;
+h_=h;
+
+ pw=new fl_empty(p,w,h);
+pw->user_data(this);
+}
+
+
 
 //***************************
 

@@ -64,6 +64,8 @@ void detach(Widget &w);
 void resize(int x,int y,int w,int h);
 void detach(Shape& sh);
 void detach(Shape&& sh); // сравнение sh
+void hide();
+
 };
 
 }

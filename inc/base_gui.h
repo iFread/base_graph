@@ -35,8 +35,9 @@ public:
   Widget& operator=(const Widget& w)=delete;
  // нужно перемещение ресурса ( Fl_Widget* pw)
 
-Widget(Widget&& w):own(nullptr),pw(nullptr),loc(w.loc),w_(w.w_),h_(w.h_),label(w.label) ,do_it(nullptr){
+Widget(Widget&& w):own(w.own),pw(w.pw),loc(w.loc),w_(w.w_),h_(w.h_),label(w.label) ,do_it(nullptr){
 w.pw=nullptr;
+w.own=nullptr;
 }
   virtual ~Widget();
 
@@ -54,6 +55,7 @@ public:
   void hide();
   void show();
   void move(int x,int y);
+  void set_label(const std::string &s){label=s;if(pw)pw->label(label.c_str());}
   int w() const {return w_;}
   int h() const {return h_;}
   virtual void resize(int w,int h);
@@ -74,6 +76,23 @@ public:
    Fl_Widget& operator->(){return *pw;}
 };
 
+// this class on creating set Fl_Widget::user_data  how Widget*
+
+class Empty:public Widget
+{
+
+
+public:
+    Empty(Point p,int w,int h):Widget(p,w,h){}
+    virtual void draw()const=0;
+    virtual int handle(int e)=0;
+   virtual ~Empty(){ if(pw)pw->user_data(nullptr);}
+protected:
+    void create(Point p,int w,int h);
+    Widget& create()=0;
+
+};
+
 class Button:public Widget{
 public:
     Button(Point x, int w,int h,const std::string &s="",Callback cb=nullptr):Widget(x,w,h,s,cb){}
@@ -81,7 +100,7 @@ public:
    Fl_Widget& content();
 protected:
    void create(Point p,int w,int h);
-   virtual Widget& create();
+  virtual Widget& create();
 };
 
 
@@ -103,7 +122,7 @@ protected:
 
 class Out_Box:public Widget {
  public:
-    Out_Box(Point p,int w,int h,const std::string &s):Widget(p,w,h,s){}
+    Out_Box(Point p,int w,int h,const std::string &s=""):Widget(p,w,h,s){}
    void create(Point p,int w,int h);
    virtual Widget& create();
    Fl_Widget& content();

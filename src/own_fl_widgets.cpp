@@ -72,14 +72,16 @@ void fl_empty::draw()
 {
 
   if(user_data())
-    reinterpret_cast<Graph::menu_bar*>(user_data())->draw();   // к чему cast
+    reinterpret_cast<Graph::Empty*>(user_data())->draw();   // к чему cast
 }
 
 int fl_empty::handle(int ev)
 {
   if(user_data())
-      return static_cast<Graph::menu_bar*>(user_data())->handle(ev);   // к чему cast
-  return ev;
+ {     return reinterpret_cast<Graph::Empty*>(user_data())->handle(ev);   // к чему cast
+
+  }
+      return 0;
 }
 
 //void fl_canvas::add(Shape* sh){

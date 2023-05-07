@@ -9,7 +9,7 @@ window::window(Point p,int w,int h,const char*s):Fl_Window(p.x(),p.y(),w,h,s),w_
 }
 
 void window::init(){
-    resizable(this);
+   resizable(this);
    show();
 
 }
@@ -40,41 +40,13 @@ void window::resize(int x, int y, int w, int h){
 // после изменения размера Fl_Widgets
  // поогнать размер  Widgets виджетов
  // std::cout<<"in window size pw: "<<w_<<", "<<h_<<"\n";
-for(Widget*w :wid){
- //   std::cout<<"in window size pw: "<<w->content().w()<<", "<<w->content().h()<<"\n";
- //  w->set_position(Point( w->position().x(), w->position().y()));
- // w->move(x,y);   w->resize(w->content().w(),w->content().h());
- // w->set_position(Point{static_cast<float>(w->content().x()),static_cast<float>(w->content().y())});
-  w->resize(w->w(),w->h());
 
-}
-
-
-
-//    for(Widget*w :owns){
-
-////       // w->set_position(Point(x,y));
-//         w->resize(w->w(),w->h());
-//     }
-
-Fl_Window::redraw();
-//Fl_Group::redraw();
 //  for(Widget*w :wid){
-//   //  w->set_position(Point( w->position().x(), w->position().y()));
-//      w->content().redraw();
-//      }
 
-    //  {
-//// w->~Widget();
+//  w->resize(w->w(),w->h());
 
 //}
-//for(Widget*w :wid)
-//  {
-//// w->~Widget();
-// w->resize(w->position().x(),w->position().y());
-
-//}
-
+  Fl_Window::redraw();
 }
 void window::set_active(Widget &w, int event)
 {
@@ -92,7 +64,7 @@ void window::attach(Widget &sh)
 
 void window::attach(Widget &&N)
 {
-    owns.push_back(&(N.create()));
+    owns.push_back(&N);
     //begin();
    attach(*owns.back());
     //  (owns.back())->attach(*this);
@@ -100,14 +72,14 @@ void window::attach(Widget &&N)
 }
 
 void window::detach(Widget &w)
-{
+{// w.hide();
  for(size_t i=0;i<wid.size();++i)
  {
      if(wid[i]==&w)
      { //Widget *del=wid[i];
-         w.hide();
-         wid.erase(wid.begin()+i);
-         remove(w.content());
+       w.hide();
+ remove(&w.content());
+        wid.erase(wid.begin()+i);
         for(size_t j=0;j<owns.size();j++)
         {
           if(owns[j]==&w)
@@ -117,9 +89,25 @@ void window::detach(Widget &w)
           }
 
         }
-
+        break;
      }
  }
+}
+
+void window::hide()
+{
+  for(Widget* w:wid)
+  {
+
+   detach(*w);
+  }
+  wid.clear();
+for(int i=0;i<owns.size();++i)
+{ detach(*owns[i]);
+    delete owns[i];
+}
+
+ Fl_Window::hide();
 }
 
 int window::handle(int e){
@@ -138,8 +126,10 @@ int window::handle(int e){
       waiting={nullptr,FL_NO_EVENT};
       return ptr->content().handle(e);
     }
-Fl_Window::handle(e);
-  return 1;
+
+  Fl_Group::handle(e);
+ //redraw();
+  return 0;
 
 }
 

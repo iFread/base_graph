@@ -60,8 +60,8 @@ public:
        std::swap(*this,it);
        return *this;
      }
-
-  item(const item&&)=delete;
+ void callback(){if(cb) cb(nullptr,u_data);}
+  item(const item&)=delete;
   item&operator=(const item&)=delete;
 
      void add(item *it){
@@ -82,7 +82,7 @@ public:
  void set_state(item_state st){state_=st;}
  item_state state() const{return state_;}
 
-    int width() const{ return txt.size()*8; }
+    int width() const{ return txt.size() ; }
     int size() const {return sz_;}
 
     const char* name()const{return txt.c_str();}
@@ -90,8 +90,8 @@ public:
          if(next_) delete next_;
             }
 
-    void draw()const;  //
-    void draw(int x,int y)const; // рисует виджет и текст в нем
+//    void draw()const;  //
+//    void draw(int x,int y)const; // рисует виджет и текст в нем
 protected:
     const char* elem_name(const char* path,char buf[]);
 };
@@ -104,7 +104,7 @@ class menu : public item  //
  item* submenu_;
 public:
  menu(item&& it):item(std::move(it)),submenu_(nullptr){set_state(item::as_menu);}
-// menu(item*it):item(std::move(*it)),submenu_(nullptr){set_state(item::as_menu);}
+  menu(item*it):item(std::move(*it)),submenu_(nullptr){set_state(item::as_menu);delete it;}
 
 // void add(item it);// [,const char* path=nullptr)// добавить новое меню
  void add(item *it,const char* path=nullptr); // добавление элемента в существуюшее подменю меню
@@ -113,8 +113,9 @@ public:
  item const &   operator [](int i) const;
 //item* find(const char* path,item* it=nullptr); // ищет только по списку меню
 
- void draw(int x, int y) const; // положение мыши
+ //void draw(int x, int y) const; // положение мыши
  item* submenu(){return submenu_;}
+ const item* submenu() const {return submenu_;}
  void submenu(item* it) {if(submenu_) submenu_->add(it);else submenu_=it;}
  ~menu(){if(submenu_) delete submenu_;}  // for(i<sz;++i) {item*del=(submenu); submenu=submenu->next(); delete del;)}
 };
@@ -122,40 +123,113 @@ public:
 
 
 // при наведении на submenu должен включать в обработку размеры выпадающей области, увеличивая на
-class menu_bar:public Widget//:protected HLayout  // Layout  ???
+
+// представляет вертикальное меню, т.е.обробатывает только связи next_
+// header_item
+  //           -> next_->next_->next_...
+
+// don't own resources
+class Menu:public Empty
+{public:
+    enum status_menu:unsigned char{none_active, active,submenu_visible};
+  // если у элемента status==active
+    // status активного элемента == active, или submenu_visible, для меню
+    // при этом submenu_visible устанавливается после нажатия на меню первого уровня
+
+    struct active_menu
+    {
+     const item* active_;
+     status_menu status;
+     Point orig;
+     const item* parent;
+
+
+  void set_state(const item* elem,status_menu st=none_active){
+      active_=elem;
+    if(!elem) return;
+      if(st==submenu_visible && elem->state()==item::as_item)
+        status= active;
+              else
+        status=st;
+           }
+     void clear(){active_=nullptr; status=none_active; orig= Point(0,0);}
+    };
+
+private:
+  const item* menu_;
+    orientation orient;
+    active_menu  curent_item={nullptr,none_active,loc,nullptr};
+
+ Menu* submenu_{nullptr}; //
+   //
+public:
+ //  Menu(Point p):Widget(p,0,0){}
+   Menu(Point p,const item* it,orientation ort=vertical):Empty(p,0,0),menu_(it),orient(ort) {  }
+Menu(const Menu&)=delete;
+  void create(Point p,int x,int y);
+ Widget& create(){return *this;}
+  void draw()const; //const item* it,orientation orient=vertical); // отображаем одно над другим
+   void draw_item(Point o,const item* it) const;
+ int handle(int e);
+ void set_submenu(Point o,const item* it);//{menu_=it;set_widget_size(menu_);}
+  ~Menu();
+ void clear(); // удаление текущего меню
+protected:
+   void set_widget_size(const item* it);
+    // создает подменю в точке o, привязывает его к own
+   Menu*create_submenu(Point o,const item* it);
+};
+
+//
+class Menu_Bar:protected Menu
 {
-    enum status_menu:unsigned char { menu_active, menu_unactive };
- // реализовать меню как двумерный массив
-     //  item* elem;
-     //  int row,cols;
-     //   перемещение по элементам осуществляется по next(), последний next=nullptr;
-    //добавление в список, add(item,const char* path)
-// item* bar{nullptr}; // { if(!path)  add(it)  добавить в меню
-      // Item*n_it=find(path);
-     // if(n_it) n_it->add(it); // найти элемент к которому будет добавлен
- //     если такого элемента нет, тогда ничего не добавлять }
+
+  menu*menu_;  // непосредственно меню, хранится отдельно от графического представления,
+  Menu*subm_; //
+
+};
+
+
+class menu_bar:public Empty//:protected HLayout  // Layout  ???
+{
+    enum status_menu:unsigned char { none,menu_active, menu_unactive,submunu_visible};
+
   std::vector<item*>arr; //  проходим по массиву item:
 
   menu* menu_{nullptr};  // здесь указатель, т.к. нельзя создать меню без элементов
   //menu menu;
 
-  status_menu status{menu_bar::menu_unactive};
+ // status_menu status{menu_bar::menu_unactive};
  // size_t size_menu;
   const item* active;  // указывает на активный элемент, не понятно только как активыровать боковое меню
-   Widget* pt; // active_menu
+
+  Widget* submenu_;
+  Widget* pt; // active_menu
+
+ struct active_menu {
+      const item* active;
+        status_menu flag;
+ void set_state(const item*it,status_menu fg){
+   active=it;
+   flag=fg;}
+ void clear(){ active=nullptr;flag=none;}
+   } ;
+
+   active_menu menu_curent{nullptr,none};
+
 public:
-  menu_bar(Point p):Widget(p,0,0), active(nullptr),pt(nullptr){};//:HLayout(p){}
-    void draw();
+  menu_bar(Point p):Empty(p,0,0), active(nullptr),pt(nullptr){};//:HLayout(p){}
+    void draw()const;
+    void draw_item(Point o,const item* it) const;
+    void draw_submenu(Point o, const item*it)const;
+
     int handle(int event); //
 
 //  void add(item new_item,const  item*parent=nullptr);
   void add(item* new_item, const char* path=nullptr,unsigned char ind=255);  // if(path) поиск, куда вставить
   Widget* submenu(){return pt;}
 ~menu_bar()
-  {/*for(size_t i=arr.size();i>0;--i)
-      {
-       delete arr[i-1];
-      }*/
+  {
       if(menu_) delete menu_;
    }
    void create(Point p,int w,int h);

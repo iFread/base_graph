@@ -14,7 +14,7 @@ namespace Graph
 
 
 
-enum orientation {vertical, horisontal};
+enum orientation:uint8_t {vertical, horisontal};
 
 
 
