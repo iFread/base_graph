@@ -1,5 +1,5 @@
 #ifndef _WINDOW_H_
-#define WINDOW_H_
+#define _WINDOW_H_
 #include <Fl/Fl_Window.H>
 #include <Fl/Fl.H>
 #include <string>
@@ -12,7 +12,7 @@ namespace Graph {
 //using common::Point;
 //class Point;
 //class Widget;
-inline int gui_run(){return Fl::run();}
+int gui_run();//{return Fl::run();}
 
 class Widget;
 //template <typename T>
@@ -64,7 +64,7 @@ void detach(Widget &w);
 void resize(int x,int y,int w,int h);
 void detach(Shape& sh);
 void detach(Shape&& sh); // сравнение sh
-void hide();
+//void hide();
 
 };
 

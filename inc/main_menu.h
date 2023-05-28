@@ -16,16 +16,6 @@ namespace Graph
 // представляет Fl_Box размера M x N
      //
 
-class Text
-{
- std::string lab;
- Font fnt;
- int fnt_sz;
- Point loc;  // точка отсчета для текста
-public:
- Text(Point xy,const std::string &l):lab(l),fnt(fl_font()),loc(xy){}
- void draw()const;
- };
 
 //enum status:unsigned char {
 //    inactive=FL_MENU_INACTIVE,

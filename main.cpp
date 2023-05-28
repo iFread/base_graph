@@ -2,13 +2,17 @@
 #include <ctime>
 #include <unistd.h>
 #include "base_graph.h"
-#include "window.h"
+//#include "window.h"
 #include "base_gui.h"
 #include "math_primitives.h"
 #include "group_widgets.h"
 #include "own_gui_widgets.h"
 #include "base_tools.h"
 #include "main_menu.h"
+#include "item_list.h"
+#include "modal_window.h"
+#include "u_item.h"
+
 using namespace std;
 
 using namespace::math;
@@ -25,12 +29,8 @@ public:
 
 };
 
-class B:public A
-{
-public:
-    B():A(){name='B';}
+void tst_sort();
 
-};
 void show_area(area_t ar);
 
 void tst_rbtree();
@@ -43,7 +43,7 @@ int tst_submenu();
 {
  Graph::window*win=Graph::reference_to<Graph::window*>(add2);
  win->hide();
- delete win;
+ //delete win;
  exit(0);
 }
 
@@ -51,17 +51,24 @@ int tst_submenu();
  {
      Graph::window &win=Graph::reference_to<Graph::window>(adr);
 
-win.show();
-     while (win.shown()) {
+     Graph::window*m_win=new Graph::open_window(Point{200,200},780,600,win);
+
+    m_win->hide();
+m_win->set_modal();
+
+    m_win->show();
+     while (m_win->shown()) {
    Fl::wait();
 
      }
-     win.hide();
+     delete m_win;
  }
 
 int main()
 {
 
+
+//tst_sort();
    //tst_rbtree();
  //common_tests();
 //  return tst_menu();
@@ -78,13 +85,14 @@ int tst_submenu()
   Out_Box bx({200,200},100,20);
   win->attach(bx);
 
-Graph::window *winM=new Graph::window({100,100},500,600,"open");
-
+//Graph::window *winM=new Graph::window({100,100},500,600,"open");
+ // Graph::open_window win_open({100,100},500,600,"open");
   menu m(new item("file"));
    m.add(new item("view"));
    m.add(new item("property"));
    m.add(new item("help"));
-   m.add(new Graph::item("open",cb_open,winM),"file");
+   // m["file"]["open"].callback("cb")
+   m.add(new Graph::item("open",cb_open,&win),"file");
    m.add(new Graph::item("new"),"file");
     m.add(new Graph::item("save"),"file");
      m.add(new Graph::item("quit",cb_quit,&win),"file");
@@ -94,42 +102,44 @@ Graph::window *winM=new Graph::window({100,100},500,600,"open");
     m.add(new Graph::item("version"),"help");
     m.add(new Graph::item("constacts"),"help");
 
-Menu m_menu({10,0},&m,orientation::horisontal);
+  Menu m_menu({10,0},&m,orientation::horisontal);
 win->attach(m_menu);
 
 
-Graph::Button* b_ok=new Graph::Button({10,10},70,20,"Ok");
-Graph::Button* b_cancl=new Graph::Button({90,10},70,20,"Cancel");
-winM->set_modal();
-winM->hide();
-winM->attach(*b_ok);
-winM->attach(*b_cancl);
+//Graph::Button* b_ok=new Graph::Button({10,10},70,20,"Ok");
+//Graph::Button* b_cancl=new Graph::Button({90,10},70,20,"Cancel");
+//winM->set_modal();
+//winM->hide();
+//winM->attach(*b_ok);
+//winM->attach(*b_cancl);
 
-//Graph::Out_Box* bx=reinterpret_cast<Graph::Out_Box*>(adr);
+////Graph::Out_Box* bx=reinterpret_cast<Graph::Out_Box*>(adr);
 
-b_ok->callback([](Graph::Address,Graph::Address ad)
-{
-Graph::Out_Box& b= Graph::reference_to<Graph::Out_Box>(ad);
+//b_ok->callback([](Graph::Address,Graph::Address ad)
+//{
+//Graph::Out_Box& b= Graph::reference_to<Graph::Out_Box>(ad);
 
-b.put("Ok");
-//b.content().parent()->hide();
+//b.put("Ok");
+////b.content().parent()->hide();
 
-},&bx);
+//},&bx);
 
-b_cancl->callback([](Graph::Address,Graph::Address ad)
-{
-Graph::Out_Box& b= Graph::reference_to<Graph::Out_Box>(ad);
+//b_cancl->callback([](Graph::Address,Graph::Address ad)
+//{
+//Graph::Out_Box& b= Graph::reference_to<Graph::Out_Box>(ad);
 
-b.put("Cancel");
-
-
-},&bx);
+//b.put("Cancel");
 
 
+//},&bx);
 
-   return    Graph::gui_run();
+
+
+int ret= Graph::gui_run();
    delete  win;
-}
+return ret;
+    }
+    return 0;
     }
 
 int tst_menu()
@@ -155,6 +165,36 @@ int tst_menu()
                   Graph::gui_run();
     delete win;
                   return 0;
+}
+
+
+void tst_sort()
+{
+
+srand(time(0));
+char arr[100];
+
+for(int i=0;i<100;++i)
+{
+  arr[i]= 'a'+rand()%27;
+}
+
+for(int i=0;i<100;++i)
+{
+ std::cout<<arr[i]<<" ";
+}
+std::cout<<"\n";
+Graph::sort(arr,arr+100,[](int a,int b){return a<b;});
+
+for(int i=0;i<100;++i)
+{
+ std::cout<<arr[i]<<" ";
+}
+
+ std::cout<<"\n";
+
+
+
 }
 
 int common_tests()

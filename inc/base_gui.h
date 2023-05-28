@@ -86,10 +86,10 @@ public:
     Empty(Point p,int w,int h):Widget(p,w,h){}
     virtual void draw()const=0;
     virtual int handle(int e)=0;
-   virtual ~Empty(){ if(pw)pw->user_data(nullptr);}
+   virtual ~Empty(){ /*if(pw)pw->user_data(0);*/}
 protected:
     void create(Point p,int w,int h);
-    Widget& create()=0;
+    Widget& create();
 
 };
 
@@ -111,7 +111,7 @@ public:
     In_Box(Point p,int w,int h, const std::string & s):Widget(p,w,h,s){}
     Fl_Widget& content();
 
-
+~In_Box(){}
     int get_int() const;
     // float get_
      std::string get_string() const;
@@ -129,6 +129,7 @@ class Out_Box:public Widget {
        void put(int);
        void put(float);
        void put(const std::string&s);
+       ~Out_Box(){}
 };
 
 }

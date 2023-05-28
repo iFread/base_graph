@@ -2,6 +2,7 @@
 #include "base_graph.h"
 namespace Graph {
 
+int gui_run(){return Fl::run();}
 
 window::window(Point p,int w,int h,const char*s):Fl_Window(p.x(),p.y(),w,h,s),w_(w),h_(h)
 {
@@ -22,8 +23,7 @@ wid.clear();
       {
     // w->~Widget();
         delete w;
-
-    }
+   }
     hide();
   // std::cout<<"window dtor coll\n";
 }
@@ -77,38 +77,38 @@ void window::detach(Widget &w)
  {
      if(wid[i]==&w)
      { //Widget *del=wid[i];
-       w.hide();
- remove(&w.content());
+     //  w.hide();
+      remove(&w.content());
         wid.erase(wid.begin()+i);
-        for(size_t j=0;j<owns.size();j++)
-        {
-          if(owns[j]==&w)
-          {
-              owns.erase(owns.begin()+j);
-              delete &w;
-          }
+//        for(size_t j=0;j<owns.size();j++)
+//        {
+//          if(owns[j]==&w)
+//          {
+//              owns.erase(owns.begin()+j);
+//              delete &w;
+//          }
 
-        }
+     //   }
         break;
      }
  }
 }
 
-void window::hide()
-{
-  for(Widget* w:wid)
-  {
+//void window::hide()
+//{
+//  for(Widget* w:wid)
+//  {
 
-   detach(*w);
-  }
-  wid.clear();
-for(int i=0;i<owns.size();++i)
-{ detach(*owns[i]);
-    delete owns[i];
-}
+//   detach(*w);
+//  }
+//  wid.clear();
+//for(int i=0;i<owns.size();++i)
+//{ detach(*owns[i]);
+//    delete owns[i];
+//}
 
- Fl_Window::hide();
-}
+// Fl_Window::hide();
+//}
 
 int window::handle(int e){
 

@@ -15,7 +15,7 @@ namespace Graph
 
 
 enum orientation:uint8_t {vertical, horisontal};
-
+  enum file_type{ukn_t,dir_t,file_t, blc_t,chr_t};
 
 
 struct Color {

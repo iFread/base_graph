@@ -12,11 +12,12 @@
 namespace Graph {
 
 Widget::~Widget(){
-if(pw)  { //  pw->hide();
- //  own->remove(pw);
-delete pw;
-pw=nullptr;
- }
+ //  pw->hide();
+//   own->detach(*this);
+   // pw->user_data(0);
+ if(pw){ delete pw;
+ pw=nullptr;}
+
 //own=nullptr;
  }
 
@@ -69,6 +70,10 @@ h_=h;
 pw->user_data(this);
 }
 
+Widget& Empty::create()
+{
+    return *this;
+}
 
 
 //***************************
@@ -101,7 +106,7 @@ void In_Box::create(Point x,int w,int h) {
 
 Widget& In_Box::create(){
 
-    return *new In_Box(std::move(*this));
+    return *this;
 }
 
 Fl_Widget &In_Box:: content(){return  reference_to<Fl_Input>(pw);}
@@ -136,7 +141,7 @@ Fl_Widget& Out_Box::content(){return  reference_to<Fl_Output>(pw);}
 
 Widget& Out_Box::create(){
 
-    return *new Out_Box(std::move(*this));
+    return * this;
 }
 
 void Out_Box::put(int n)
