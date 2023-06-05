@@ -230,7 +230,7 @@ void transform_tool::search_under2(Shape* cursor)
            //    Point y=(*i).data->limit_y();
              // if(y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
          if(cursor->intersect((*i).data))
-           list.push_back( (*i).data);
+           list.push_back( &(*i).data);
 
        }
     } else // если же список пуст то, первый заход , заполняем от начала до cursor
@@ -245,7 +245,7 @@ void transform_tool::search_under2(Shape* cursor)
               //if (y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
                //{
           if(cursor->intersect((*I).data))
-           list.push_back( (*I).data);
+           list.push_back( &(*I).data);
                  //  }
 
            }
@@ -266,11 +266,11 @@ void transform_tool::search_under3(Shape *cursor)
                   //if (y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
                    //{
               if(cursor->intersect((*I).data))
-               list.push_back( (*I).data);
+               list.push_back( &(*I).data);
                      //  }
                }
            if(It!=tr.end()&&cursor->intersect((*It).data))
-               list.push_back( (*It).data);
+               list.push_back( &(*It).data);
 
 }
 
@@ -300,7 +300,7 @@ void transform_tool::search_under(Shape* cursor)
           {   if((*i).data->limit_x().y()>cursor->limit_x().y() && (*i).data->limit_x().x()<cursor->limit_x().y())
              { Point y=(*i).data->limit_y();
                 if(y.x()<cursor->limit_y().x()&& y.y()>cursor->limit_y().x())
-                  list.push_back( (*i).data);
+                  list.push_back( &(*i).data);
                   }
               }
         }
@@ -330,7 +330,7 @@ void transform_tool::search_under(Shape* cursor)
                 {
                 // (*It).data->vertex_visible(true);
                 // (*It).data->set_vertex(Color::red,5);
-                   list.push_back( (*I).data);
+                   list.push_back( &(*I).data);
                      }
                }
              }

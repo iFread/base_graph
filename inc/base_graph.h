@@ -13,7 +13,7 @@ namespace Graph {
 
 */
 
-
+enum shape_type:uint8_t {sh_none_t,sh_line_t,sh_polyline_t,sh_rectangle_t,sh_polygon_t,sh_circle_t} ;
 class Node{
 
  Node* prev_,*next_;

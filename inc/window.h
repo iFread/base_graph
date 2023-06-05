@@ -40,7 +40,9 @@ void draw()override;
 virtual ~window() ;
 void init();
 
-
+void set_path(const char* s){std::cout<<s<<"\n";
+                       //   label(s);
+                             }
 
 //template<typename T>
 //void attach(T&& w)

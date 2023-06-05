@@ -98,7 +98,7 @@ public:
 
 // void add(item it);// [,const char* path=nullptr)// добавить новое меню
  void add(item *it,const char* path=nullptr); // добавление элемента в существуюшее подменю меню
-
+ void add(item&& it,const char* pth=nullptr);
  item& operator[](int i); // здесь возможно
  item const &   operator [](int i) const;
 //item* find(const char* path,item* it=nullptr); // ищет только по списку меню
@@ -149,25 +149,27 @@ private:
   const item* menu_;
     orientation orient;
     active_menu  curent_item={nullptr,none_active,loc,nullptr};
-
+ Menu*parent{nullptr};
  Menu* submenu_{nullptr}; //
    //
 public:
  //  Menu(Point p):Widget(p,0,0){}
-   Menu(Point p,const item* it,orientation ort=vertical):Empty(p,0,0),menu_(it),orient(ort) {  }
-Menu(const Menu&)=delete;
+   Menu(Point p,const item* it,Menu* pr=nullptr,orientation ort=vertical):Empty(p,0,0),menu_(it),orient(ort),parent(pr) {  }
+  Menu(const Menu&)=delete;
   void create(Point p,int x,int y);
  Widget& create(){return *this;}
   void draw()const; //const item* it,orientation orient=vertical); // отображаем одно над другим
    void draw_item(Point o,const item* it) const;
  int handle(int e);
  void set_submenu(Point o,const item* it);//{menu_=it;set_widget_size(menu_);}
-  ~Menu();
+  void resize(int x,int y){Empty::resize(x,y);}
+ ~Menu();
  void clear(); // удаление текущего меню
+ void clear_all(); // удаление всех меню
 protected:
    void set_widget_size(const item* it);
     // создает подменю в точке o, привязывает его к own
-   Menu*create_submenu(Point o,const item* it);
+   Menu*create_submenu(Point o,const item* it );
 };
 
 //
@@ -233,9 +235,9 @@ protected:
 };
 
 
-static void win_cd(Address,Address add) {
-std::cout<<"win_ callback\n;";
-}
+//static void win_cd(Address,Address add) {
+//std::cout<<"win_ callback\n;";
+//}
 
 }
 

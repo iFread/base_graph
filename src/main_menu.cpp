@@ -82,6 +82,12 @@ void menu::add(item *it, const char *path)
  cur->add(it);
 }
 
+void menu::add(item &&it, const char* pth)
+{
+  add(new item(std::move(it)),pth);
+
+}
+
 //void menu::draw(int x, int y) const
 //{
 
@@ -220,7 +226,7 @@ void Menu:: draw() const
 {
 Point o=loc;
  const item* cur=menu_;
-  fl_rect(loc.x(),loc.y(),w(),h());
+  fl_rectf(loc.x(),loc.y(),w(),h(),FL_GRAY);
 // fl_rectf(loc.x(),loc.y()-1,w()-1,h()-1,FL_GRAY);
  // рисуем box
 
@@ -333,18 +339,18 @@ int Menu::handle(int e)
     }
  if(cur &&(cur!=curent_item.active_)){
      curent_item.orig=orient==orientation::vertical?Point(wd+w(),hd):Point(wd,hd+20);
-     if(submenu_)
+     if(submenu_) // если submenu
      {
       clear();
-          delete submenu_;
-         submenu_=nullptr;
-         break;
-     }
+//          delete submenu_;
+//         submenu_=nullptr;
+        // break;
+
      if(cur->state()==item::as_menu)
     {
        curent_item.set_state(cur,status_menu::submenu_visible);
    submenu_=create_submenu(curent_item.orig,curent_item.active_);
- } else
+ }  }else
   { //if(cur==curent_item.active_) break;
       if(strcmp(cur->name(),"quit")==0)
       {  std::cout << e<<" handle \n";
@@ -356,14 +362,14 @@ int Menu::handle(int e)
               curent_item.set_state(cur,status_menu::active);
          //     break;
      }
-own->redraw();
+   own->redraw();
  }
 
  }
 
 
         break;
-    case FL_PUSH:
+    case FL_RELEASE:
 
    std::cout<<"submenu position :"<<curent_item.orig.x()<<", "<<curent_item.orig.y()<<"\n";
 
@@ -371,7 +377,7 @@ own->redraw();
       if(curent_item.active_->state()==item::as_menu && !submenu_)
  { std::cout<<"create menu for "<<curent_item.active_->name()<<"\n";
     curent_item.set_state(curent_item.active_,submenu_visible);
- //  submenu_=create_submenu(curent_item.orig,curent_item.active_);
+  submenu_=create_submenu(curent_item.orig,curent_item.active_);
 
 } else if(curent_item.active_->state()==item::as_menu && submenu_)
       {
@@ -384,11 +390,17 @@ own->redraw();
 
 else {
     std::cout<<"here call callback function for "<<curent_item.active_->name()<<"\n";
- const_cast<item*>(curent_item.active_)->callback();
+     item*it= const_cast<item*>(curent_item.active_);
+             //const_cast<item*>(curent_item.active_)
+       clear_all();
+      it->callback();
+   // clear();  // здесь должны очистить текущее меню т.е. до верхнего уровня
 
+  //  it->callback();
+    break;
 }
 }
-own->redraw();
+ own->redraw();
 
 
 // {
@@ -405,11 +417,11 @@ own->redraw();
 }
 // создать меню из it->submenu(); или it  уже  submenu
 // привязать к окну : own->attach(*submenu_);
-Menu*Menu::create_submenu(Point o,const item* it)
+Menu* Menu::create_submenu(Point o, const item* it)
 { if(!it || it->state()!=item::as_menu)
             return nullptr;
 std::cout<<"create menu for " <<it->name()<<"\n";
-   Menu* m=new Menu(o,static_cast<const menu*>(it)->submenu(),vertical);
+   Menu* m=new Menu(o,static_cast<const menu*>(it)->submenu(),this,vertical);
     //m->curent_item.set_state(m->menu_,curent_item.status);
 
    own->attach(*m);
@@ -442,11 +454,20 @@ if(it&&it->state()==item::as_menu && static_cast<const menu*>(it)->submenu())
 }
 
 }
+
+ // рекурсивня функия
+void Menu:: clear_all()
+{  clear();
+  if(parent) {
+       parent->clear_all();
+
+}
+}
 void Menu::clear()
 {
 
     if(submenu_) {
-  submenu_->hide();
+     submenu_->hide();
   // submenu_->clear();
      Menu* it=submenu_;
  own->detach(*it);

@@ -7,7 +7,7 @@
 namespace Graph {
 
 
-enum shape_type:uint8_t {sh_none_t,sh_line_t,sh_polyline_t,sh_rectangle_t,sh_polygon_t,sh_circle_t} ;
+
 
 class shape_factory
 {
@@ -26,7 +26,17 @@ class Factory:public shape_factory
 
 public:
     Factory(){}
-    Shape* create(Point p);
+    Shape* create(Point p); // создание фигуры в Canvas
+
+//    Shape* create(shape_type tp,Point p)
+//    {
+//       set_type(tp);
+//       return  create(p);
+//    }
+ // initializer_list может быть для
+    Shape* create(shape_type tp,std::initializer_list<Point> ls);
+
+
 };
 
 //************************************************

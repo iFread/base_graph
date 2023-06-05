@@ -12,6 +12,9 @@
 #include "item_list.h"
 #include "modal_window.h"
 #include "u_item.h"
+#include "main_window.h"
+
+
 
 using namespace std;
 
@@ -39,30 +42,33 @@ int common_tests();
 
 int tst_menu();
 int tst_submenu();
- void cb_quit(void *add,void *add2)
+int tst_main_window();
+
+static void cb_quit( Graph::Address add,Graph::Address add2)
 {
- Graph::window*win=Graph::reference_to<Graph::window*>(add2);
- win->hide();
- //delete win;
+ Graph::window *win =  &Graph::reference_to<Graph::window>(add2);
+// Graph::window* win =static_cast<Graph::window*>(add2);
+   win->hide();
+ // delete win;
  exit(0);
 }
 
- void cb_open(Graph::Address,Graph::Address adr)
- {
-     Graph::window &win=Graph::reference_to<Graph::window>(adr);
+// void cb_open(Graph::Address,Graph::Address adr)
+// {
+//     Graph::window &win=Graph::reference_to<Graph::window>(adr);
+//   Graph::func<Graph::open_window> f(&Graph::window::set_path);
+//     Graph::window*m_win=new Graph::open_window(Point{200,200},780,600,win,&f);//&Graph::window::set_path);
 
-     Graph::window*m_win=new Graph::open_window(Point{200,200},780,600,win);
+//    m_win->hide();
+//    m_win->set_modal();
 
-    m_win->hide();
-m_win->set_modal();
+//    m_win->show();
+//     while (m_win->shown()) {
+//   Fl::wait();
 
-    m_win->show();
-     while (m_win->shown()) {
-   Fl::wait();
-
-     }
-     delete m_win;
- }
+//     }
+//     delete m_win;
+// }
 
 int main()
 {
@@ -70,12 +76,22 @@ int main()
 
 //tst_sort();
    //tst_rbtree();
- //common_tests();
+// common_tests();
 //  return tst_menu();
-   return tst_submenu();
+ //  return tst_submenu();
+  return tst_main_window();
     return 0;
     }
 
+int tst_main_window()
+{
+    using namespace Graph;
+    main_window *win =new main_window({100,100},800,600,"common test");
+
+
+   int res=gui_run();
+   return res;
+}
 
 int tst_submenu()
 {
@@ -92,7 +108,7 @@ int tst_submenu()
    m.add(new item("property"));
    m.add(new item("help"));
    // m["file"]["open"].callback("cb")
-   m.add(new Graph::item("open",cb_open,&win),"file");
+  // m.add(new Graph::item("open",cb_open,&win),"file");
    m.add(new Graph::item("new"),"file");
     m.add(new Graph::item("save"),"file");
      m.add(new Graph::item("quit",cb_quit,&win),"file");
@@ -102,7 +118,7 @@ int tst_submenu()
     m.add(new Graph::item("version"),"help");
     m.add(new Graph::item("constacts"),"help");
 
-  Menu m_menu({10,0},&m,orientation::horisontal);
+  Menu m_menu({10,0},&m,nullptr,orientation::horisontal);
 win->attach(m_menu);
 
 
@@ -136,7 +152,7 @@ win->attach(m_menu);
 
 
 int ret= Graph::gui_run();
-   delete  win;
+ delete  win;
 return ret;
     }
     return 0;

@@ -1,5 +1,5 @@
 ﻿ #include "own_gui_widgets.h"
-
+#include "main_window.h"
 
 namespace Graph {
 
@@ -32,8 +32,10 @@ Fl_Widget & Canvas::content() {
 
 void Canvas::add(Shape *sh)
 {
-    vec.push_back(sh);
-// reference_to<fl_canvas>(pw).add(sh);
+   // vec.push_back(sh);
+file->list.push_back(sh);
+
+
  }
 
 void Canvas::remove(Shape *sh){
@@ -57,8 +59,8 @@ pw->user_data(v);
 
 Shape& Canvas::operator[](int i)
 {
-   // return reference_to<fl_canvas>(pw)[i];
-    return *vec[i] ;
+    return file->list[i];
+   // return *vec[i] ;
 }
 
 void Canvas::draw()const
@@ -70,12 +72,21 @@ void Canvas::draw()const
 //if(tl_) tl_->draw(Point(pw->x(),pw->y()));
 if(cursor.visible())
     (*cursor).draw(Point(pw->x(),pw->y()));
+
+
+for(size_t i=0;i<file->list.size();++i)
+{
+    Shape* sh=&file->list[i];
+    sh->draw(Point(pw->x(),pw->y()));
+
+}
+
  //   std::cout<<"Draw Canvas calling\n";
 }
 
 size_t Canvas::count()const
 {
-    return vec.size();
+    return  file->list.size();//vec.size();
     //return reference_to<fl_canvas>(pw).count();
 }
 
@@ -335,7 +346,7 @@ void Canvas::creating_shape(int ev)
            }// else    // здесь select пуст, добавим новую фигуру
               //может быть здесь else??
              { add(factory.create(cursor_position()));// добавить в canvas/ или не добавлять в canvas???
-              select.add(vec[vec.size()-1]);
+              select.add(&file->list[file->list.size()-1]); //vec[vec.size()-1]);
               select.set_state(select_tool::modify_state);
               mod.set_type(mod2::change_t,-1);
             }

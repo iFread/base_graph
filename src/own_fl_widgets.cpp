@@ -78,10 +78,10 @@ void fl_empty::draw()
 int fl_empty::handle(int ev)
 {
   if(user_data())
- {     return reinterpret_cast<Graph::Empty*>(user_data())->handle(ev);   // к чему cast
+ {     return static_cast<Graph::Empty*>(user_data())->handle(ev);   // к чему cast
 
   }
-      return 0;
+      return ev;
 }
 
 //void fl_canvas::add(Shape* sh){

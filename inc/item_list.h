@@ -18,13 +18,65 @@ namespace Graph {
  //  2. Один элемент - одна строка  из N ячеек ??
 // scroll только  по вертикали
 
+class base_func
+{
+public:
+    virtual void operator()()=0;
+
+    virtual ~base_func(){}
+};
+
+
+
+template <typename T,typename U,typename ...Arg>
+class functor:public base_func
+{
+  T& t_;
+ U(T::*foo)(Arg ...arg);
+ //func foo;
+public:
+ //template<typename >
+ functor(T& t, U (T::*f)(Arg...arg)):t_(t),foo(f){}
+ U operator()(Arg...args)
+ {
+     return (static_cast<T&>(t_).*foo)(args...);
+ }
+
+
+
+ ~functor(){std::cout<<"functor delete\n";}
+};
+
+
+//template <typename T,void,typename ...Args>
+//  functor<T,void,Args...>::void operator()(Args...arg)
+//{
+//(static_cast<T&>(t_).*foo)(arg...);
+//}
+
+template <typename T, typename U ,typename ...Args>
+functor<T,U,Args...> *make_functor(T& t,U(T::*f)(Args...args))//,Args ...arg) // аргументы сдесь не нужны
+{
+   base_func* fu= new functor<T,U,Args...>(t,f);
+ std::cout<<"create functor size : "<<sizeof (*fu)<<" byte\n";
+ return static_cast < functor<T,U,Args...> *>(fu);
+}
+
+//template <typename T,typename ...Args>
+//functor<T,Args...> *make_functor(T& t,void(T::*f)(Args...args),Args...args)//,Args ...arg) // аргументы сдесь не нужны
+//{
+//   base_func* fu= new functor<T,Args...>(t,f);
+// std::cout<<"create functor size : "<<sizeof (*fu)<<" byte\n";
+// return  static_cast < functor<T,Args...> *>(fu);
+//}
+
+
+
 class Item
 {
  std::string name_item;
  file_type tp_; // ссылку на icons
  size_t size_item;  // размер в байтах...
-
-
 public:
  Item(const char* nm, file_type tp,size_t sz=0):name_item(nm),tp_(tp),size_item(sz) // для каталога не передается
  { }
@@ -49,12 +101,23 @@ class Simple_table:public Empty  // либо свободная таблица
     mutable  int begin_index{-1}; // указатель на начало , первый выводимый элемент
 
     Item* selected{nullptr};
+    base_func* _func{nullptr};
 
 public:
    Simple_table(Point o,int w,int h):Empty(o,w,h){}
+~Simple_table(){  delete _func;}
+ Item*  select()const {return selected;}
+ void select(Item* it){selected=it;}
+
+ template<typename T,typename Func>
+ void set_callback(T&t,const Func &f)
+ {
+   _func=make_functor(t,f);
+
+ }
 
 
-   void draw_row(Point o)  const // рисуем прямоугольник от orig
+ void draw_row(Point o)  const // рисуем прямоугольник от orig
  {
   //  fl_rect(loc.x()+o.x(),loc.y()+o.y(),w(),ceil_size,FL_CYAN);
   // перемещаем точку по горизонтали
@@ -121,10 +184,10 @@ void draw_name(Point o,std::string str,int w/* ширина строки в си
 
 int height_text(const char* s) const
 {
-    int remains=strlen(s);
-   int res= fl_height()*(remains /14+1);
- std::cout<<" высота текста : "<<s<< " = "<<res<<"\n";
- return res;
+   // int remains=strlen(s);
+    return  fl_height()*(strlen(s) /14+1);
+// std::cout<<" высота текста : "<<s<< " = "<<res<<"\n";
+ //return res;
 }
  const Item& next_data() const   // возвращает следующе данные для вывода
 {
@@ -139,9 +202,7 @@ int height_text(const char* s) const
            return vec[data++];
 //   return ;
 
-  //}
 
-    //  return s;// std::string{};
 
    }
  // для хранения нужен элемент item
@@ -156,7 +217,7 @@ int height_text(const char* s) const
 std::vector<Item> vec;
  // передаем T, и методы класса T,
 
-
+//std::vector<Item&> r_vec;//
 
 
 

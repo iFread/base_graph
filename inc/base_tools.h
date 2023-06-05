@@ -26,7 +26,12 @@ std::vector<T*> vec;   // std::vector<Shape**> vec
 public:
 ref_list(){} // вывод Type будет в конструкторе, или в push_back// но вектор, уже будет типа T
 
-void push_back(T &t) { vec.push_back(&t); } // что за бред, если сунуть переменную, будет жопа// если T=Type* std::vector<Type*> v
+~ref_list()
+{
+  for(auto *el:vec)
+      delete el;
+}
+//void push_back(T &t) { vec.push_back(&t); } // что за бред, если сунуть переменную, будет жопа// если T=Type* std::vector<Type*> v
 void push_back(T* t) {vec.push_back(t);}
 
 void remove(T* t)
@@ -169,7 +174,7 @@ class select_tool //:public base_tool
 public:
    enum sh_state:uint8_t {none_state,modify_state,ready_state} ;
 private:
-    ref_list<Shape> vec;
+     ref_list<Shape> vec;
      rbtree<Shape* ,Comparator<Shape>> tr;//(Comparator<Shape>);
     // Shape *curs; // прямоугольная область
      sh_state current_state{none_state};
@@ -177,7 +182,8 @@ public:
     select_tool();
    void add(Shape*sh)   {sh->vertex_visible(true);
                          sh->set_vertex(Color::red,3);
-                         vec.push_back(sh);}
+                          vec.push_back(sh);
+                        }
    void remove(Shape* sh)  //
    { sh->vertex_visible(false);
 

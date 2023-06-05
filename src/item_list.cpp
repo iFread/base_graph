@@ -85,14 +85,22 @@ int Simple_table::handle(int e)
 
         break;
    case FL_PUSH:
+
+
+        break;
+    case FL_RELEASE:
 // выбрать элемент на котором кликнули
 // проходим по таблице выбирая ячейку
-     selected=nullptr;
+        switch(Fl::event_button())
+        {
+
+     case FL_LEFT_MOUSE:
+{
         std::cout<<begin_index<<"\n";
      int x_pos =Fl::event_x()-loc.x();
      int y_pos=Fl::event_y()-loc.y();
      Point orig={0,0};
-     int i=begin_index-1;
+     size_t i=begin_index-1;
    while(i<vec.size()) // идем по x,
    {
      if(orig.x()<x_pos && orig.x()+ceil_size > x_pos)
@@ -101,8 +109,17 @@ int Simple_table::handle(int e)
           {     selected =&vec[i];
               if(selected) {
                   std::cout<<"selected = "<<selected->name()<<"\n";
-                  reference_to< open_window>(own).set_active(*selected);
-               }
+                 if(_func && Fl::event_clicks())
+                {
+
+                     (*_func)();
+                    selected=nullptr;
+                      Fl::event_is_click(0);
+                      return e;
+
+                 }
+             pw->redraw();
+              }
                   break;
            }
      }
@@ -121,6 +138,13 @@ if(orig.x()+ceil_size<x_pos ||orig.y()+ceil_size<y_pos)
  if(i>=vec.size()) {selected=nullptr; break;}
    }
 
+ }
+            break;
+        case FL_RIGHT_MOUSE:
+
+                  break;
+
+}
 
         break;
 

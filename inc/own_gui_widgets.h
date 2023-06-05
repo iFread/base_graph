@@ -1,3 +1,7 @@
+
+#ifndef OWN_WIDGETS_H
+#define OWN_WIDGETS_H
+
 #include "base_gui.h"
 #include "own_fl_widgets.h"
 #include "base_tools.h"
@@ -45,8 +49,11 @@ namespace Graph
 using tool =base_tool;
 using cb_creating_t= Shape*(*)(Point);  // указатель на функцию возвращающую созданную фигуру
 
+class File;
+
 class Canvas: public Widget  //
-{class cursor
+{
+    class cursor
     {  Shape*cursor_{nullptr};
         bool vsbl{false};
     public:
@@ -90,6 +97,7 @@ size_t count()const;
 void set_tool(tool*);
 void set_tool(cb_creating_t  p);
 void set_tool(shape_type tp){factory.set_type(tp);select.clear();}
+ void set_file(File* fl){file=fl;}
 protected:
 void set_parent(void *v);  // tool*
 
@@ -106,6 +114,7 @@ void set_parent(void *v);  // tool*
 
 private:
 std::vector<Shape*> vec;
+File *file;
  };
 
 
@@ -114,4 +123,6 @@ std::vector<Shape*> vec;
 
 
 }
+
+#endif
 

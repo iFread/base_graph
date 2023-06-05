@@ -72,7 +72,7 @@ pw->user_data(this);
 
 Widget& Empty::create()
 {
-    return *this;
+    return  (*this);
 }
 
 

@@ -60,7 +60,7 @@ public:
   int h() const {return h_;}
   virtual void resize(int w,int h);
   Point position() const {return loc;}
- void set_position(Point x){loc=x;}
+ void set_position(Point x){loc=x;if(pw)pw->position(loc.x(),loc.y());}
   void callback(Callback,Address);
 
   // virtual int handle(int e) {return pw->handle(e);}
@@ -84,9 +84,17 @@ class Empty:public Widget
 
 public:
     Empty(Point p,int w,int h):Widget(p,w,h){}
+    Empty(Empty&& e):Widget(std::move(e)){}
     virtual void draw()const=0;
     virtual int handle(int e)=0;
    virtual ~Empty(){ /*if(pw)pw->user_data(0);*/}
+     void resize(int x,int y) {
+            // pw->resize(loc.x(),loc.y(),w,h);
+           //w()=w;
+           //h_=h;
+         Widget::resize(x,y);
+                              }
+
 protected:
     void create(Point p,int w,int h);
     Widget& create();
@@ -108,7 +116,8 @@ protected:
 class In_Box:public Widget{
 
 public:
-    In_Box(Point p,int w,int h, const std::string & s):Widget(p,w,h,s){}
+    In_Box(Point p,int w,int h, const std::string & s=""):Widget(p,w,h,s){}
+    In_Box(In_Box&& bx):Widget(std::move(bx)){}
     Fl_Widget& content();
 
 ~In_Box(){}
@@ -123,6 +132,7 @@ protected:
 class Out_Box:public Widget {
  public:
     Out_Box(Point p,int w,int h,const std::string &s=""):Widget(p,w,h,s){}
+    Out_Box(Out_Box&&bx):Widget(std::move(bx)){}
    void create(Point p,int w,int h);
    virtual Widget& create();
    Fl_Widget& content();

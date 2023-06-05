@@ -41,11 +41,11 @@ void window::resize(int x, int y, int w, int h){
  // поогнать размер  Widgets виджетов
  // std::cout<<"in window size pw: "<<w_<<", "<<h_<<"\n";
 
-//  for(Widget*w :wid){
+   for(Widget*w :wid){
 
-//  w->resize(w->w(),w->h());
+  w->resize(w->w(),w->h());
 
-//}
+ }
   Fl_Window::redraw();
 }
 void window::set_active(Widget &w, int event)

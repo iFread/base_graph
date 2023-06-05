@@ -41,7 +41,7 @@ void add(Widget&& t){
  data.push_back(&w);
  }
 
- int size() {return data.size();}
+ int size() const {return data.size();}
 
  Widget& operator[](int i) {return *data[i];} // проверка на диапазон
  const Widget& operator[](int i) const {return *data[i];}
@@ -78,12 +78,12 @@ public:
 Layout(Layout&& lv):Widget(std::move(lv)),k_(lv.k_),vec(std::move(lv.vec)){}
    ~Layout();
   Widget& operator[](int i){return vec[i];}
-
+ int size() const {return vec.size();}
 protected:
    void create(Point p,int w,int h);
    Widget& create()=0;
    Fl_Widget& content(){return *pw;};
-   int size(){return vec.size();}
+
    Point children_size();
 public:
 
