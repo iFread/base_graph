@@ -113,7 +113,7 @@ void set_parent(void *v);  // tool*
 
 
 private:
-std::vector<Shape*> vec;
+//std::vector<Shape*> vec;
 File *file;
  };
 

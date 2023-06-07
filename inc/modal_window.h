@@ -96,14 +96,18 @@ public:
     base_modal_window(Point p,int w,int h,const char* ttl,my_functor<T> & t):window(p,w,h,ttl),
        b_ok(new Button(Point(10,h-30),70,20,"Ok")),b_cancel(new Button(Point(w-80,h-30),70,20,"Cancel")),fun(&t)
     {
-     attach(*b_ok);
-     attach(*b_cancel);
-
+     init();
     }
 
 // 1, определение callback для кнопок
 
-    virtual void init(){} // определить
+    virtual void init(){
+        hide();
+        set_modal();
+      attach(*b_ok);
+      attach(*b_cancel);
+       show();
+    } // определить
 
     ~base_modal_window()
     {
@@ -162,9 +166,9 @@ void init();
  virtual ~ modal_window()
  { // detach(*b_ok);
     // detach(*b_cancel);
-     detach(*b_up);
-     detach(*list);
-     detach(*c_path);
+//     detach(*b_up);
+//     detach(*list);
+//     detach(*c_path);
      delete c_path;
     // delete b_ok;
      delete b_up;

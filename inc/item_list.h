@@ -97,7 +97,7 @@ class Simple_table:public Empty  // либо свободная таблица
     const int  ceil_size=115;
 
 
-    mutable int data{0};
+    mutable size_t data{0};
     mutable  int begin_index{-1}; // указатель на начало , первый выводимый элемент
 
     Item* selected{nullptr};
@@ -123,7 +123,7 @@ public:
   // перемещаем точку по горизонтали
      Point orig=o;
        while(orig.x()+ceil_size<w()+loc.x())
-       {if(data >= vec.size()) break;
+       {if(data >=  vec.size()) break;
          if(draw_ceil(next_data(),orig))
               orig.x()=orig.x()+ceil_size;
        }

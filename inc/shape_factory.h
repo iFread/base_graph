@@ -28,13 +28,7 @@ public:
     Factory(){}
     Shape* create(Point p); // создание фигуры в Canvas
 
-//    Shape* create(shape_type tp,Point p)
-//    {
-//       set_type(tp);
-//       return  create(p);
-//    }
- // initializer_list может быть для
-    Shape* create(shape_type tp,std::initializer_list<Point> ls);
+   Shape* create(shape_type tp,std::initializer_list<Point> ls);
 
 
 };

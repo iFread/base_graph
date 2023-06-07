@@ -5,8 +5,8 @@ namespace Graph {
 
 Canvas:: ~Canvas() {
    // if(tl_) delete tl_;
-       for(Shape*p: vec)
-         delete p;
+//       for(Shape*p: vec)
+//         delete p;
 //       if(cursor)
 //           delete  cursor;
 }
@@ -41,12 +41,12 @@ file->list.push_back(sh);
 void Canvas::remove(Shape *sh){
 
 
-    for(size_t i=0;i<vec.size();++i)
+    for(size_t i=0;i<file->list.size();++i)
  {
-   if(sh==vec[i])
+   if(sh==&(file->list)[i])
      {
-        *vec.erase(vec.begin()+i);
-       delete sh;
+        file->list.remove(*sh);
+     //  delete sh;
        break;
       }
  }
@@ -67,19 +67,19 @@ void Canvas::draw()const
 {
     // здесь передается реальная позиция fl_canvas, т.к. смещение позиции может быть по Fl_scroll
      //  в дальнейшем подумать, как передавать позицию pw, в loc, помещенного в Scroll контейнера
-   for(size_t i=0;i<vec.size();++i)
-     vec[i]->draw(Point(pw->x(),pw->y()));//reference_to<>position());
+   for(size_t i=0;i<file->list.size();++i)
+    file->list[i].draw(Point(pw->x(),pw->y()));//reference_to<>position());
 //if(tl_) tl_->draw(Point(pw->x(),pw->y()));
 if(cursor.visible())
     (*cursor).draw(Point(pw->x(),pw->y()));
 
 
-for(size_t i=0;i<file->list.size();++i)
-{
-    Shape* sh=&file->list[i];
-    sh->draw(Point(pw->x(),pw->y()));
+//for(size_t i=0;i<file->list.size();++i)
+//{
+//    Shape* sh=&file->list[i];
+//    sh->draw(Point(pw->x(),pw->y()));
 
-}
+//}
 
  //   std::cout<<"Draw Canvas calling\n";
 }
@@ -177,7 +177,7 @@ int Canvas::handle(int i){
          else
          {
 
-      selecting_shape(i);
+        selecting_shape(i);
 
             }
     }
@@ -200,8 +200,8 @@ void Canvas::modify_shape(int ev)
  {
       case FL_PUSH:
     { int i=0;
-    i=Fl::event_clicks();
-    if(i) std::cout<<"Double click detected >>"<<i<<"\n";
+     i=Fl::event_clicks();
+     if(i) std::cout<<"Double click detected >>"<<i<<"\n";
     }   switch (Fl::event_button())
        {
          case FL_LEFT_MOUSE:   // по движению мыши устанавливаем/сбрасываем модификатор, если установлен, применяем его,
@@ -328,12 +328,12 @@ void Canvas::creating_shape(int ev)
         {    // если левая кнопка мыши: создать фигуру, если она не созданна, либо дабавить точку к созданной фигуре
           case FL_LEFT_MOUSE:
            if(!select.isEmpty()) // если есть созданная фигура, и  она не простая(полигон или polyline)
-          { if(select.state()==select_tool::ready_state) {
+             { if(select.state()==select_tool::ready_state) {
                select.clear();
              //break;
                } else  // фигура не готова
                if(select[0].type()!=Shape::none_)  // добавить к ней следующую вершину
-             { select[0].add(cursor_position()); //
+                { select[0].add(cursor_position()); //
                    break;
                  } else // для простой фигуры очищаем select
                     {// для простой фигуры переводим в разряд готовый
@@ -361,9 +361,9 @@ void Canvas::creating_shape(int ev)
                         break;
                     }
                    }
-                Shape& pt=select[0];
+           Shape& pt=select[0];
                  select.clear();
-                 remove(&pt);
+                remove(&pt);
 
             } else // select пуст
                  { factory.set_type(sh_none_t);

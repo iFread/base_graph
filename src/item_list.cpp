@@ -50,7 +50,7 @@ void Simple_table::draw() const // принимает какие то данны
      //   int(idx) set_cail(item & ) - возвращаем индекс установленной ячейки
        //}
 begin_index=-1;
-int cnt =0;
+
   Point next_ceil={0,0};  // начинаем сначала
 data=0;
   while(next_ceil.y()+ceil_size<h())
@@ -109,15 +109,13 @@ int Simple_table::handle(int e)
           {     selected =&vec[i];
               if(selected) {
                   std::cout<<"selected = "<<selected->name()<<"\n";
-                 if(_func && Fl::event_clicks())
+                 if(_func )//&& Fl::event_clicks())
                 {
-
                      (*_func)();
-                    selected=nullptr;
-                      Fl::event_is_click(0);
-                      return e;
-
-                 }
+                  //     selected=nullptr;
+                   //   Fl::event_is_click(0);
+                   //   return e;
+                  }
              pw->redraw();
               }
                   break;

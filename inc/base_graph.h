@@ -44,7 +44,7 @@ public:
    //  const Vertex*cv() const {return reinterpret_cast<Vertex*>(next());}
      Vertex* v() {return this;}
      Vertex* ccv() {return reinterpret_cast<Vertex*>(prev());}
-     Vertex*cv() {return reinterpret_cast<Vertex*>(next());}
+     Vertex*cv() {return static_cast<Vertex*>(next());}
 
      void change(Point p){this->x()=p.x();this->y()=p.y();}
 
@@ -53,7 +53,8 @@ public:
     void trace(std::ostream &os){
        // Vertex*p=reinterpret_cast<Vertex*>(ptr->next()) ;
        // while (p!=ptr)
-        {os<<x()<<", "<<y()<<"\n";
+        {
+            os<<x()<<" "<<y()<<"\n";
         //p=reinterpret_cast<Vertex*>(p->next());
         }
 }
@@ -116,7 +117,7 @@ public: // тип фигуры должен быть доступен, во вн
 protected: // но это не точно
 
    Vertex_list v;
-   Color lcolor{Fl_Color()};
+   Color lcolor{FL_BLACK};
   Line_style ls{0};
   Color fcolor{Color::invisible};
   Vertex_style vs;
@@ -131,7 +132,7 @@ public:
 // Shape(const Shape& sp):v(sp.v) {}
  //Shape(Shape&& sh):v(std::move(sh.v)),lcolor(sh.lcolor),ls(sh.ls),fcolor(sh.fcolor),vs(sh.vs),type_(none_) {}
  //Shape& operator=(Shape&& sh);
- line_type type() const;
+
  virtual ~Shape(){}
 
 // функции для отображения фигур
@@ -150,14 +151,16 @@ void set_style(Line_style sty) { ls = sty; }
  void set_fillcolor(Color col) { fcolor = col; }
 
 void trace(std::ostream &os) {
-    Vertex*vp=v[0];//->cv();//reinterpret_cast<Vertex*>(v->next());
-while(true){
- vp->trace(os);
- vp=vp->cv();
-  if(vp==v[0]){
-//vp->ccv()->trace(os);
- break;
-  } }}
+
+    os<< get_shape_type()<<" "<<v.size()<<"\n";
+
+    for(size_t i=0;i<v.size();++i)
+      v[i]->trace(os);
+// далее можно записать специфические данные (виртуальная функция) например радиус, или угол поворота
+ }
+
+
+
 //Vertex_list& operator->(){return v;}
 
 // доступ только к точке
@@ -176,6 +179,8 @@ virtual void draw_lines() const=0;
  // изменение текущей фигуры :
 public:
 
+ virtual shape_type get_shape_type()const=0;
+line_type type() const;
  void remove(int index=-1);
  virtual void change(Point p,int i=-1) =0;
  virtual void add(Point p)=0;//{v.add(p);}
@@ -213,6 +218,8 @@ public:
     bool contain(const Point &p) const;
 
     void change(Point p,int i=1);
+
+    shape_type get_shape_type()const {return shape_type::sh_line_t;}
 protected:
  void draw_lines()const;
  void draw_lines(Point p, int sc=1)const;
@@ -234,6 +241,7 @@ public:
     bool intersect(const Shape* sh)const; // пересечение фигур
     bool contain(const Point& p) const;
 
+     shape_type get_shape_type()const {return shape_type::sh_polyline_t;}
 protected:
    void draw_lines()const;
    void draw_lines(Point p, int sc=1)const;
@@ -253,8 +261,10 @@ public:
      bool intersect(const Shape* sh) const; // пересечение фигур
      bool contain(const Point &p) const;
 //  bool contain(const Shape* sh) const;
+      shape_type get_shape_type()const {return shape_type::sh_rectangle_t;}
+
 protected:
-    void draw_lines() const;
+void draw_lines() const;
 void draw_lines(Point p, int sc=1)const;
 
 private:
@@ -272,6 +282,7 @@ public:
      bool intersect(const Shape* sh) const; // пересечение фигур
      bool contain(const Point &p) const;
 
+      shape_type get_shape_type()const {return shape_type::sh_polygon_t;}
 protected:
     void draw_lines(Point p, int sc=1)const;
     // полигон выпуклый, но при изменении вершины это свойство может нарушится,
@@ -292,6 +303,7 @@ public:
     bool intersect(const Shape* sh) const; // пересечение фигур
     bool contain(const Point& p) const;
 
+     shape_type get_shape_type()const {return shape_type::sh_circle_t;}
 protected:
     void draw_lines(Point p,int sc=1) const;
    void draw_lines() const;

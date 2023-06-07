@@ -20,7 +20,7 @@ class ref_list
 { // ref_list<Shape*>
  // T ptr;  //  Если T = Type*
 std::vector<T*> vec;   // std::vector<Shape**> vec
-//std::vector<T*> own;
+std::vector<T*> own;
 
 
 public:
@@ -32,13 +32,23 @@ ref_list(){} // вывод Type будет в конструкторе, или �
       delete el;
 }
 //void push_back(T &t) { vec.push_back(&t); } // что за бред, если сунуть переменную, будет жопа// если T=Type* std::vector<Type*> v
-void push_back(T* t) {vec.push_back(t);}
+void push_back(T* t) {own.push_back(t);vec.push_back(t);}
+void push_back(T& t) { vec.push_back(&t);}
 
-void remove(T* t)
+void remove(T *t)
 {
   for(size_t i=0;i<vec.size();++i)
-      if(vec[i]==t)
-      vec.erase(t);
+  {    if(vec[i]==t)
+       vec.erase(vec.begin()+i);
+    }
+  for(size_t j=0;j<own.size();++j)
+ {
+    if(own[j]==t)
+    {
+        own.erase(own.begin()+j);
+    //     delete t;
+    }
+  }
 }
 void remove(T& t)
 {
@@ -46,9 +56,15 @@ void remove(T& t)
 }
 
 T& operator[](int i){ return *vec[i];}
-//const T& operator[](int i) const {return *vec[i];}
+  const T& operator[](int i) const {return *vec[i];}
 size_t size() const {return vec.size();}
-void clear(){vec.clear();}
+void clear(){vec.clear();
+             for (size_t i=0;i<own.size() ;++i)
+             {
+                 delete own[i];
+             }
+                   own.clear();
+            }
 };
 
 }
@@ -182,11 +198,10 @@ public:
     select_tool();
    void add(Shape*sh)   {sh->vertex_visible(true);
                          sh->set_vertex(Color::red,3);
-                          vec.push_back(sh);
+                          vec.push_back(*sh);
                         }
    void remove(Shape* sh)  //
    { sh->vertex_visible(false);
-
    }
    size_t size() const{ return vec.size();}
     virtual void action(Canvas* c,int ev); // считает фигуры которые попали в область курсора,
@@ -198,11 +213,11 @@ public:
     void clear(){
                if(!isEmpty())
                    for(size_t i=0;i<vec.size();++i)
-                    remove(&vec[i]);
+                     remove(&vec[i]);
                       vec.clear();
                     //  current_state=select_tool::none_state;
                 }
-    Shape& operator[](int i) {i=i<vec.size()?i:vec.size(); return vec[i];}
+    Shape& operator[](int i) {i=i<(int)vec.size()?i:vec.size(); return vec[i];}
     void set_state(sh_state st){current_state=st;}
     sh_state state() const{return current_state;}
      void search_under_cursor(Shape* cursor);

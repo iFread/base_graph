@@ -26,9 +26,9 @@ void cb_quit_win(Address ,Address adr)
     // save_window;
     //  save_window
         save_window*w=new save_window({300,300},800,600,"save_window",f1);
-  w->hide();
-  w->set_modal();
-  w->show();
+//  w->hide();
+//  w->set_modal();
+//  w->show();
   while(w->shown()&&w->visible())
   {
     Fl::wait();
@@ -44,9 +44,9 @@ void cb_quit_win(Address ,Address adr)
   //  func<main_window> f(&main_window::open_file);
  my_functor<main_window> f1(win,&main_window::open_file);
    new_open*  w=new new_open({200,200},800,600,"open_file",f1);
-   w->hide();
-   w->set_modal();
-   w->show();
+//   w->hide();
+//   w->set_modal();
+//   w->show();
   while(w->shown()&&w->visible())
   {
     Fl::wait();
@@ -60,18 +60,20 @@ void cb_quit_win(Address ,Address adr)
 // открытие файла
  void main_window::open_file(const char* fl)
  {
-     std::cout<<"here must file "<<fl<<" open\n";
-  path=std::string(fl);
+     // добавить новый файл в stack_file
+curent_file.list.clear();
+     path=std::string(fl);
   std::ifstream fin(path);
+ if(!fin)
+ {
+  std::cerr<<"Cann't open file "<<path<<"\n";
+   // возможно создание модального окна ошибка открытия файла
+  return;
+ }
+ curent_file.read_list(fin);
+ fin.close();
 
-  while(fin.good()&& (!(fin.eof()||fin.fail())))
-  { char buf[128];
-    fin>>buf;
-    std::cout<<buf<<" ";
-  }
-  std::cout<<"\n";
-
-fin.close();
+redraw();
  }
 //*******************сохранение файла****************************/
 
@@ -80,17 +82,16 @@ fin.close();
    // 2. в окне должен быть определен указатель текущего файла, и должен быть определен статус файла,
      // если файл, был сохранен на диск, и указатель текущего файла установлен, то для поля save callback() = сохранение текущего файла
      //
-  std::cout<<"here must file "<<fl<<" save be"<<"\n";
-
-std::ofstream fout(fl,std::ios_base::app);
-
-clock_t now =clock();
-fout<<now<<"\n";
- }
+  std::ofstream fout(fl);
+ if(!fout) return;
+ curent_file.write_list(std::cout);
+  curent_file.write_list(fout);
+fout.close();
+  }
 
 main_window::main_window(Point p,int w,int h,const char* ttl):window(p,w,h,ttl),m(create_menu()),panels(new VLayout(Point(20,60))),//Point(20,150)))//,main_menu(new Menu(p,nullptr,orientation::horisontal))
-scrl(new Scroll(Point(150,50),600,500))
-    //can(new Canvas(Point(150,100),1000,1000))
+scrl(new Scroll(Point(150,50),600,500)),
+   can(new Canvas(Point(150,100),1000,1000))
 {
 
  main_menu=new Menu(Point{0,0},m,nullptr,orientation::horisontal);
@@ -99,9 +100,9 @@ scrl(new Scroll(Point(150,50),600,500))
  attach(*main_menu);
  attach(*panels);
  attach(*scrl);
- scrl->attach(Canvas(Point(0,0),1000,1000));
-create_panel(Point(20,150),(*scrl)[0]);
-static_cast<Canvas*>(&(*scrl)[0])->set_file(&curent_file);
+ scrl->attach(*can);//Canvas(Point(0,0),1000,1000));
+ create_panel(Point(20,150),(*scrl)[0]);
+ static_cast<Canvas*>(&(*scrl)[0])->set_file(&curent_file);
 }
 
 main_window::~main_window()
@@ -111,6 +112,7 @@ main_window::~main_window()
     delete main_menu;
     delete panels;
     delete scrl;
+    delete can;
 
 
 }

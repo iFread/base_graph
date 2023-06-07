@@ -148,8 +148,9 @@ visible(true);
     if(!active) return;
      if(active->type()==file_type::dir_t) // если передан каталог
      {
-      set_items(std::string(path+"/"+active->name()).c_str());
-    //  list->select(nullptr); //clear selected in list
+       set_items(std::string(path+"/"+active->name()).c_str());
+     //  list->select(nullptr); //clear selected in list
+
      }
       else  // пытаемся открыть, файл:: т.е. передаем путь вызвавшему окну
       {
@@ -188,9 +189,15 @@ visible(true);
  }
  // открытие файла, если dir_t вызывать обработку
 void new_open::action()
-{ active=list->select();
-    if(!active) return;
+{  active=list->select();
 
+    if(!active) return;
+// будем проверять на double_click
+
+    fl_name.put(active->name()) ;
+
+if(Fl::event_clicks())
+{
     if(active->type()==file_type::dir_t)
     {
        modal_window::action();
@@ -202,7 +209,8 @@ void new_open::action()
       if(fun)
            (*fun)(s.c_str());
       b_cancel->content().do_callback();
-    }
+ }
+}
 
 
 }
