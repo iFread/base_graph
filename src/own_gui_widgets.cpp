@@ -196,8 +196,24 @@ int Canvas::handle(int i){
 
 void Canvas::modify_shape(int ev)
 {
+   Fl::focus(this->pw);
+
+
+   if( Fl::event_key(FL_Delete) ) {
+       std::cout<<"Delete pushed\n" ;
+for(size_t i=0;i<select.size();++i)
+{
+ file->list.remove(select[i]);
+}
+ select.clear();
+   select.init_tree(this);
+ return;
+   }
+
     switch (ev)
  {
+
+
       case FL_PUSH:
     { int i=0;
      i=Fl::event_clicks();
@@ -220,9 +236,10 @@ void Canvas::modify_shape(int ev)
             // если нет выделенных фигур курсор unvisible
           // select.search_under_cursor(&cursor.data());
         //    cursor.visible(false);
+           mod.set_type(mod2::none_t);
             break;
          case FL_RIGHT_MOUSE:
-  select.clear();
+   select.clear();
    select.init_tree(this);
             break;
 
@@ -236,9 +253,11 @@ if(mod.type()==mod2::change_t)
  } else
     for(size_t i=0;i<select.size();++i)
          mod(select[i],{cursor_position().x()-cursor.position().x(),cursor_position().y()-cursor.position().y()});
-       cursor.position(cursor_position());
+
+  cursor.position(cursor_position());
+
         break;
-    case FL_MOVE: // можно изменять курсор обозначая момент когда фигуру можно выделить нажатием
+ case FL_MOVE: // можно изменять курсор обозначая момент когда фигуру можно выделить нажатием
 std::cout<<"mod==";
 if(mod.type()==mod2::change_t)
     std::cout<<"change_t\n";
@@ -246,18 +265,19 @@ else if(mod.type()==mod2::move_t)
     std::cout<<"move_t\n";
 else
     std::cout<<"none_t\n";
-cursor.position(cursor_position());
-   mod.set_type(mod2::none_t);
-   if(select.size()==1){
-            for(size_t i=0;i<select.size();++i)
-            {
-               for(int j=0;j<select[i].size();j++)
-               if(cursor.data().contain(select[i].operator[](j)))
-              {   std::cout<<" Point "<<j<<"in cursor\n" ;
+   cursor.position(cursor_position());
+  mod.set_type(mod2::none_t);
+ // если выьрана одна фигура, перебераем ее точки, и если есть захват точки вершины  ставим mode2::change_t - изменение фигуры
+if(select.size()==1){
+//      for(size_t i=0;i<select.size();++i)
+//            {
+               for(int j=0;j<select[0].size();j++)
+               if(cursor.data().contain(select[0].operator[](j)))
+              {  // std::cout<<" Point "<<j<<"in cursor\n" ;
                  mod.set_type(mod2::change_t,j);
                  break;
                }
-            }
+       //     }
         }
    if(mod.type()!=mod2::change_t)
         for(size_t i=0;i<select.size();++i)

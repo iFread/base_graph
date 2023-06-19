@@ -33,29 +33,29 @@ Shape* Factory::create(Point p)
 }
 
 // для некоторых фигур нужно считывать данные,
-Shape* Factory:: create(shape_type tp,std::initializer_list<Point> ls)
-{
-   //set_type(tp);
-    switch (tp)
-    {
-    case sh_line_t:
-        break;
-    case sh_polyline_t:
-        break;
-    case sh_polygon_t:
+//Shape* Factory:: create(shape_type tp,std::initializer_list<Point> ls)
+//{
+//   //set_type(tp);
+//    switch (tp)
+//    {
+//    case sh_line_t:
+//        break;
+//    case sh_polyline_t:
+//        break;
+//    case sh_polygon_t:
 
-        break;
-    case sh_rectangle_t:
-        break;
-    case sh_circle_t:
-        break;
-    case sh_none_t:
-    default:
-        break;
+//        break;
+//    case sh_rectangle_t:
+//        break;
+//    case sh_circle_t:
+//        break;
+//    case sh_none_t:
+//    default:
+//        break;
 
-    }
+//    }
 
-}
+//}
 
 
 }

@@ -36,7 +36,7 @@ void tst_sort();
 
 void show_area(area_t ar);
 
-void tst_rbtree();
+int tst_rbtree();
 
 int common_tests();
 
@@ -318,7 +318,7 @@ int common_tests()
 }
 
 
-void tst_rbtree()
+int tst_rbtree()
 { using namespace Graph ;
 
     window win(Point {100,100},800,600,"test rbtree");
@@ -338,6 +338,7 @@ for(int i=0;i<10000;i++)
  can.set_tool(Graph::shape_type::sh_none_t);
 
 int res= Graph::gui_run();
+return res;
 }
 
 

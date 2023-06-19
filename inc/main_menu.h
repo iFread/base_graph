@@ -173,12 +173,20 @@ protected:
 };
 
 //
-class Menu_Bar:protected Menu
+
+
+
+class Menu_Bar
 {
 
   menu*menu_;  // непосредственно меню, хранится отдельно от графического представления,
   Menu*subm_; //
+  window* own; // окно, которому принадлежит виджет
+public:
+  Menu_Bar(Point p,window&W):menu_(create_menu()){}
 
+    private:
+    menu* create_menu();
 };
 
 

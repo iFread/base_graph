@@ -98,6 +98,8 @@ void set_tool(tool*);
 void set_tool(cb_creating_t  p);
 void set_tool(shape_type tp){factory.set_type(tp);select.clear();}
  void set_file(File* fl){file=fl;}
+ inline void update(){factory.set_type(sh_none_t);select.clear() ; select.init_tree(this);}
+
 protected:
 void set_parent(void *v);  // tool*
 

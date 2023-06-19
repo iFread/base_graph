@@ -214,7 +214,6 @@ void Shape::draw(Point o,int sc) const {
 }
 void Shape::draw_vertex(Point p, int sc) const
 {
-
 for(int i=0;i<size();++i)
 {
     int k=vs.v_r()/2;
@@ -260,9 +259,9 @@ void Shape::move(int x, int y)
 
   lim_x.x()=lim_x.y() =v[0]->x();
   lim_y.x()=lim_y.y()  =v[0]->y();
-    for(int i=1;i<v.size();++i)
+    for(int i=0;i<v.size();++i)
      {
-      set_limits(v[i]->content()) ;
+       set_limits(*v[i]);//->content()) ;
      }
 
  }
@@ -376,7 +375,7 @@ for(int b=1,e= (type_==open_line)?v.size():v.size();b<=e;) // на послед�
       }
    if(p.isValid()) {
       v[i]->change(p);
- control_limits();}
+  control_limits();}
  }
 // пресечение для ломанной
 bool lines::contain(const Point &p) const
@@ -602,7 +601,8 @@ if(size()>3)
      if(i==-1) {
           i=size() ;
         }
-    lines:: change(p,i);
+     if(!isAcross(size()-1))
+     lines:: change(p,i);
 
  }
 
@@ -671,23 +671,56 @@ fl_arc((v[0]->x()-r)*sc+p.x(),(v[0]->y()-r)*sc+p.y(),(r+r)*sc,(r+r)*sc,0,360);
  // устанавливает новый радиус как расстояние между p и центром
 
  void circle::change( Point p,int ) {
-int w=v[0]->x()-p.x();
-int h=v[0]->y()-p.y();
-  r=sqrt(w*w+h*h)+0.5;
-  set_limits(v[0]->content()+r);
- set_limits(v[0]->content()-r);
+int w=std::abs(v[0]->x()-p.x());
+int h=std::abs(v[0]->y()-p.y());
+
+ r=sqrt(w*w+h*h)+0.5;
+
+ set_limits(*v[0]+r);
+ set_limits(*v[0]-r);
+
+// std::cout<<"Limits x ="<<lim_x.x()<<","<<lim_x.y()<<"\n";
+
+// std::cout<<"Limits y ="<<lim_y.x()<<","<<lim_y.y()<<"\n";
   // устанавливаем новый предел
  }
 
+//1. проверить , что не лежит на оси x/y
 
 
  bool circle::contain(const Point &p) const
  {
+     Point s=Point(p.x()-v[0]->x(),p.y()-v[0]->y());
+
+
+    if(r*r >= (s.x()*s.x()+s.y()*s.y()))
+             return true;
+    return false;
 
  }
  bool circle::intersect(const Shape *sh) const
  {
+     for(int i=0;i<sh->size();++i)
+     {
+       if(contain(sh->operator[](i)))
+           return true;
+     }
+     return false;
+ }
 
+ void circle::control_limits()
+ {
+     lim_x = Point(v[0]->x()-r,v[0]->x()+r);
+     lim_y = Point(v[0]->y()-r,v[0]->y()+r);
+
+ }
+
+ void circle::trace(std::ostream &os)
+ {
+      os<< get_shape_type()<<" "<<2<<"\n";
+
+    v[0]->trace(os);
+     os<<v[0]->x()+r<<" "<<v[0]->y()<<"\n";
  }
 
  }

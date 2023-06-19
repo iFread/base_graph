@@ -118,25 +118,25 @@ Fl::focus(&c->content());
 
 
 // ***********************************
-Shape* get_line(Point p) {
-    return new line(p,p);
- }
+//Shape* get_line(Point p) {
+//    return new line(p,p);
+// }
 
-Shape* get_rectangle(Point p) {
-    return new rectangle(p,p);
-    }
-Shape* get_polyline(Point p) {
-     lines* pl= new lines(p);
-           pl->add(p);
-           return pl; }
-Shape* get_polygon(Point p) {
-     polygon* pl= new polygon(p);
-     pl->add(p);
-           return pl; }
-Shape *get_circle(Point p)
-{
-    return new circle(p);
-}
+//Shape* get_rectangle(Point p) {
+//    return new rectangle(p,p);
+//    }
+//Shape* get_polyline(Point p) {
+//     lines* pl= new lines(p);
+//           pl->add(p);
+//           return pl; }
+//Shape* get_polygon(Point p) {
+//     polygon* pl= new polygon(p);
+//     pl->add(p);
+//           return pl; }
+//Shape *get_circle(Point p)
+//{
+//    return new circle(p);
+//}
 //**********************************************
 //**********************************************
 // *****************selected_tool

@@ -14,10 +14,12 @@ namespace Graph
 // public:
 //     m_menu()
 // };
-// файл представлен как вектор shape: std::vector<Shape*>;
-// 1. Создание объекта через Canvas factory.create();
-// 2. Чтение объекта Shape из файла,
-// 3. запись объекта Shape в файл
+// Формат записи файла:
+//  1 РАсширение файла,(придумать), размер записанных данных(количество фигур), масштаб, с которым отображаются фигуры(или масштаб всегда 1.0)
+// 2. Каждая фигура может/содержит дополнительные свойства: тольшину линии, тип линии, цвет,тип заливки(определить типы заливки фигур)
+   // 2.1 Под заливкой понимаем заштрихованную фигуру,
+//  3. дополнительные данные?? например радиус для circle, или угол поворота  ???
+
 struct File
 {
    std::string path;
@@ -33,65 +35,11 @@ protected:
 //  return false;
 //  }
 
+Shape* read(std::istream& is);
 
 
-
-
- Shape* read(std::istream &is)
-{
-       unsigned char tp=0;
-       size_t sz=0;
-        is>>tp>>sz;
-// то что считывается далее, зависит от типа
-
-std::vector<Point> vec;
- int x=0,y=0;
- Shape *res=nullptr;
- for(size_t i=0;i<sz;++i)
- {
-    is>>x>>y;
-    vec.push_back(Point(x,y));
- }
-
-
-     switch (tp)
-   {
-         case '1':
-                    // считать две точки
-    res=new line(vec[0],vec[1]);
-         break;
-
-
- case '2':
-            // считать
-     res=new lines(vec[0]); // polyline
-case '4':
-    if(!res)
-        res=new polygon(vec[0]);
-
-for(size_t i=1;i<vec.size();++i)
-   res->add(vec[i]);
-            break;
-
-     case '3':
- res=new rectangle(vec[0],vec[2]);
-         break;
-
-        case '5':
- {int r;
-    is>>r;
-    res=new circle(vec[0],r) ;
-     }
-            break;
-        default:
-     res=nullptr;
-     }
-     return res;
-  }
 public:
-
-
- void read_list(std::istream &is)
+  void read_list(std::istream &is)
  {
   while(is)
   {
@@ -113,8 +61,7 @@ public:
   }
 
   ~File() {
-  // list.clear();
-  }
+   }
 };
 
 //static void cb_quit_win(Address,Address adr);
@@ -144,10 +91,11 @@ public:
 
 
    // Callback- metods:
-   static void cb_open_win();
-   static void open_win(Address ,Address us );
-   static void cb_save_file(Address, Address adr);
-   static shape_type cb_set_type(const char* s);
+
+   static void cb_open_win(Address ,Address us );
+   static void cb_save_new_file(Address, Address adr);
+   static void cb_save_file(Address, Address a);
+
  };
 
 }

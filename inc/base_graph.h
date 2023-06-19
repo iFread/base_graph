@@ -126,7 +126,7 @@ Point lim_x;  //vector2d
 Point lim_y; // vector2d
 
 public:
- Shape(Point a,line_type tp=none_):v(),type_(tp),lim_x({a.x_,a.x()}),lim_y({a.y_,a.y_}) {v.add(a);}
+ Shape(Point a,line_type tp=none_):v(),type_(tp),lim_x({a.x_,a.x_}),lim_y({a.y_,a.y_}) {v.add(a);}
 // определить copy operator=()
 //Shape(const Shape&)=delete;
 // Shape(const Shape& sp):v(sp.v) {}
@@ -150,11 +150,11 @@ void set_color(Color col) { lcolor = col; }
 void set_style(Line_style sty) { ls = sty; }
  void set_fillcolor(Color col) { fcolor = col; }
 
-void trace(std::ostream &os) {
+virtual void trace(std::ostream &os) {
 
     os<< get_shape_type()<<" "<<v.size()<<"\n";
 
-    for(size_t i=0;i<v.size();++i)
+    for(int i=0;i<v.size();++i)
       v[i]->trace(os);
 // далее можно записать специфические данные (виртуальная функция) например радиус, или угол поворота
  }
@@ -165,15 +165,17 @@ void trace(std::ostream &os) {
 
 // доступ только к точке
 Point operator[](int i) const { return *(v[i]); }
+
 Vertex_list& operator*(){return v;}
+
 int size()const {return v.size();}
  void draw() const;
- void draw(Point o,int sc=1) const;
+ void draw(Point o,int sc=1) const; // рисовать относительно точки
 
 protected:
 virtual void draw_lines() const=0;
  virtual void draw_lines(Point p,int scale ) const=0;
- void draw_vertex(Point o,int sc) const;
+ void draw_vertex(Point o,int sc) const; // рисовать вершину
  // virtual???
 
  // изменение текущей фигуры :
@@ -189,7 +191,7 @@ line_type type() const;
 
 protected:
  void set_limits(Point p); // установить экстремумы фигуры , если p, больше их
- void control_limits();
+ virtual void control_limits();
 
 
 
@@ -295,19 +297,19 @@ class circle:public Shape{
  int r;
 
 public:
- circle(Point p,int rad=0):Shape(p),r(rad){set_limits({p.x()+r,p.y()+r});}
+ circle(Point p,int rad=0):Shape(p),r(rad){set_limits(p+r);set_limits(p-r);}//{p.x()+r,p.y()+r});set_limits({p.x()-r,p.y()-r});}
   // варианты, если r<=0, то устанваливаем радиус как расстояние между точками,
    // если r>0, изменяется центр(move(shape???))
     void change(Point p,int r=-1);
 
     bool intersect(const Shape* sh) const; // пересечение фигур
     bool contain(const Point& p) const;
-
+ void trace(std::ostream &os);
      shape_type get_shape_type()const {return shape_type::sh_circle_t;}
 protected:
     void draw_lines(Point p,int sc=1) const;
    void draw_lines() const;
-
+   void control_limits();
 private:
     void add(Point ){return;}
 

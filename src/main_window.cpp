@@ -11,12 +11,67 @@ void cb_quit_win(Address ,Address adr)
  exit(0);
       }
 
+//***********************File
 
- void main_window::cb_open_win()  //
+
+Shape* File::read(std::istream &is)
 {
+      unsigned char tp=0;
+      size_t sz=0;
+       is>>tp>>sz;
+// то что считывается далее, зависит от типа
 
+std::vector<Point> vec;
+int x=0,y=0;
+Shape *res=nullptr;
+for(size_t i=0;i<sz;++i)
+{
+   is>>x>>y;
+   vec.push_back(Point(x,y));
 }
-  void main_window:: cb_save_file(Address, Address adr)
+
+
+    switch (tp)
+  {
+        case '1':
+                   // считать две точки
+   res=new line(vec[0],vec[1]);
+        break;
+
+
+case '2':
+           // считать
+    res=new lines(vec[0]); // polyline
+case '4':
+   if(!res)
+       res=new polygon(vec[0]);
+
+for(size_t i=1;i<vec.size();++i)
+  res->add(vec[i]);
+           break;
+
+    case '3':
+res=new rectangle(vec[0],vec[2]);
+        break;
+
+       case '5':
+{
+   res=new circle(vec[0],vec[1].x()-vec[0].x()) ;
+    }
+           break;
+       default:
+    res=nullptr;
+    }
+    return res;
+ }
+
+
+
+//****************==>File header и реализацию в  свой файла
+//main_window
+
+
+  void main_window:: cb_save_new_file(Address, Address adr)
  {
       main_window& win= reference_to<main_window>(adr);
 
@@ -36,7 +91,7 @@ void cb_quit_win(Address ,Address adr)
   delete w;
   }
 
- void main_window::open_win(Address, Address us)
+ void main_window::cb_open_win(Address, Address us)
  {
    main_window& win= reference_to<main_window>(us);
 
@@ -61,9 +116,9 @@ void cb_quit_win(Address ,Address adr)
  void main_window::open_file(const char* fl)
  {
      // добавить новый файл в stack_file
-curent_file.list.clear();
-     path=std::string(fl);
-  std::ifstream fin(path);
+ curent_file.list.clear();
+ curent_file.path=std::string(fl);
+  std::ifstream fin(curent_file.path);
  if(!fin)
  {
   std::cerr<<"Cann't open file "<<path<<"\n";
@@ -73,6 +128,7 @@ curent_file.list.clear();
  curent_file.read_list(fin);
  fin.close();
 
+can->update();
 redraw();
  }
 //*******************сохранение файла****************************/
@@ -88,6 +144,14 @@ redraw();
   curent_file.write_list(fout);
 fout.close();
   }
+
+ void main_window::cb_save_file(Address, Address a)
+ {
+   main_window& w=reference_to<main_window>(a);
+    if(!w.curent_file.path.empty())
+      w.save_file(w.curent_file.path.c_str());
+  }
+
 
 main_window::main_window(Point p,int w,int h,const char* ttl):window(p,w,h,ttl),m(create_menu()),panels(new VLayout(Point(20,60))),//Point(20,150)))//,main_menu(new Menu(p,nullptr,orientation::horisontal))
 scrl(new Scroll(Point(150,50),600,500)),
@@ -150,9 +214,9 @@ menu* main_window::create_menu() noexcept
       m->add(item("help"));
 
      m->add(item("new"),"file");
-     m->add(item("open",&main_window::open_win,this),"file");
-     m->add(item("save"),"file");
-     m->add(item("save as",&main_window::cb_save_file,this),"file");
+     m->add(item("open",&main_window::cb_open_win,this),"file");
+     m->add(item("save",&main_window::cb_save_file,this),"file");
+     m->add(item("save as",&main_window::cb_save_new_file,this),"file");
      m->add(item("quit", cb_quit_win,this),"file");
 
 

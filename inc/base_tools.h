@@ -141,11 +141,11 @@ private:
 //
 // функции для создания фигур
 // ********************************************************************
- Shape* get_line(Point p);
-Shape* get_rectangle(Point p);
-Shape* get_polyline(Point p);// {return new lines(p);}
-Shape* get_polygon(Point p);
-Shape* get_circle(Point p);
+//Shape* get_line(Point p);
+//Shape* get_rectangle(Point p);
+//Shape* get_polyline(Point p);// {return new lines(p);}
+//Shape* get_polygon(Point p);
+//Shape* get_circle(Point p);
 
 //***********************************************************************
 
@@ -216,6 +216,7 @@ public:
                      remove(&vec[i]);
                       vec.clear();
                     //  current_state=select_tool::none_state;
+
                 }
     Shape& operator[](int i) {i=i<(int)vec.size()?i:vec.size(); return vec[i];}
     void set_state(sh_state st){current_state=st;}

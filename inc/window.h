@@ -25,8 +25,7 @@ class window: public Fl_Window
        Widget* w ;
          int ev ;
     }Active;
-//std::vector<Shape*> shapes;
-// std::vector<Shape*> own_shapes;
+
     Active waiting{nullptr,FL_NO_EVENT};
  std::vector<Widget*> wid;
  // создание собственных виджетов, не очень удобно,
@@ -40,9 +39,9 @@ void draw()override;
 virtual ~window() ;
 void init();
 
-void set_path(const char* s){std::cout<<s<<"\n";
-                       //   label(s);
-                             }
+//void set_path(const char* s){std::cout<<s<<"\n";
+//                       //   label(s);
+//                             }
 
 //template<typename T>
 //void attach(T&& w)
