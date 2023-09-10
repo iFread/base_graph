@@ -38,6 +38,10 @@ public:
 void draw()override;
 virtual ~window() ;
 void init();
+//int& w(){return w_;}
+//int& h(){return h_;}
+int w()const {return w_;}
+int h() const{return h_;}
 
 //void set_path(const char* s){std::cout<<s<<"\n";
 //                       //   label(s);

@@ -7,3 +7,5 @@ Graph.cpp
 CMakeLists.txt.user
 copy_files/
 inc/data.h
+inc/convert_form.h
+

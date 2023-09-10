@@ -6,9 +6,9 @@ const float fl_eps=0.001;
 struct Point{
 
   //int x_,y_;
-    float x_,y_;
+    float x_,y_,z_;
 public:
-  Point (float x, float y):x_(x),y_(y){}
+  Point (float x, float y,float z=0.0):x_(x),y_(y){}
  // Point(int x,int y):x_(x),y_(y){}
   Point():x_(NAN),y_(NAN) {}
   bool isValid()const {if(x_!=x_||y_!=y_) return false; return true;}
@@ -36,6 +36,26 @@ public:
 virtual ~Point(){}
 };
 
+namespace command {
+
+
+
+struct Point
+{
+int x_,y_,z_;
+
+Point():x_(0),y_(0),z_(0){}
+Point(int x,int y,int z=0):x_(x),y_(y),z_(z){}
+
+bool equal(const Point &p)
+{
+    return x_==p.x_&&y_==p.y_&&z_==p.z_;
+}
+
+
+
+};
+}
 // struct vector2d, так же пара чисел, но поведение как у отрезка :
 // длина,
 

@@ -13,7 +13,7 @@ namespace Graph {
 
 */
 
-enum shape_type:uint8_t {sh_none_t,sh_line_t,sh_polyline_t,sh_rectangle_t,sh_polygon_t,sh_circle_t} ;
+enum shape_type:uint8_t {sh_none_t,sh_line_t,sh_polyline_t,sh_rectangle_t,sh_polygon_t,sh_circle_t,sh_arc_t,sh_ellipse_t} ;
 class Node{
 
  Node* prev_,*next_;
@@ -185,7 +185,7 @@ public:
 line_type type() const;
  void remove(int index=-1);
  virtual void change(Point p,int i=-1) =0;
- virtual void add(Point p)=0;//{v.add(p);}
+ virtual void add(Point p) =0;//{v.add(p);}
  void move(int x,int y);// void move(vector2d vec){}  // {12,15} => for(auto el: v) {el.x+vec.x, el.y+vec.y }
  // Анализ фигуры :
 
@@ -258,7 +258,7 @@ class rectangle:  public Shape
 {
 
 public:
-    rectangle(Point a,Point b,line_type tp=none_);
+    rectangle(Point a,Point b,line_type tp=Shape::none_);
      void change(Point p,int i=2);
      bool intersect(const Shape* sh) const; // пересечение фигур
      bool contain(const Point &p) const;
@@ -297,11 +297,13 @@ class circle:public Shape{
  int r;
 
 public:
- circle(Point p,int rad=0):Shape(p),r(rad){set_limits(p+r);set_limits(p-r);}//{p.x()+r,p.y()+r});set_limits({p.x()-r,p.y()-r});}
+ // circle состоит из двух точек, центр окружности C(x,y), и P1(C.x+r,C.y)   точка с координатами x центра +радиус, y центра,
+ // таким образом радиус отдельно можно не хранить
+ circle(Point p,int rad=0):Shape(p),r(rad){set_limits(p+r);set_limits(p-r);Shape::add(Point(p.x()+r,p.y()));}//{p.x()+r,p.y()+r});set_limits({p.x()-r,p.y()-r});}
   // варианты, если r<=0, то устанваливаем радиус как расстояние между точками,
    // если r>0, изменяется центр(move(shape???))
     void change(Point p,int r=-1);
-
+   int radius()const {return r;}
     bool intersect(const Shape* sh) const; // пересечение фигур
     bool contain(const Point& p) const;
  void trace(std::ostream &os);
@@ -318,6 +320,90 @@ private:
 };
 
 
+class arc:public Shape // public circle?
+{
+   // содержит 3, или 4 точки
+    // 1 - центр окружности, 2 радиус, 3 точка начала, 4 точка конца,
+    // создание arc: 1 нажатие - установить центр, привязать r,a,b к курсору:
+    // где положение курсора = a,b, а радиус расстояние до центра
+    // 2 нажатие установить точку start,и привязать точку end к курсору,
+      // далее отрисовываем фигуру от start до курсора мыши
+
+    // взаимодействие с пользователем: если точка захвата лежит в сегменте круга перемещение всей фигуры
+    // если точка захвата в окрестностях дуги окружности изменять углы точек start,end пропорционально движению мыши,
+        // еще вариант менять значение радиуса
+    // если точка захвата у одной из точек (start или end) изменять ее угол (дуга окружности увеличивается или уменьшается)
+    //
+public:
+    arc(Point c,Point st,Point e);
+    // fl_arc(c.x,c.y,r /* угол между e,st*/)
+
+    void change(Point p,int i); // здесь можем менять точку начала, точку окончания, радиус
+    bool intersect(const Shape* sh) const; //
+    bool contain(const Point& p)const;
+   // void trace(std::ostream &o); // для сохраниния
+    shape_type get_shape_type() const {return sh_arc_t;}  // дуга окружности
+protected:
+    void draw_lines() const{} // not use
+    void draw_lines(Point o,int sm)const;
+    void control_limits();
+
+private:
+    void add(Point) {return;}
+
+};
+
+
+
+class ellipse:public Shape
+{
+    // добавляется точка центра,
+//    int a_; // большая полуось
+//    int b_; // малая полуось
+
+public:
+//    ellipse(Point c,int a,int b):Shape(c),a_(a),b_(b){}
+    ellipse(Point c,Point p): // точка центра v[0]
+        Shape(Point( c.x()>p.x()?((int)(c.x()+(c.x()-p.x()+1)/2)):((int)(c.x()+(p.x()-c.x()+1)/2)), c.y()>p.y()?((int)(c.y()+(c.y()-p.y()+1)/2)):(int(c.y()+(p.y()-c.y()+1)/2))))
+//      a_(c.x()>p.x()?((c.x()-p.x()+1)/2):((p.x()-c.x()+1)/2)),
+//      b_(c.y()>p.y()?((c.y()-p.y()+1)/2):((p.y()-c.y()+1)/2))
+    {
+
+       Shape::add(p);//{c.x()+v[0]a_,c.y()});
+//       Shape::add({c.y()+b_,c.x()});
+       // после этого меняем полуоси если  a_<b_
+      /*  if(a_<b_)
+        { int tmp=a_;
+            a_=b_;
+            b_=tmp;
+       }*/ //  здесь возможно направление обхода, если по часам, точки v[1], v[2]  больше центра на a_,b_ соответственно, если против часов меньше
+         // понять какая полуось больше x(или y)
+//  y=kx+c, где
+        //double k=(y1-y2)/(x1-x2);
+      // с=y-kx;
+    }
+
+    void change(Point p,int);                   //
+    bool intersect(const Shape* sh) const;      //
+    bool contain(const Point &p) const;         //
+
+    shape_type get_shape_type() const {return sh_ellipse_t;}
+
+
+
+protected:
+    void draw_lines() const {}
+    void draw_lines(Point o, int sm=1) const;   //
+   void control_limits();                     //
+private:
+   void add(Point) {return;}
+   //  возвращает точку пересечения эллипса с диагональю прямоугольника, в который вписан эллипс
+   Point diag(Point p);
+   Point diag2(Point p);
+   int a() const; // большая полуось
+   int b() const;
+   Point ab() const; // возвращает полуоси по x,y
+};
 
 
 }

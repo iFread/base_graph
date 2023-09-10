@@ -122,6 +122,23 @@ File *file;
 
 
 
+class Base_Screen:public Empty
+{
+    std::vector<bool> vec;
+
+public:
+    Base_Screen(Point p,int w,int h):Empty(p,w,h),vec(w*h,false){}
+
+     void draw()const ;
+     int handle(int e) ; // событий у нас нет, взаимодействие будет осуществляться кнопками, очистить/ отобразить
+void set_pixel(int x,int y);
+void set_pixel(int i);
+
+void circle_bresenhem(int xc,int yc,int radius);
+};
+
+
+
 
 
 }

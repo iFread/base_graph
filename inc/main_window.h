@@ -5,7 +5,7 @@
 #include "main_menu.h"
 #include "group_widgets.h"
 #include "own_gui_widgets.h"
-
+#include "cmd_list.h"
 namespace Graph
 {
 
@@ -39,6 +39,13 @@ Shape* read(std::istream& is);
 
 
 public:
+
+File():path(""){}
+File(const char* pth);
+
+
+
+
   void read_list(std::istream &is)
  {
   while(is)
@@ -76,6 +83,8 @@ public:
     void open_file(const char* fl);  // открыть
     void save_file(const char* fl); // сохранить
 
+    void convertion(const char* fl); // преобразовать в файл
+
  private:
   menu* m;
   Menu * main_menu;
@@ -89,12 +98,16 @@ public:
    menu* create_menu() noexcept;
    VLayout* create_panel(Point p,Widget&w);
 
+   void convert_shape(std::ostream &s,const Shape& sh);
+   void trace_cmd(std::ostream &s,const command::cmd&c);
 
    // Callback- metods:
 
    static void cb_open_win(Address ,Address us );
    static void cb_save_new_file(Address, Address adr);
    static void cb_save_file(Address, Address a);
+   static void cb_convertion(Address,Address a);
+
 
  };
 

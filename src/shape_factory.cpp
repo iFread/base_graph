@@ -25,6 +25,11 @@ Shape* Factory::create(Point p)
         return new rectangle(p,p);
      case sh_circle_t:
         return new circle(p,1);
+     case sh_arc_t:
+        return new arc(p,p,p);//Point(p.x() ,p.y()),Point(p.x() ,p.y()));
+
+    case sh_ellipse_t:
+        return new ellipse(p,p+4);
     case sh_none_t:
     default:
         break;

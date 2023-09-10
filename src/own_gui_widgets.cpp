@@ -1,5 +1,6 @@
 ﻿ #include "own_gui_widgets.h"
 #include "main_window.h"
+#include "math_primitives.h"
 
 namespace Graph {
 
@@ -193,6 +194,7 @@ int Canvas::handle(int i){
     return i;
 }
 
+// модификация созданной фигуры
 
 void Canvas::modify_shape(int ev)
 {
@@ -273,7 +275,7 @@ if(select.size()==1){
 //            {
                for(int j=0;j<select[0].size();j++)
                if(cursor.data().contain(select[0].operator[](j)))
-              {  // std::cout<<" Point "<<j<<"in cursor\n" ;
+              {   std::cout<<" Point "<<j<<"in cursor\n" ;
                  mod.set_type(mod2::change_t,j);
                  break;
                }
@@ -352,10 +354,38 @@ void Canvas::creating_shape(int ev)
                select.clear();
              //break;
                } else  // фигура не готова
-               if(select[0].type()!=Shape::none_)  // добавить к ней следующую вершину
+               if(select[0].get_shape_type()==shape_type::sh_polygon_t||select[0].get_shape_type()==shape_type::sh_polyline_t)  // добавить к ней следующую вершину
                 { select[0].add(cursor_position()); //
-                   break;
-                 } else // для простой фигуры очищаем select
+                    break;
+                 }  // для arc
+               else if(select[0].get_shape_type()==shape_type::sh_arc_t)
+               {//1. получить позицию точки пересечения окружности и прямой от центра до курсора
+
+//                   int r=std::abs(select[0][0].x()-select[0][1].x());//math::vector2d(select[0][0],select[0][1]).length();//std::abs(select[0][0].x()-select[0][1].x());
+//                //   math::vector2d vec(select[0][0],select[0][1]);
+//                  double x=select[0][0].x()-cursor_position().x();//select[0][1].x();
+//                 double y=select[0][0].y()-cursor_position().y();//select[0][1].y();
+//                  double k=r/(sqrt(x*x+y*y));//r
+
+//                   x=((select[0][0].x()+ x*k)  );
+//                  y=((select[0][0].y()+ y*k)  );
+
+
+
+                 if(select[0][1]==select[0][2])
+                  {
+
+                   select[0].change(cursor_position(),2);
+                   //select[0].change(Point(x,y),3);
+                   mod.set_type(mod2::change_t,3);
+                  } else// завершить создание фигуры
+                     select.set_state(select_tool::ready_state);
+                   //else
+
+
+                 break;
+               }
+                  else // для простой фигуры очищаем select
                     {// для простой фигуры переводим в разряд готовый
                     if(select.state()!=select_tool::ready_state){
                       select.set_state(select_tool::ready_state);
@@ -413,7 +443,86 @@ if(!select.isEmpty()&&select.state()==select_tool::modify_state)
 }
 
 }
+// WIDGET_SCREAN
+int Base_Screen::handle(int e)
+{
 
+    return e;
+}
+void Base_Screen::draw() const
+{
+  fl_rectf(loc.x(),loc.y(),w(),h(),FL_WHITE);
+
+  // рисуем пиксели void set_pixel(Point p)
+  {
+//      if(p.x()<0) p.x_=0;
+//      if(p.x() > w())
+//          p.x_= w();
+//fl_point(p.x(),p.y());
+//fl_line(100,100,200,200);//p.x(),p.y());
+
+    for(size_t i=0;i<vec.size();++i)
+    {
+      if(vec[i])
+      {  fl_color(FL_BLACK);
+        int y=i/w();
+        int x=i-y*w();
+       fl_point(loc.x_+x,loc.y()+y);
+      }
+//     if(vec[i].&&vec[i].y_==0)
+//     {         fl_color(FL_WHITE);
+//       fl_point(vec[i].x_,vec[i].y_) ;
+//     }else
+//     {
+//         fl_color(FL_BLACK);
+//       fl_point(vec[i].x_,vec[i].y_) ;
+//     }
+    }
+  }
+
+
+}
+
+void Base_Screen::set_pixel(int x,int y)
+{
+
+if(x*y<0||x*y>vec.size()-1)
+    return;
+
+vec[x+(y*w())]=true;
+
+}
+void Base_Screen::set_pixel(int x)
+{
+   vec[x]=true;
+}
+
+void Base_Screen::circle_bresenhem(int xc,int yc,int radius)
+{
+   int x=0,y= radius,err=0,delta=2-2*radius;
+ while(y>=0)
+ {
+   set_pixel(xc+x,yc-y);
+  //set_pixel(xc+x,yc-y);
+  err=2*(delta+y)-1;
+  if(delta<0&& err<=0)
+  {
+      x++;
+      delta+=2*x+1;
+      continue;
+  }
+  if(delta>0&& err>0)
+  {
+      y--;
+      delta-=2*y+1;
+      continue;
+        }
+  x++;
+  delta+=2*(x-y) ;
+  y--;
+ }
+
+}
 
 }
 
